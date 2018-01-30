@@ -32,11 +32,10 @@ apply from: '.mdk/project.gradle'
 litemod {
     json {
         // These are the defaults, you can leave these as they are in most cases
-        name = project.name
-        displayName = project.displayName
-
+        author = 'Xcom'
+        name = "Carpet Client"
+        displayName = "Clientside Carpet for Carpetmod"
         // Change this to your name, or remove it if you don't want to include it in the metadata
-        author = 'Your name here'
 
         // Uncomment any of the following lines and fill in your own details as required
 //      dependsOn = [ 'modid', 'othermod' ]
