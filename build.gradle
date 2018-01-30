@@ -1,0 +1,63 @@
+/**
+ * This is the main build script for your project. You can add any custom build
+ * logic you wish. For general help with Gradle, see the gradle user guide at
+ * 
+ *     https://docs.gradle.org/current/userguide/userguide.html
+ * 
+ * You can easily customise the main project settings directly by editing the
+ * gradle.properties file in this folder, or using the LiteMDK user interface.
+ * 
+ * If you wish to start over and regenerate this file, simply delete it and run
+ * LiteMDK again.
+ */
+
+/**
+ * This is the default buildscript block, it includes required MDK resources
+ * such as ForgeGradle and required repositories. You can add your own repos
+ * and buildscript dependencies to this block
+ */
+buildscript {
+    // Do not remove this line
+    apply from: '.mdk/buildscript.gradle', to: buildscript
+}
+
+/**
+ * Do not remove this line! It includes all the stuff needed for the build
+ */
+apply from: '.mdk/project.gradle'
+
+/**
+ * This section allows you to customise the generated litemod.json file
+ */
+litemod {
+    json {
+        // These are the defaults, you can leave these as they are in most cases
+        name = project.name
+        displayName = project.displayName
+
+        // Change this to your name, or remove it if you don't want to include it in the metadata
+        author = 'Your name here'
+
+        // Uncomment any of the following lines and fill in your own details as required
+//      dependsOn = [ 'modid', 'othermod' ]
+//      requiredAPIs = [ 'someapi' ]
+//      tweakClass = 'name.of.tweaker.here'
+//      mixinConfigs = [ 'mixin.config.file.json', 'other.mixin.config.file.json' ]
+    }
+}
+
+/**
+ * This section allows you to customise your generated jar (litemod) file. By
+ * default it includes the generated litemod.json file, however if you prefer to
+ * include your own file from resources, simply remove the line below.
+ */
+jar {
+    from litemod.outputs
+
+    manifest.mainAttributes (
+        'Built-By': System.properties['user.name'],
+        'Created-By': System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
+        'Implementation-Title': project.name,
+        'Implementation-Version': project.version
+    )
+}
