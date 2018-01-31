@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "package": "carpetclient",
+  "refmap": "mixins.carpetclient.refmap.json",
+  "mixins": [
+    "MixinGuiRecipeBook"
+  ]
+}
