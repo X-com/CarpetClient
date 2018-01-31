@@ -1,4 +1,4 @@
-package carpetclient.mixin;
+package carpetclient.mixins;
 
 import java.util.List;
 

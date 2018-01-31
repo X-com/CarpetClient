@@ -1,8 +1,7 @@
-package carpetclient;
+package carpetclient.mixins;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.inventory.InventoryCrafting;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,29 +29,29 @@ import net.minecraft.client.gui.GuiScreen;
  Overriding method func_193950_a to edit in a few lines.
  */
 @Mixin(GuiRecipeBook.class)
-public abstract class MixenGuiRecipeBook {
+public abstract class MixinGuiRecipeBook {
 
-    @Shadow @Final private InventoryCrafting func_191856_a;
+    @Shadow private InventoryCrafting craftingSlots;
     @Shadow private Minecraft mc;
     @Shadow private RecipeItemHelper stackedContents;
 
-    @Shadow private int func_193943_a(int p_193943_1_, boolean p_193943_2_) { return 0; };
-    @Shadow private List<CPacketRecipePlacement.ItemMove> func_193954_a(InventoryCraftResult p_193954_1_) { return null; };
-    @Shadow private void func_193013_a(IRecipe p_193013_1_, List<Slot> p_193013_2_, int p_193013_3_, IntList p_193013_4_, List<CPacketRecipePlacement.ItemMove> p_193013_5_) {};
+    @Shadow private int getStackSize(int p_193943_1_, boolean p_193943_2_) { return 0; };
+    @Shadow private List<CPacketRecipePlacement.ItemMove> clearCraftingGrid(InventoryCraftResult p_193954_1_) { return null; };
+    @Shadow private void placeRecipe(IRecipe p_193013_1_, List<Slot> p_193013_2_, int p_193013_3_, IntList p_193013_4_, List<CPacketRecipePlacement.ItemMove> p_193013_5_) {};
 
     // Dirty override for the sake of getting started.
     @Overwrite
-    private void func_193950_a(IRecipe p_193950_1_, List<Slot> p_193950_2_, int p_193950_3_, InventoryCraftResult p_193950_4_){
-        boolean flag = p_193950_1_.matches(this.func_191856_a, this.mc.world);
-        int i = this.stackedContents.func_194114_b(p_193950_1_, (IntList)null);
+    private void handleRecipeClicked(IRecipe p_193950_1_, List<Slot> p_193950_2_, int p_193950_3_, InventoryCraftResult p_193950_4_){
+        boolean flag = p_193950_1_.matches(this.craftingSlots, this.mc.world);
+        int i = this.stackedContents.getBiggestCraftableStack(p_193950_1_, (IntList)null);
 
         if (flag)
         {
             boolean flag1 = true;
 
-            for (int j = 0; j < this.func_191856_a.getSizeInventory(); ++j)
+            for (int j = 0; j < this.craftingSlots.getSizeInventory(); ++j)
             {
-                ItemStack itemstack = this.func_191856_a.getStackInSlot(j);
+                ItemStack itemstack = this.craftingSlots.getStackInSlot(j);
 
                 if (!itemstack.isEmpty() && i > itemstack.getCount())
                 {
@@ -66,20 +65,18 @@ public abstract class MixenGuiRecipeBook {
             }
         }
 
-        int i1 = this.func_193943_a(i, flag);
+        int i1 = this.getStackSize(i, flag);
         IntList intlist = new IntArrayList();
 
-        if (this.stackedContents.func_194118_a(p_193950_1_, intlist, i1))
+        if (this.stackedContents.canCraft(p_193950_1_, intlist, i1))
         {
-            System.out.println(i1);
             int j1 = i1;
             IntListIterator lvt_10_1_ = intlist.iterator();
 
             while (lvt_10_1_.hasNext())
             {
                 int k = ((Integer)lvt_10_1_.next()).intValue();
-                int l = RecipeItemHelper.func_194115_b(k).getMaxStackSize();
-                System.out.println(k+" "+  l);
+                int l = RecipeItemHelper.unpack(k).getMaxStackSize();
 
                 if (l < j1)
                 {
@@ -87,12 +84,12 @@ public abstract class MixenGuiRecipeBook {
                 }
             }
 
-            if (this.stackedContents.func_194118_a(p_193950_1_, intlist, j1) )
+            if (this.stackedContents.canCraft(p_193950_1_, intlist, j1) )
             {
-                List<CPacketRecipePlacement.ItemMove> list2 = this.func_193954_a(p_193950_4_);
+                List<CPacketRecipePlacement.ItemMove> list2 = this.clearCraftingGrid(p_193950_4_);
                 List<CPacketRecipePlacement.ItemMove> list3 = Lists.<CPacketRecipePlacement.ItemMove>newArrayList();
-                this.func_193013_a(p_193950_1_, p_193950_2_, j1, intlist, list3);
-                this.mc.playerController.func_192831_a(p_193950_3_, list2, list3, this.mc.player);
+                this.placeRecipe(p_193950_1_, p_193950_2_, j1, intlist, list3);
+                this.mc.playerController.handleRecipePlacement(p_193950_3_, list2, list3, this.mc.player);
                 this.mc.player.inventory.markDirty();
                 if (GuiScreen.isShiftKeyDown() && GuiScreen.isAltKeyDown() ){
                     this.mc.playerController.windowClick(p_193950_3_, 0, 1, ClickType.QUICK_MOVE, this.mc.player);
