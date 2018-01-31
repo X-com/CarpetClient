@@ -29,7 +29,7 @@ import net.minecraft.client.gui.GuiScreen;
  Overriding method func_193950_a to edit in a few lines.
  */
 @Mixin(GuiRecipeBook.class)
-public abstract class MixinGuiRecipeBook {
+public abstract class MixinsGuiRecipeBook {
 
     @Shadow private InventoryCrafting craftingSlots;
     @Shadow private Minecraft mc;

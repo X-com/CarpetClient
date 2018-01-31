@@ -61,3 +61,8 @@ sourceSets {
         ext.refMap = "mixins.carpetclient.refmap.json"
     }
 }
+
+mixin {
+    // liteloader does not do runtime deobfuscation, so in production we use "notch names", mixin needs to know this
+    defaultObfuscationEnv notch
+}
