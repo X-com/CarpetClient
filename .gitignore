@@ -8,7 +8,7 @@ dependency-reduced-pom.xml
 bin
 build
 dist
-lib
+libs
 out
 run
 target
