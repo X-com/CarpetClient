@@ -22,9 +22,7 @@ import net.minecraft.item.crafting.IRecipe;
 public abstract class MixinsGuiRecipeBook extends Gui implements IRecipeUpdateListener {
     @Shadow
     private Minecraft mc;
-
-//    @Inject(method = "(Lnet/minecraft/item/crafting/IRecipe;Ljava/util/List;ILnet/minecraft/inventory/InventoryCraftResult;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/InventoryPlayer;markDirty()V"/*, shift = At.Shift.AFTER*/))
-//    private void handleRecipeClickedMixins(IRecipe p_193950_1_, List<Slot> p_193950_2_, int p_193950_3_, InventoryCraftResult p_193950_4_, CallbackInfo ci) {
+    
     @Inject(method = "handleRecipeClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/InventoryPlayer;markDirty()V", shift = At.Shift.AFTER))
     private void handleRecipeClickedd(IRecipe p_193950_1_, List<Slot> p_193950_2_, int p_193950_3_, InventoryCraftResult p_193950_4_, CallbackInfo ci) {
         if (GuiScreen.isShiftKeyDown() && GuiScreen.isAltKeyDown() ){

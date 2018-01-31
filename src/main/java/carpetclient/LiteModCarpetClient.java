@@ -12,7 +12,7 @@ public class LiteModCarpetClient implements LiteMod {
 
     @Override
     public String getVersion() {
-        return "Pre-Alpha 0.0";
+        return "Pre-Alpha 0.1";
     }
 
     @Override
