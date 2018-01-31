@@ -25,8 +25,8 @@ buildscript {
 apply plugin: 'java'
 
 version = "0.2-SNAPSHOT"
-group = "pokechu22"
-archivesBaseName = "soundangle"
+group = "Xcom"
+archivesBaseName = "Carpet Client"
 
 apply plugin: 'net.minecraftforge.gradle.liteloader'
 apply plugin: 'org.spongepowered.mixin'
@@ -38,7 +38,7 @@ minecraft {
     makeObfSourceJar = false
 }
 
-libsDirName = "../libs/${version}"
+libsDirName = "../libs"
 
 litemod {
     json {
@@ -54,4 +54,10 @@ litemod {
 
 jar {
     from litemod.outputs
+}
+
+sourceSets {
+    main {
+        ext.refMap = "mixins.carpetclient.refmap.json"
+    }
 }

@@ -1,10 +1,15 @@
 package carpetclient;
 
 import java.io.File;
+
+import com.mumfrey.liteloader.Configurable;
+import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.Tickable;
+import com.mumfrey.liteloader.modconfig.ConfigPanel;
 import net.minecraft.client.Minecraft;
 
-public class LiteModCarpetClient implements Tickable{
+public class LiteModCarpetClient implements LiteMod {
+
     @Override
     public String getVersion() {
         return "Pre-Alpha 0.0";
@@ -22,9 +27,4 @@ public class LiteModCarpetClient implements Tickable{
     public String getName() {
         return "Carpet Client";
     }
-
-    @Override
-    public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
-    }
-
 }
