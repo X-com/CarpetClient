@@ -2,13 +2,16 @@ package carpetclient;
 
 import java.io.File;
 
-import com.mumfrey.liteloader.Configurable;
 import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.Tickable;
-import com.mumfrey.liteloader.modconfig.ConfigPanel;
-import net.minecraft.client.Minecraft;
+import com.mumfrey.liteloader.core.LiteLoader;
 
-public class LiteModCarpetClient implements LiteMod {
+//remove when moved out of here
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
+import org.lwjgl.input.Keyboard;
+
+public class LiteModCarpetClient implements Tickable, LiteMod {
 
     @Override
     public String getVersion() {
@@ -17,6 +20,7 @@ public class LiteModCarpetClient implements LiteMod {
 
     @Override
     public void init(File configPath) {
+        Hotkeys.init();
     }
 
     @Override
@@ -26,5 +30,10 @@ public class LiteModCarpetClient implements LiteMod {
     @Override
     public String getName() {
         return "Carpet Client";
+    }
+
+    @Override
+    public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
+        Hotkeys.onTick(minecraft, partialTicks, inGame, clock);
     }
 }
