@@ -3,6 +3,7 @@
   "package": "carpetclient.mixins",
   "refmap": "mixins.carpetclient.refmap.json",
   "mixins": [
-    "MixinsGuiRecipeBook"
+    "MixinsGuiRecipeBook",
+    "MixinsBlockFenceGate"
   ]
 }
