@@ -66,3 +66,11 @@ mixin {
     // liteloader does not do runtime deobfuscation, so in production we use "notch names", mixin needs to know this
     defaultObfuscationEnv notch
 }
+
+dependencies {
+    compile 'net.minecraftforge:forgeflower:1.0.342-SNAPSHOT'
+}
+
+runClient {
+    systemProperty 'mixin.debug', 'true'
+}

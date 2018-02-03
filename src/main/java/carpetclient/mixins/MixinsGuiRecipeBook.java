@@ -18,6 +18,10 @@ import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.crafting.IRecipe;
 
+/*
+Injecting code for click events for easier crafting using the recipe book.
+ */
+
 @Mixin(GuiRecipeBook.class)
 public abstract class MixinsGuiRecipeBook extends Gui implements IRecipeUpdateListener {
     @Shadow

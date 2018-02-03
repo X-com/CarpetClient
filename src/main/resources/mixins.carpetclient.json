@@ -6,6 +6,7 @@
     "MixinsGuiRecipeBook",
     "MixinsBlockFenceGate",
     "MixinsBlockPumpkin",
-    "MixinsBlockTorch"
+    "MixinsBlockTorch",
+    "MixinPlayerControllerMP"
   ]
 }
