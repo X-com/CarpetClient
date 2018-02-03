@@ -5,6 +5,7 @@
   "mixins": [
     "MixinsGuiRecipeBook",
     "MixinsBlockFenceGate",
-    "MixinsBlockPumpkin"
+    "MixinsBlockPumpkin",
+    "MixinsBlockTorch"
   ]
 }
