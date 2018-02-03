@@ -1,22 +1,21 @@
 package carpetclient.mixins;
 
 import carpetclient.Config;
-import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockHorizontal;
+import net.minecraft.block.BlockPumpkin;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 
 /*
-Mixen class to implement relaxed block placement, placement of fences in mid air.
+Mixen class to implement relaxed block placement, placement of pumpkins in mid air.
  */
-@Mixin(BlockFenceGate.class)
-public class MixinsBlockFenceGate extends BlockHorizontal {
+@Mixin(BlockPumpkin.class)
+public class MixinsBlockPumpkin extends BlockHorizontal {
 
-    protected MixinsBlockFenceGate(Material materialIn) {
+    protected MixinsBlockPumpkin(Material materialIn) {
         super(materialIn);
     }
 

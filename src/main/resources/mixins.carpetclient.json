@@ -4,6 +4,7 @@
   "refmap": "mixins.carpetclient.refmap.json",
   "mixins": [
     "MixinsGuiRecipeBook",
-    "MixinsBlockFenceGate"
+    "MixinsBlockFenceGate",
+    "MixinsBlockPumpkin"
   ]
 }
