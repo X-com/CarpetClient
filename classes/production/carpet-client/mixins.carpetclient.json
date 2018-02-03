@@ -7,10 +7,6 @@
     "MixinsBlockFenceGate",
     "MixinsBlockPumpkin",
     "MixinsBlockTorch",
-    "MixinPlayerControllerMP",
-    "MixinsBlockObserver",
-    "MixinsBlockPistonBase",
-    "MixinsBlockRedstoneComparator",
-    "MixinsBlockRedstoneDiode"
+    "MixinPlayerControllerMP"
   ]
 }

@@ -24,8 +24,8 @@ Injecting code for click events for easier crafting using the recipe book.
 
 @Mixin(GuiRecipeBook.class)
 public abstract class MixinsGuiRecipeBook extends Gui implements IRecipeUpdateListener {
-    @Shadow
-    private Minecraft mc;
+    
+    @Shadow private Minecraft mc;
     
     @Inject(method = "handleRecipeClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/InventoryPlayer;markDirty()V", shift = At.Shift.AFTER))
     private void handleRecipeClickedd(IRecipe p_193950_1_, List<Slot> p_193950_2_, int p_193950_3_, InventoryCraftResult p_193950_4_, CallbackInfo ci) {

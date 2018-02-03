@@ -24,7 +24,7 @@ buildscript {
 
 apply plugin: 'java'
 
-version = "v0.1"
+version = "v0.2"
 group = "Xcom"
 archivesBaseName = "Carpet Client"
 
@@ -67,10 +67,10 @@ mixin {
     defaultObfuscationEnv notch
 }
 
-dependencies {
+/*dependencies {
     compile 'net.minecraftforge:forgeflower:1.0.342-SNAPSHOT'
 }
 
 runClient {
     systemProperty 'mixin.debug', 'true'
-}
+}*/
