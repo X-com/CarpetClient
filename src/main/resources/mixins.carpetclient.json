@@ -12,6 +12,7 @@
     "MixinsBlockPistonBase",
     "MixinsBlockRedstoneComparator",
     "MixinsBlockRedstoneDiode",
-    "MixinsEntity"
+    "MixinsEntity",
+    "MixinsKeyBinding"
   ]
 }

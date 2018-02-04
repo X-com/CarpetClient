@@ -11,6 +11,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import javax.annotation.Nullable;
 
+/*
+A Mixins class to override a method to change the players aim.
+ */
 @Mixin(Entity.class)
 public abstract class MixinsEntity {
 
@@ -27,6 +30,9 @@ public abstract class MixinsEntity {
 
     private float storedRotationYaw;
 
+    /*
+    Override to change the behavior of player aiming.
+     */
     @Overwrite
     public void turn(float yaw, float pitch) {
         float f = this.rotationPitch;
@@ -43,7 +49,12 @@ public abstract class MixinsEntity {
             this.ridingEntity.applyOrientationToEntity((Entity) (Object) this);
         }
     }
-    
+
+    /**
+     * Overriding the aim of the player to snap to angles of 45 degrees
+     * @param inBoat Checks if the player is riding a boat to skip snapping.
+     * @param yaw The angle in which the player will turn, sent in from the turn method.
+     */
     private void snapAim(boolean inBoat, float yaw) {
         if (inBoat || !Config.snapAim) return;
 
