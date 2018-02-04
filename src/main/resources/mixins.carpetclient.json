@@ -11,6 +11,7 @@
     "MixinsBlockObserver",
     "MixinsBlockPistonBase",
     "MixinsBlockRedstoneComparator",
-    "MixinsBlockRedstoneDiode"
+    "MixinsBlockRedstoneDiode",
+    "MixinsEntity"
   ]
 }
