@@ -2,6 +2,7 @@ package carpetclient.mixins;
 
 
 import carpetclient.Config;
+import carpetclient.Hotkeys;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.IntHashMap;
@@ -18,8 +19,11 @@ A Mixins class to implement key lock when snap aim is turned on.
 @Mixin(KeyBinding.class)
 public abstract class MixinsKeyBinding {
 
-    @Shadow private static @Final IntHashMap<KeyBinding> HASH;
-    @Shadow private boolean pressed;
+    @Shadow
+    private static @Final
+    IntHashMap<KeyBinding> HASH;
+    @Shadow
+    private boolean pressed;
 
 //    /*
 //     * Override method to implement key lock when Snap aim is turned on.
@@ -43,9 +47,11 @@ public abstract class MixinsKeyBinding {
      */
     @Inject(method = "setKeyBindState", at = @At("HEAD"), cancellable = true)
     private static void setKeyBindStateInject(int keyCode, boolean pressed, CallbackInfo ci) {
-        if(GuiScreen.isAltKeyDown() && !pressed && Config.snapAim){
+        //if(GuiScreen.isAltKeyDown() && !pressed && Config.snapAim){
+        // Updated keylocker to make it keybind to other keys.
+        if (keyCode != Hotkeys.toggleSnapAimKeyLocker.getKeyCode() && Hotkeys.toggleSnapAimKeyLocker.isKeyDown() && !pressed && Config.snapAim) {
             ci.cancel();
         }
     }
-    
+
 }
