@@ -4,18 +4,14 @@ import java.io.File;
 
 import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.Tickable;
-import com.mumfrey.liteloader.core.LiteLoader;
 
-//remove when moved out of here
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
-import org.lwjgl.input.Keyboard;
 
 public class LiteModCarpetClient implements Tickable, LiteMod {
 
     @Override
     public String getVersion() {
-        return "Pre-Alpha 0.3";
+        return "Pre-Alpha 0.3.1";
     }
 
     @Override

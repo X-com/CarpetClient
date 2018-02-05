@@ -27,16 +27,16 @@ public class Hotkeys {
     }
 
     public static void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
-        if (!minecraft.isIntegratedServerRunning()) {
+        if (!minecraft.isIntegratedServerRunning() && minecraft.getCurrentServerData() == null) {
             return;
         }
 
         if (toggleRBP.isPressed()) {
-            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Relaxed block placement: " + (!Config.relaxedBlockPlacement ? "ON" : "OFF")));
             Config.relaxedBlockPlacement = !Config.relaxedBlockPlacement;
+            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Relaxed block placement: " + (Config.relaxedBlockPlacement ? "ON" : "OFF")));
         } else if (toggleSnapAim.isPressed()) {
-            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("SnapAim: " + (!Config.snapAim ? "ON" : "OFF")));
             Config.snapAim = !Config.snapAim;
+            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("SnapAim: " + (Config.snapAim ? "ON" : "OFF")));
         }
     }
 }
