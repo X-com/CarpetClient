@@ -29,10 +29,10 @@ public class Hotkeys {
         }
 
         if (toggleRBP.isPressed()) {
-            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Relaxed block placement: " + (Config.relaxedBlockPlacement ? "ON" : "OFF")));
+            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Relaxed block placement: " + (!Config.relaxedBlockPlacement ? "ON" : "OFF")));
             Config.relaxedBlockPlacement = !Config.relaxedBlockPlacement;
         }else if (toggleSnapAim.isPressed()) {
-            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("SnapAim: " + (Config.snapAim ? "ON" : "OFF")));
+            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("SnapAim: " + (!Config.snapAim ? "ON" : "OFF")));
             Config.snapAim = !Config.snapAim;
         }
     }
