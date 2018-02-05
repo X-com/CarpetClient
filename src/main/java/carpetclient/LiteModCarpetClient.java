@@ -15,7 +15,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod {
 
     @Override
     public String getVersion() {
-        return "Pre-Alpha 0.2";
+        return "Pre-Alpha 0.3";
     }
 
     @Override
