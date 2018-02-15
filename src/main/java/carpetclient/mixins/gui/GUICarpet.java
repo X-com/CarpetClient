@@ -1,6 +1,6 @@
 package carpetclient.mixins.gui;
 
-import carpetclient.gui.CarpetGUI;
+import carpetclient.gui.ScrollGUI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
@@ -35,8 +35,8 @@ public class GUICarpet extends GuiScreen {
 //            if (Minecraft.getMinecraft().isIntegratedServerRunning()) {
 //                return; // not available if in singleplayer or LAN server mode
 //            }
-            
-            CarpetGUI.initGUI(guiIngameMenu);
+
+            ScrollGUI.initGUI(guiIngameMenu);
         }
     }
 

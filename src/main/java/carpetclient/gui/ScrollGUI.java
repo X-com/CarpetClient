@@ -17,11 +17,15 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiListExtended.IGuiListEntry;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.GameRules.ValueType;
 
-public class CarpetGUI extends GuiScreen {
+/*
+This is a scrolling class for implementing scrollable GUI to minecraft.
+"Based on code originally in WDL (by pokechu22), used with permission." - Pokechu22
+For use of this code, ask permission from Pokechu22.
+ */
+public class ScrollGUI extends GuiScreen {
     private static final Logger LOGGER = LogManager.getLogger();
     private final GuiScreen parent;
     private GuiGameRuleList list;
@@ -31,10 +35,10 @@ public class CarpetGUI extends GuiScreen {
     private static final int SET_TEXT_FIELD = 0xE0E0E0, DEFAULT_TEXT_FIELD = 0x808080;
 
     public static void initGUI(GuiIngameMenu guiIngameMenu) {
-        Minecraft.getMinecraft().displayGuiScreen(new CarpetGUI(guiIngameMenu));
+        Minecraft.getMinecraft().displayGuiScreen(new ScrollGUI(guiIngameMenu));
     }
 
-    public CarpetGUI(GuiScreen parent) {
+    public ScrollGUI(GuiScreen parent) {
         this.parent = parent;
         this.rules = Minecraft.getMinecraft().world.getGameRules();
         this.vanillaGameRules = ImmutableList.copyOf(rules.getRules());
@@ -62,7 +66,7 @@ public class CarpetGUI extends GuiScreen {
         private final List<IGuiListEntry> entries = new ArrayList<>();
 
         public GuiGameRuleList() {
-            super(CarpetGUI.this.mc, CarpetGUI.this.width, CarpetGUI.this.height, 39, CarpetGUI.this.height - 32, 24);
+            super(ScrollGUI.this.mc, ScrollGUI.this.width, ScrollGUI.this.height, 39, ScrollGUI.this.height - 32, 24);
 
             for (String rule : vanillaGameRules) {
                 if (rules.areSameType(rule, ValueType.NUMERICAL_VALUE)) {
@@ -75,18 +79,28 @@ public class CarpetGUI extends GuiScreen {
             }
         }
 
+        @Override
+        public int getListWidth() {
+            return 210 * 2;
+        }
+
+        @Override
+        protected int getScrollBarX() {
+            return this.width / 2 + getListWidth() / 2 + 4;
+        }
+
         public GuiGameRuleList(Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn) {
             super(mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
         }
 
         @Override
         public IGuiListEntry getListEntry(int index) {
-            return null;
+            return entries.get(index);
         }
 
         @Override
         protected int getSize() {
-            return 0;
+            return entries.size();
         }
 
         public void update() {
@@ -227,7 +241,7 @@ public class CarpetGUI extends GuiScreen {
 
             public RuleEntry(@Nonnull String ruleName) {
                 this.ruleName = ruleName;
-//                this.resetButton = new GuiButton(0, 0, 0, 50, 20, I18n.format("wdl.gui.gamerules.resetRule"));
+                this.resetButton = new GuiButton(0, 0, 0, 50, 20, "reset");
             }
 
             @Override
