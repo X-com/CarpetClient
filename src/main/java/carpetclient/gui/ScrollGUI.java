@@ -33,6 +33,7 @@ public class ScrollGUI extends GuiScreen {
     private String title;
     private final List<String> vanillaGameRules;
     private static final int SET_TEXT_FIELD = 0xE0E0E0, DEFAULT_TEXT_FIELD = 0x808080;
+    @Nullable private String hoveredToolTip;
 
     public static void initGUI(GuiIngameMenu guiIngameMenu) {
         Minecraft.getMinecraft().displayGuiScreen(new ScrollGUI(guiIngameMenu));
@@ -70,18 +71,22 @@ public class ScrollGUI extends GuiScreen {
 
             for (String rule : vanillaGameRules) {
                 if (rules.areSameType(rule, ValueType.NUMERICAL_VALUE)) {
-                    this.entries.add(new IntRuleEntry(rule));
+                    this.entries.add(new TextRuleEntry(rule));
                 } else if (rules.areSameType(rule, ValueType.BOOLEAN_VALUE)) {
-                    this.entries.add(new BooleanRuleEntry(rule));
+                    this.entries.add(new ButtonRuleEntry(rule));
                 } else {
                     LOGGER.debug("Couldn't identify type for vanilla game rule " + rule);
                 }
             }
         }
+        
+        public void addNewButton(String str){
+            this.entries.add(new ButtonRuleEntry(str));
+        }
 
         @Override
         public int getListWidth() {
-            return 210 * 2;
+            return 180 * 2;
         }
 
         @Override
@@ -123,21 +128,19 @@ public class ScrollGUI extends GuiScreen {
             }
         }
 
-        private class BooleanRuleEntry extends RuleEntry {
+        private class ButtonRuleEntry extends RuleEntry {
             private GuiButton button;
 
-            public BooleanRuleEntry(String ruleName) {
+            public ButtonRuleEntry(String ruleName) {
                 super(ruleName);
                 button = new GuiButton(0, 0, 0, 100, 20, "");
             }
 
             @Override
-            protected void draw(int x, int y, int listWidth, int slotHeight,
-                                int mouseX, int mouseY, float partialTicks) {
+            protected void draw(int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, float partialTicks) {
                 this.button.x = x + listWidth / 2;
                 this.button.y = y;
                 this.button.displayString = getRule(ruleName);
-//                LocalUtils.drawButton(this.button, mc, mouseX, mouseY);
                 button.drawButton(mc, mouseX, mouseY, partialTicks);
             }
 
@@ -145,8 +148,8 @@ public class ScrollGUI extends GuiScreen {
             protected boolean mouseDown(int x, int y, int button) {
                 if (this.button.mousePressed(mc, x, y)) {
                     this.button.playPressSound(mc.getSoundHandler());
-                    boolean oldValue = getRule(ruleName).equals("true");
-                    setRule(ruleName, oldValue ? "false" : "true");
+//                    boolean oldValue = getRule(ruleName).equals("true");
+//                    setRule(ruleName, oldValue ? "false" : "true");
                     return true;
                 } else {
                     return false;
@@ -158,10 +161,10 @@ public class ScrollGUI extends GuiScreen {
                 this.button.mouseReleased(x, y);
             }
 
-            @Override
-            protected boolean isMouseOverControl(int mouseX, int mouseY) {
-                return button.isMouseOver();
-            }
+//            @Override
+//            protected boolean isMouseOverControl(int mouseX, int mouseY) {
+//                return button.isMouseOver();
+//            }
 
             @Override
             public void updatePosition(int slotIndex, int x, int y, float partialTicks) {
@@ -169,18 +172,17 @@ public class ScrollGUI extends GuiScreen {
             }
         }
 
-        private class IntRuleEntry extends RuleEntry implements KeyboardEntry {
+        private class TextRuleEntry extends RuleEntry implements KeyboardEntry {
             private GuiNumericTextField field;
 
-            public IntRuleEntry(String ruleName) {
+            public TextRuleEntry(String ruleName) {
                 super(ruleName);
                 field = new GuiNumericTextField(0, fontRenderer, 0, 0, 100, 20);
                 field.setText(getRule(ruleName));
             }
 
             @Override
-            public void draw(int x, int y, int listWidth, int slotHeight,
-                             int mouseX, int mouseY, float partialTicks) {
+            public void draw(int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, float partialTicks) {
                 if (!this.isFocused()) {
                     field.setFocused(false);
                 }
@@ -212,15 +214,16 @@ public class ScrollGUI extends GuiScreen {
             @Override
             public void keyDown(char typedChar, int keyCode) {
                 if (this.field.textboxKeyTyped(typedChar, keyCode)) {
+                    System.out.println("type " + keyCode + " keytypechar " + typedChar);
                     setRule(ruleName, Integer.toString(this.field.getValue()));
                 }
             }
 
-            @Override
-            protected boolean isMouseOverControl(int mouseX, int mouseY) {
-//                return Utils.isMouseOverTextBox(mouseX, mouseY, field);
-                return false;
-            }
+//            @Override
+//            protected boolean isMouseOverControl(int mouseX, int mouseY) {
+////                return isMouseOverTextBox(mouseX, mouseY, field);
+//                return false;
+//            }
 
             @Override
             protected void performResetAction() {
@@ -238,33 +241,43 @@ public class ScrollGUI extends GuiScreen {
             @Nonnull
             protected final String ruleName;
             private GuiButton resetButton;
+            private GuiButton infoButton;
 
             public RuleEntry(@Nonnull String ruleName) {
                 this.ruleName = ruleName;
                 this.resetButton = new GuiButton(0, 0, 0, 50, 20, "reset");
+                this.infoButton = new GuiButton(0, 0, 0, 14, 15, "i");
             }
 
             @Override
-            public final void drawEntry(int slotIndex, int x, int y, int listWidth,
-                                        int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks) {
+            public final void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks) {
                 drawString(fontRenderer, this.ruleName, x, y + 6, 0xFFFFFFFF);
                 this.resetButton.x = x + listWidth / 2 + 110;
                 this.resetButton.y = y;
                 this.resetButton.enabled = isRuleSet(this.ruleName);
                 resetButton.drawButton(mc, mouseX, mouseY, partialTicks);
+
+                this.infoButton.x = x + listWidth / 2 - 17;
+                this.infoButton.y = y + 2;
+                infoButton.drawButton(mc, mouseX, mouseY, partialTicks);
+                
                 this.draw(x, y, listWidth, slotHeight, mouseX, mouseY, partialTicks);
 
-                if (this.isMouseOverControl(mouseX, mouseY)) {
-//                    String key = "wdl.gui.gamerules.rules." + ruleName;
-//                    if (I18n.hasKey(key)) { // may return false for mods
-//                        hoveredToolTip = I18n.format(key);
-//                    }
+//                if (this.isMouseOverControl(mouseX, mouseY)) {
+//                    String key = ruleName;
+//                    hoveredToolTip = ruleName;
+////                    if (I18n.hasKey(key)) { // may return false for mods
+////                        hoveredToolTip = I18n.format(key);
+////                    }
+//                }
+
+                if (this.isMouseOverInfo(mouseX, mouseY)) {
+                    hoveredToolTip = "Show info";
                 }
             }
 
             @Override
-            public final boolean mousePressed(int slotIndex, int mouseX, int mouseY,
-                                              int mouseEvent, int relativeX, int relativeY) {
+            public final boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY) {
                 lastClickedRule = this.ruleName;
 
                 if (resetButton.mousePressed(mc, mouseX, mouseY)) {
@@ -272,24 +285,31 @@ public class ScrollGUI extends GuiScreen {
                     this.performResetAction();
                     return true;
                 }
+                if (infoButton.mousePressed(mc, mouseX, mouseY)) {
+                    infoButton.playPressSound(mc.getSoundHandler());
+                    System.out.println("Show info box");
+                    return true;
+                }
                 return mouseDown(mouseX, mouseY, mouseEvent);
             }
 
             @Override
-            public final void mouseReleased(int slotIndex, int x, int y,
-                                            int mouseEvent, int relativeX, int relativeY) {
+            public final void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY) {
                 resetButton.mouseReleased(mouseX, mouseY);
                 mouseUp(mouseX, mouseY, mouseEvent);
             }
 
-            protected abstract void draw(int x, int y, int listWidth,
-                                         int slotHeight, int mouseX, int mouseY, float partialTicks);
+            protected abstract void draw(int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, float partialTicks);
 
             protected abstract boolean mouseDown(int x, int y, int button);
 
             protected abstract void mouseUp(int x, int y, int button);
 
-            protected abstract boolean isMouseOverControl(int mouseX, int mouseY);
+//            protected abstract boolean isMouseOverControl(int mouseX, int mouseY);
+            
+            protected boolean isMouseOverInfo(int mouseX, int mouseY) {
+                return infoButton.isMouseOver();
+            }
 
             protected boolean isFocused() {
                 return lastClickedRule == this.ruleName;  // Ref equals
@@ -306,6 +326,7 @@ public class ScrollGUI extends GuiScreen {
 
     private void setRule(@Nonnull String ruleName, @Nonnull String value) {
 //        WDL.worldProps.setProperty("GameRule." + ruleName, value);
+        list.addNewButton("New asfdkjaf");
     }
 
     @Nullable private String getRule(@Nonnull String ruleName) {
@@ -325,16 +346,16 @@ public class ScrollGUI extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-//        hoveredToolTip = null;
+        hoveredToolTip = null;
         this.list.drawScreen(mouseX, mouseY, partialTicks);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 //
         this.drawCenteredString(fontRenderer, title, width / 2, 4, 0xFFFFFF);
 //
-//        if (hoveredToolTip != null) {
-//            Utils.drawGuiInfoBox(hoveredToolTip, width, height, 48);
-//        }
+        if (hoveredToolTip != null) {
+            drawGuiInfoBox(hoveredToolTip,360, 168, width, height, 48);
+        }
     }
 
     @Override
@@ -366,6 +387,48 @@ public class ScrollGUI extends GuiScreen {
         public abstract void keyDown(char typedChar, int keyCode);
 
         public abstract void onUpdate();
+    }
+
+    public static void drawGuiInfoBox(String text, int infoBoxWidth,
+                                      int infoBoxHeight, int guiWidth, int guiHeight, int bottomPadding) {
+        if (text == null) {
+            return;
+        }
+
+        int infoX = guiWidth / 2 - infoBoxWidth / 2;
+        int infoY = guiHeight - bottomPadding - infoBoxHeight + 15;
+        int y = infoY + 5;
+
+        Gui.drawRect(infoX, infoY, infoX + infoBoxWidth, infoY
+                + infoBoxHeight, 0xCF000000);
+
+        List<String> lines = wordWrap(text, infoBoxWidth - 10);
+
+        for (String s : lines) {
+            Minecraft.getMinecraft().fontRenderer.drawString(s, infoX + 5, y, 0xFFFFFF);
+            y += Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT;
+        }
+    }
+
+    public static List<String> wordWrap(String s, int width) {
+        s = s.replace("\r", ""); // If we got a \r\n in the text somehow, remove it.
+
+        List<String> lines = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(s, width);
+
+        return lines;
+    }
+
+    public static boolean isMouseOverTextBox(int mouseX, int mouseY,
+                                             GuiTextField textBox) {
+        int scaledX = mouseX - textBox.x;
+        int scaledY = mouseY - textBox.y;
+
+        // Standard text box height -- there is no actual getter for the real
+        // one.
+        final int height = 20;
+
+        return scaledX >= 0 && scaledX < textBox.getWidth() && scaledY >= 0
+                && scaledY < height;
     }
 
     class GuiNumericTextField extends GuiTextField {
