@@ -7,6 +7,15 @@
     "MixinsBlockFenceGate",
     "MixinsBlockPumpkin",
     "MixinsBlockTorch",
-    "MixinPlayerControllerMP"
+    "MixinPlayerControllerMP",
+    "MixinsBlockObserver",
+    "MixinsBlockPistonBase",
+    "MixinsBlockRedstoneComparator",
+    "MixinsBlockRedstoneDiode",
+    "MixinsEntity",
+    "MixinsKeyBinding",
+    "MixinsPlayerInteractionManager",
+    "MixinRenderGlobal",
+    "gui.GUICarpet"
   ]
 }

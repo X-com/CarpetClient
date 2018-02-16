@@ -1,13 +1,18 @@
 package carpetclient;
 
 import java.io.File;
+import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.Tickable;
+import com.mumfrey.liteloader.PluginChannelListener;
+import carpetclient.pluginchannel.CarpetPluginChannel;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.PacketBuffer;
 
-public class LiteModCarpetClient implements Tickable, LiteMod {
+public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener {
 
     @Override
     public String getVersion() {
@@ -31,5 +36,17 @@ public class LiteModCarpetClient implements Tickable, LiteMod {
     @Override
     public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
         Hotkeys.onTick(minecraft, partialTicks, inGame, clock);
+    }
+
+    // Needed method for plugin channels. Data from the server.
+    @Override
+    public void onCustomPayload(String channel, PacketBuffer data) {
+        CarpetPluginChannel.packageReceived(channel, data);
+    }
+
+    // Needed method for plugin channels. Adds the list of channels that the client will listen for.
+    @Override
+    public List<String> getChannels() {
+        return CarpetPluginChannel.CARPET_PLUGIN_CHANNEL;
     }
 }

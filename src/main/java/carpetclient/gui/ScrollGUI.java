@@ -1,10 +1,13 @@
 package carpetclient.gui;
 
+import carpetclient.pluginchannel.CarpetPluginChannel;
 import com.google.common.collect.ImmutableList;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.GuiListExtended.IGuiListEntry;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.network.PacketBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -149,7 +152,7 @@ public class ScrollGUI extends GuiScreen {
                 if (this.button.mousePressed(mc, x, y)) {
                     this.button.playPressSound(mc.getSoundHandler());
 //                    boolean oldValue = getRule(ruleName).equals("true");
-//                    setRule(ruleName, oldValue ? "false" : "true");
+                    setRule(ruleName, "true");
                     return true;
                 } else {
                     return false;
@@ -326,7 +329,9 @@ public class ScrollGUI extends GuiScreen {
 
     private void setRule(@Nonnull String ruleName, @Nonnull String value) {
 //        WDL.worldProps.setProperty("GameRule." + ruleName, value);
-        list.addNewButton("New asfdkjaf");
+        PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
+        packetbuffer.writeString("hello");
+        CarpetPluginChannel.packageSent(packetbuffer);
     }
 
     @Nullable private String getRule(@Nonnull String ruleName) {
