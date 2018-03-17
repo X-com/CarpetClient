@@ -16,7 +16,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
     @Override
     public String getVersion() {
-        return "Pre-Alpha 0.4";
+        return "@VERSION@";
     }
 
     @Override

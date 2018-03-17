@@ -24,7 +24,7 @@ buildscript {
 
 apply plugin: 'java'
 
-version = "v0.4"
+version = "v0.5"
 group = "Xcom"
 archivesBaseName = "Carpet Client"
 
@@ -36,6 +36,7 @@ minecraft {
     mappings = "snapshot_20180130"
     runDir = "run"
     makeObfSourceJar = false
+    replace '@VERSION@', project.version
 }
 
 libsDirName = "../libs"
@@ -54,6 +55,8 @@ litemod {
 
 jar {
     from litemod.outputs
+    baseName = archivesBaseName
+    classifier = null
 }
 
 sourceSets {
