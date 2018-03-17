@@ -14,7 +14,7 @@ Mixing override to remove client side timeouts.
 @Mixin(targets="net.minecraft.network.NetworkManager$5")
 public class MixinNetworkManager$5 {
 
-    @Shadow(aliases="val$networkmanager") private @Final NetworkManager field_179248_a;
+    @Shadow(aliases={"val$networkmanager"}) private @Final NetworkManager field_179248_a;
 
     @Overwrite
     protected void initChannel(Channel p_initChannel_1_) throws Exception {

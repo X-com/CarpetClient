@@ -16,6 +16,7 @@
     "MixinsKeyBinding",
     "MixinsPlayerInteractionManager",
     "MixinRenderGlobal",
+    "MixinNetworkManager$5",
     "gui.GUICarpet"
   ]
 }
