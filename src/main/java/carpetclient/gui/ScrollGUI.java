@@ -1,7 +1,7 @@
 package carpetclient.gui;
 
+import carpetclient.LiteModCarpetClient;
 import carpetclient.pluginchannel.CarpetPluginChannel;
-import com.google.common.collect.ImmutableList;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -20,9 +20,6 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.GameRules.ValueType;
-import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 
 /*
@@ -34,7 +31,6 @@ public class ScrollGUI extends GuiScreen {
     private static final Logger LOGGER = LogManager.getLogger();
     private final GuiScreen parent;
     private static GuiGameRuleList list;
-    private GameRules rules;
     private String title;
     private static final int SET_TEXT_FIELD = 0xE0E0E0, DEFAULT_TEXT_FIELD = 0x808080;
     @Nullable
@@ -42,11 +38,11 @@ public class ScrollGUI extends GuiScreen {
 
     public static void initGUI(GuiIngameMenu guiIngameMenu) {
         Minecraft.getMinecraft().displayGuiScreen(new ScrollGUI(guiIngameMenu));
+//        initGui();
     }
 
     public ScrollGUI(GuiScreen parent) {
         this.parent = parent;
-        this.rules = Minecraft.getMinecraft().world.getGameRules();
     }
 
     public static void addGUI(PacketBuffer data) {
@@ -57,6 +53,7 @@ public class ScrollGUI extends GuiScreen {
     }
     
     public static void getAllOptionsData(PacketBuffer data){
+        
         System.out.println("test");
         list.clear();
         
@@ -82,8 +79,9 @@ public class ScrollGUI extends GuiScreen {
         }
         this.title = "Carpet Rules";
 
-//        this.buttonList.add(new GuiButton(100, this.width / 2 - 100,
-//                this.height - 29, I18n.format("gui.done")));
+        this.buttonList.add(new GuiButton(100, this.width / 2 - 100,
+                this.height - 29, I18n.format("gui.done")));
+        list.setDimensions(this.width, this.height, 39, this.height - 32);
     }
 
     @Override
@@ -376,7 +374,7 @@ public class ScrollGUI extends GuiScreen {
         PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
         packetbuffer.writeInt(CarpetPluginChannel.GUI_ALL_DATA);
 
-        CarpetPluginChannel.packageSent(packetbuffer);
+        CarpetPluginChannel.packatSent(packetbuffer);
     }
 
     @Nullable
@@ -384,8 +382,9 @@ public class ScrollGUI extends GuiScreen {
 //        if (isRuleSet(ruleName)) {
 //            return WDL.worldProps.getProperty("GameRule." + ruleName);
 //        } else {
-        return rules.getString(ruleName);
+//        return rules.getString(ruleName);
 //        }
+        return "";
     }
 
     private boolean isRuleSet(@Nonnull String ruleName) {

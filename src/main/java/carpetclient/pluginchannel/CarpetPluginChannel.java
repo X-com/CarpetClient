@@ -22,13 +22,17 @@ public class CarpetPluginChannel {
      * @param channel incoming channel or packet name.
      * @param data    incoming data from server.
      */
-    public static void packageReceived(String channel, PacketBuffer data) {
+    public static void packatReceived(String channel, PacketBuffer data) {
         if (CARPET_CHANNEL_NAME.contains(channel)) {
 //          System.out.println("Package Echoed properly + " + data.readString(1000));
             handleData(data);
         }
     }
 
+    /**
+     * Handler for the incoming pakets from the server.
+     * @param data Data that is recieved from the server.
+     */
     private static void handleData(PacketBuffer data) {
         int type = data.readInt();
 
@@ -42,7 +46,7 @@ public class CarpetPluginChannel {
      *
      * @param data The data that is being sent to the server.
      */
-    public static void packageSent(PacketBuffer data) {
+    public static void packatSent(PacketBuffer data) {
         ClientPluginChannels.sendMessage(CARPET_CHANNEL_NAME, data, ChannelPolicy.DISPATCH_IF_REGISTERED);
     }
 }

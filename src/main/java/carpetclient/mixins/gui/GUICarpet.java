@@ -16,6 +16,7 @@ import java.util.List;
 public class GUICarpet extends GuiScreen {
 
     private static final int carpetClientID = 6000;
+    GuiButton carpetButton;
     
     @Inject(method="initGui", at=@At("RETURN"))
     private void onInitGui(CallbackInfo ci) {
@@ -32,9 +33,9 @@ public class GUICarpet extends GuiScreen {
         }
 
         if (guibutton.id == carpetClientID) {
-//            if (Minecraft.getMinecraft().isIntegratedServerRunning()) {
-//                return; // not available if in singleplayer or LAN server mode
-//            }
+            if (Minecraft.getMinecraft().isIntegratedServerRunning()) {
+                return; // not available if in singleplayer or LAN server mode
+            }
 
             ScrollGUI.initGUI(guiIngameMenu);
         }
@@ -62,9 +63,8 @@ public class GUICarpet extends GuiScreen {
         }
 
         // Insert wdl buttons.
-        GuiButton carpetButton = new GuiButton(carpetClientID, gui.width / 2 - 100,
-                insertAtYPos, 200, 20, "Carpet Client");
-        
+        carpetButton = new GuiButton(carpetClientID, gui.width / 2 - 100, insertAtYPos, 200, 20, "Carpet Client");
+        carpetButton.enabled = !Minecraft.getMinecraft().isIntegratedServerRunning();
         buttonList.add(carpetButton);
     }
 }
