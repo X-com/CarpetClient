@@ -22,6 +22,8 @@ import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.GameRules.ValueType;
+import org.lwjgl.Sys;
+import org.lwjgl.input.Keyboard;
 
 /*
 This is a scrolling class for implementing scrollable GUI to minecraft.
@@ -31,12 +33,12 @@ For use of this code, ask permission from Pokechu22.
 public class ScrollGUI extends GuiScreen {
     private static final Logger LOGGER = LogManager.getLogger();
     private final GuiScreen parent;
-    private GuiGameRuleList list;
+    private static GuiGameRuleList list;
     private GameRules rules;
     private String title;
-    private final List<String> vanillaGameRules;
     private static final int SET_TEXT_FIELD = 0xE0E0E0, DEFAULT_TEXT_FIELD = 0x808080;
-    @Nullable private String hoveredToolTip;
+    @Nullable
+    private String hoveredToolTip;
 
     public static void initGUI(GuiIngameMenu guiIngameMenu) {
         Minecraft.getMinecraft().displayGuiScreen(new ScrollGUI(guiIngameMenu));
@@ -45,15 +47,43 @@ public class ScrollGUI extends GuiScreen {
     public ScrollGUI(GuiScreen parent) {
         this.parent = parent;
         this.rules = Minecraft.getMinecraft().world.getGameRules();
-        this.vanillaGameRules = ImmutableList.copyOf(rules.getRules());
+    }
+
+    public static void addGUI(PacketBuffer data) {
+        String s = data.readString(10);
+        String s2 = data.readString(10);
+        System.out.println(s + " " + s2);
+        list.addNewButton(s, s2);
+    }
+    
+    public static void getAllOptionsData(PacketBuffer data){
+        System.out.println("test");
+        list.clear();
+        
+        int ruleListSize = data.readInt();
+        
+        for(int ruleNum = 0; ruleNum < ruleListSize; ruleNum++) {
+            String rule = data.readString(100);
+            String def = data.readString(100);
+            int optionsSize = data.readInt();
+            
+            String[] options = new String[optionsSize];
+            for(int optionNum = 0; optionNum < optionsSize; optionNum++){
+                options[optionNum] = data.readString(100);
+            }
+
+            list.addNewButton(rule, def);
+        }
     }
 
     public void initGui() {
+        if (this.list == null) {
+            this.list = new GuiGameRuleList();
+        }
         this.title = "Carpet Rules";
-        this.list = new GuiGameRuleList();
 
-        this.buttonList.add(new GuiButton(100, this.width / 2 - 100,
-                this.height - 29, I18n.format("gui.done")));
+//        this.buttonList.add(new GuiButton(100, this.width / 2 - 100,
+//                this.height - 29, I18n.format("gui.done")));
     }
 
     @Override
@@ -72,19 +102,26 @@ public class ScrollGUI extends GuiScreen {
         public GuiGameRuleList() {
             super(ScrollGUI.this.mc, ScrollGUI.this.width, ScrollGUI.this.height, 39, ScrollGUI.this.height - 32, 24);
 
-            for (String rule : vanillaGameRules) {
-                if (rules.areSameType(rule, ValueType.NUMERICAL_VALUE)) {
-                    this.entries.add(new TextRuleEntry(rule));
-                } else if (rules.areSameType(rule, ValueType.BOOLEAN_VALUE)) {
-                    this.entries.add(new ButtonRuleEntry(rule));
-                } else {
-                    LOGGER.debug("Couldn't identify type for vanilla game rule " + rule);
-                }
-            }
+//            for (String rule : vanillaGameRules) {
+//                if (rules.areSameType(rule, ValueType.NUMERICAL_VALUE)) {
+//                    this.entries.add(new TextRuleEntry(rule));
+//                } else if (rules.areSameType(rule, ValueType.BOOLEAN_VALUE)) {
+//                    this.entries.add(new ButtonRuleEntry(rule));
+//                } else {
+//                    LOGGER.debug("Couldn't identify type for vanilla game rule " + rule);
+//                }
+//            }
+
+            this.entries.add(new TextRuleEntry("Text", ""));
+            this.entries.add(new ButtonRuleEntry("Button", "button text"));
+        }
+
+        public void clear(){
+            entries.clear();
         }
         
-        public void addNewButton(String str){
-            this.entries.add(new ButtonRuleEntry(str));
+        public void addNewButton(String str, String btnText) {
+            this.entries.add(new ButtonRuleEntry(str, btnText));
         }
 
         @Override
@@ -136,14 +173,19 @@ public class ScrollGUI extends GuiScreen {
 
             public ButtonRuleEntry(String ruleName) {
                 super(ruleName);
-                button = new GuiButton(0, 0, 0, 100, 20, "");
+                button = new GuiButton(0, 0, 0, 100, 20, "asdf");
+            }
+
+            public ButtonRuleEntry(String str, String btnText) {
+                super(str);
+                button = new GuiButton(0, 0, 0, 100, 20, btnText);
             }
 
             @Override
             protected void draw(int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, float partialTicks) {
                 this.button.x = x + listWidth / 2;
                 this.button.y = y;
-                this.button.displayString = getRule(ruleName);
+//                this.button.displayString = getRule(ruleName);
                 button.drawButton(mc, mouseX, mouseY, partialTicks);
             }
 
@@ -171,17 +213,17 @@ public class ScrollGUI extends GuiScreen {
 
             @Override
             public void updatePosition(int slotIndex, int x, int y, float partialTicks) {
-                
+
             }
         }
 
         private class TextRuleEntry extends RuleEntry implements KeyboardEntry {
             private GuiNumericTextField field;
 
-            public TextRuleEntry(String ruleName) {
+            public TextRuleEntry(String ruleName, String text) {
                 super(ruleName);
                 field = new GuiNumericTextField(0, fontRenderer, 0, 0, 100, 20);
-                field.setText(getRule(ruleName));
+                field.setText(text);
             }
 
             @Override
@@ -216,9 +258,11 @@ public class ScrollGUI extends GuiScreen {
 
             @Override
             public void keyDown(char typedChar, int keyCode) {
+                System.out.println("type " + keyCode + " keytypechar " + typedChar);
                 if (this.field.textboxKeyTyped(typedChar, keyCode)) {
-                    System.out.println("type " + keyCode + " keytypechar " + typedChar);
-                    setRule(ruleName, Integer.toString(this.field.getValue()));
+//                    setRule(ruleName, Float.toString(this.field.getValue()));
+                } else if (keyCode == Keyboard.KEY_RETURN) {
+                    performResetAction();
                 }
             }
 
@@ -231,12 +275,12 @@ public class ScrollGUI extends GuiScreen {
             @Override
             protected void performResetAction() {
                 super.performResetAction();
-                this.field.setText(getRule(this.ruleName)); // Reset field text to default
+                this.field.setText("Default"); // Reset field text to default
             }
 
             @Override
             public void updatePosition(int slotIndex, int x, int y, float partialTicks) {
-                
+
             }
         }
 
@@ -263,7 +307,7 @@ public class ScrollGUI extends GuiScreen {
                 this.infoButton.x = x + listWidth / 2 - 17;
                 this.infoButton.y = y + 2;
                 infoButton.drawButton(mc, mouseX, mouseY, partialTicks);
-                
+
                 this.draw(x, y, listWidth, slotHeight, mouseX, mouseY, partialTicks);
 
 //                if (this.isMouseOverControl(mouseX, mouseY)) {
@@ -275,7 +319,7 @@ public class ScrollGUI extends GuiScreen {
 //                }
 
                 if (this.isMouseOverInfo(mouseX, mouseY)) {
-                    hoveredToolTip = "Show info";
+                    //hoveredToolTip = "Show info";
                 }
             }
 
@@ -309,7 +353,7 @@ public class ScrollGUI extends GuiScreen {
             protected abstract void mouseUp(int x, int y, int button);
 
 //            protected abstract boolean isMouseOverControl(int mouseX, int mouseY);
-            
+
             protected boolean isMouseOverInfo(int mouseX, int mouseY) {
                 return infoButton.isMouseOver();
             }
@@ -330,15 +374,17 @@ public class ScrollGUI extends GuiScreen {
     private void setRule(@Nonnull String ruleName, @Nonnull String value) {
 //        WDL.worldProps.setProperty("GameRule." + ruleName, value);
         PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
-        packetbuffer.writeString("hello");
+        packetbuffer.writeInt(CarpetPluginChannel.GUI_ALL_DATA);
+
         CarpetPluginChannel.packageSent(packetbuffer);
     }
 
-    @Nullable private String getRule(@Nonnull String ruleName) {
+    @Nullable
+    private String getRule(@Nonnull String ruleName) {
 //        if (isRuleSet(ruleName)) {
 //            return WDL.worldProps.getProperty("GameRule." + ruleName);
 //        } else {
-            return rules.getString(ruleName);
+        return rules.getString(ruleName);
 //        }
     }
 
@@ -359,7 +405,7 @@ public class ScrollGUI extends GuiScreen {
         this.drawCenteredString(fontRenderer, title, width / 2, 4, 0xFFFFFF);
 //
         if (hoveredToolTip != null) {
-            drawGuiInfoBox(hoveredToolTip,360, 168, width, height, 48);
+            drawGuiInfoBox(hoveredToolTip, 360, 168, width, height, 48);
         }
     }
 
@@ -452,8 +498,9 @@ public class ScrollGUI extends GuiScreen {
         @Override
         public void drawTextBox() {
             // Save last safe text.
+            
             try {
-                Integer.parseInt("0" + getText());
+                Float.parseFloat("0" + getText());
                 lastSafeText = getText();
             } catch (NumberFormatException e) {
                 setText(lastSafeText);
@@ -464,20 +511,22 @@ public class ScrollGUI extends GuiScreen {
 
         /**
          * Gets the current value.
+         *
          * @return
          */
-        public int getValue() {
+        public Float getValue() {
             try {
-                return Integer.parseInt("0" + getText());
+                return Float.parseFloat("0" + getText());
             } catch (NumberFormatException e) {
                 // Should not happen, hopefully.
                 e.printStackTrace();
-                return 0;
+                return 0f;
             }
         }
 
         /**
          * Sets the value.
+         *
          * @param value
          * @return
          */
@@ -490,9 +539,10 @@ public class ScrollGUI extends GuiScreen {
         @Override
         public String getText() {
             String text = super.getText();
-
+            
             try {
-                int value = Integer.parseInt("0" + text);
+                if(text.contains("d") || text.contains("f")) return lastSafeText;
+                Float value = Float.parseFloat("0" + text);
                 return String.valueOf(value);
             } catch (NumberFormatException e) {
                 setText(lastSafeText);
@@ -505,7 +555,7 @@ public class ScrollGUI extends GuiScreen {
             String value;
 
             try {
-                value = String.valueOf(Integer.parseInt("0" + text));
+                value = String.valueOf(Float.parseFloat("0" + text));
             } catch (NumberFormatException e) {
                 value = lastSafeText;
             }
