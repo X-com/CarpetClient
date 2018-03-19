@@ -12,6 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
+/*
+Mixins override to add the main access button for Carpet Options menu.
+ */
 @Mixin(GuiIngameMenu.class)
 public class GUICarpet extends GuiScreen {
 
@@ -20,14 +23,21 @@ public class GUICarpet extends GuiScreen {
     
     @Inject(method="initGui", at=@At("RETURN"))
     private void onInitGui(CallbackInfo ci) {
-        injectWDLButtons((GuiIngameMenu) (Object) this, buttonList);
+        injectButtons((GuiIngameMenu) (Object) this, buttonList);
     }
+    
+    /*
+     * Action handler for the button click.
+     */
     @Inject(method="actionPerformed", at=@At("HEAD"))
     private void onActionPerformed(GuiButton guibutton, CallbackInfo ci) {
-        handleWDLButtonClick((GuiIngameMenu) (Object) this, guibutton);
+        handleButtonClick((GuiIngameMenu) (Object) this, guibutton);
     }
 
-    private void handleWDLButtonClick(GuiIngameMenu guiIngameMenu, GuiButton guibutton) {
+    /*
+     * Inserting the button handler when Carpet Button is clicked.
+     */
+    private void handleButtonClick(GuiIngameMenu guiIngameMenu, GuiButton guibutton) {
         if (!guibutton.enabled) {
             return;
         }
@@ -41,7 +51,10 @@ public class GUICarpet extends GuiScreen {
         }
     }
 
-    private void injectWDLButtons(GuiIngameMenu gui, List buttonList) {
+    /*
+     * Inserting the Button to access carpet menu.
+     */
+    private void injectButtons(GuiIngameMenu gui, List buttonList) {
         int insertAtYPos = 0;
 
         for (Object obj : buttonList) {
@@ -62,7 +75,7 @@ public class GUICarpet extends GuiScreen {
             }
         }
 
-        // Insert wdl buttons.
+        // Insert carpet button in main window of escape menu.
         carpetButton = new GuiButton(carpetClientID, gui.width / 2 - 100, insertAtYPos, 200, 20, "Carpet Client");
         carpetButton.enabled = !Minecraft.getMinecraft().isIntegratedServerRunning();
         buttonList.add(carpetButton);
