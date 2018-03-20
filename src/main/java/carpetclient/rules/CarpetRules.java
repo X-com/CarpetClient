@@ -1,5 +1,6 @@
 package carpetclient.rules;
 
+import carpetclient.gui.ScrollGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
@@ -50,8 +51,8 @@ public class CarpetRules {
         } else if(REQUEST_RULE_TIP == infoType){
             rules.get(rule).setRuleTip(text);
         }
-        
-        // update GUI somehow
+
+        ScrollGUI.updateGUI();
     }
 
     /**

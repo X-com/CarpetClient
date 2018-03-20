@@ -1,9 +1,6 @@
 package carpetclient.gui;
 
-import carpetclient.LiteModCarpetClient;
-import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.rules.CarpetRules;
-import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.GuiListExtended.IGuiListEntry;
@@ -46,7 +43,7 @@ public class ScrollGUI extends GuiScreen {
         this.parent = parent;
     }
 
-    public static void getAllOptionsData(PacketBuffer data) {
+    public static void updateGUI() {
         list.clear();
 
         ArrayList<CarpetRules.CarpetSettingEntry> rules = CarpetRules.getAllRules();
@@ -69,7 +66,7 @@ public class ScrollGUI extends GuiScreen {
         this.buttonList.add(new GuiButton(100, this.width / 2 - 100,
                 this.height - 29, I18n.format("gui.done")));
         list.setDimensions(this.width, this.height, 39, this.height - 32);
-        getAllOptionsData(data);
+        updateGUI();
     }
 
     @Override
