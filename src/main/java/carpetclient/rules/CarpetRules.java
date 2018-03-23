@@ -39,6 +39,7 @@ public class CarpetRules {
 
     /**
      * Data recieved from server updating a single rule.
+     *
      * @param data the data related to a single rule.
      */
     public static void ruleData(PacketBuffer data) {
@@ -46,9 +47,9 @@ public class CarpetRules {
         int infoType = data.readInt();
         String text = data.readString(100);
 
-        if(CHANGE_RULE == infoType) {
+        if (CHANGE_RULE == infoType) {
             rules.get(rule).changeRule(text);
-        } else if(REQUEST_RULE_TIP == infoType){
+        } else if (REQUEST_RULE_TIP == infoType) {
             rules.get(rule).setRuleTip(text);
         }
 
@@ -168,6 +169,7 @@ public class CarpetRules {
             this.currentOption = currentOption;
             this.options = options;
             this.defaultOption = defaultOption;
+            ruleTip = "";
             checkValues();
             checkDefault();
         }
@@ -236,10 +238,10 @@ public class CarpetRules {
         /**
          * A setter for the tooltip of each rule.
          *
-         * @param ruleTip the value that is going to be set as the tooltip.
+         * @param ruletip the value that is going to be set as the tooltip.
          */
-        public void setRuleTip(String ruleTip) {
-            ruleTip = ruleTip;
+        public void setRuleTip(String ruletip) {
+            ruleTip = ruletip;
         }
 
         /**

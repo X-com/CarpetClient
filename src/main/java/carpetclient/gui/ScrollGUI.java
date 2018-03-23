@@ -50,9 +50,9 @@ public class ScrollGUI extends GuiScreen {
 
         for (CarpetRules.CarpetSettingEntry r : rules) {
             if (r.isNumber()) {
-                list.addNewText(r.getRule(), r.getCurrentOption(), r.isDefault());
+                list.addNewText(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip());
             } else {
-                list.addNewButton(r.getRule(), r.getCurrentOption(), r.isDefault());
+                list.addNewButton(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip());
             }
         }
     }
@@ -109,12 +109,12 @@ public class ScrollGUI extends GuiScreen {
             entries.clear();
         }
 
-        public void addNewButton(String str, String btnText, boolean reset) {
-            this.entries.add(new ButtonRuleEntry(str, btnText, reset));
+        public void addNewButton(String str, String btnText, boolean reset, String info) {
+            this.entries.add(new ButtonRuleEntry(str, btnText, reset, info));
         }
 
-        public void addNewText(String str, String txtText, boolean reset) {
-            this.entries.add(new TextRuleEntry(str, txtText, reset));
+        public void addNewText(String str, String txtText, boolean reset, String info) {
+            this.entries.add(new TextRuleEntry(str, txtText, reset, info));
         }
 
         @Override
@@ -164,13 +164,13 @@ public class ScrollGUI extends GuiScreen {
         private class ButtonRuleEntry extends RuleEntry {
             private GuiButton button;
 
-            public ButtonRuleEntry(String ruleName, boolean reset) {
-                super(ruleName, reset);
+            public ButtonRuleEntry(String ruleName, boolean reset, String info) {
+                super(ruleName, reset, info);
                 button = new GuiButton(0, 0, 0, 100, 20, "asdf");
             }
 
-            public ButtonRuleEntry(String str, String btnText, boolean reset) {
-                super(str, reset);
+            public ButtonRuleEntry(String str, String btnText, boolean reset, String info) {
+                super(str, reset, info);
                 button = new GuiButton(0, 0, 0, 100, 20, btnText);
             }
 
@@ -216,8 +216,8 @@ public class ScrollGUI extends GuiScreen {
         private class TextRuleEntry extends RuleEntry implements KeyboardEntry {
             private GuiNumericTextField field;
 
-            public TextRuleEntry(String ruleName, String text, boolean reset) {
-                super(ruleName, reset);
+            public TextRuleEntry(String ruleName, String text, boolean reset, String info) {
+                super(ruleName, reset, info);
                 field = new GuiNumericTextField(0, fontRenderer, 0, 0, 100, 20);
                 field.setText(text);
             }
@@ -254,7 +254,7 @@ public class ScrollGUI extends GuiScreen {
 
             @Override
             public void keyDown(char typedChar, int keyCode) {
-//                System.out.println("type " + keyCode + " keytypechar " + typedChar);
+                if (field.isFocused()) System.out.println("type " + keyCode + " keytypechar " + typedChar);
                 if (this.field.textboxKeyTyped(typedChar, keyCode)) {
 //                    setRule(ruleName, Float.toString(this.field.getValue()));
                 } else if (keyCode == Keyboard.KEY_RETURN) {
@@ -284,12 +284,14 @@ public class ScrollGUI extends GuiScreen {
             protected final String ruleName;
             private GuiButton resetButton;
             private GuiButton infoButton;
+            private String ruleInfo;
 
-            public RuleEntry(@Nonnull String ruleName, boolean reset) {
+            public RuleEntry(@Nonnull String ruleName, boolean reset, String info) {
                 this.ruleName = ruleName;
                 this.resetButton = new GuiButton(0, 0, 0, 50, 20, "reset");
                 this.infoButton = new GuiButton(0, 0, 0, 14, 15, "i");
                 resetButton.enabled = reset;
+                ruleInfo = info;
             }
 
             @Override
@@ -302,6 +304,7 @@ public class ScrollGUI extends GuiScreen {
 
                 this.infoButton.x = x + listWidth / 2 - 17;
                 this.infoButton.y = y + 2;
+                this.infoButton.enabled = (ruleInfo.length() == 0);
                 infoButton.drawButton(mc, mouseX, mouseY, partialTicks);
 
                 this.draw(x, y, listWidth, slotHeight, mouseX, mouseY, partialTicks);
@@ -315,7 +318,7 @@ public class ScrollGUI extends GuiScreen {
 //                }
 
                 if (this.isMouseOverInfo(mouseX, mouseY)) {
-                    //hoveredToolTip = "Show info";
+                    if(ruleInfo.length() > 0) hoveredToolTip = ruleInfo;
                 }
             }
 
@@ -476,7 +479,7 @@ public class ScrollGUI extends GuiScreen {
             // Save last safe text.
 
             try {
-                Float.parseFloat("0" + getText());
+                Float.parseFloat(getText());
                 lastSafeText = getText();
             } catch (NumberFormatException e) {
                 setText(lastSafeText);
@@ -492,7 +495,7 @@ public class ScrollGUI extends GuiScreen {
          */
         public Float getValue() {
             try {
-                return Float.parseFloat("0" + getText());
+                return Float.parseFloat(getText());
             } catch (NumberFormatException e) {
                 // Should not happen, hopefully.
                 e.printStackTrace();
@@ -518,7 +521,7 @@ public class ScrollGUI extends GuiScreen {
 
             try {
                 if (text.contains("d") || text.contains("f")) return lastSafeText;
-                Float value = Float.parseFloat("0" + text);
+                Float value = Float.parseFloat(text);
                 return String.valueOf(value);
             } catch (NumberFormatException e) {
                 setText(lastSafeText);
@@ -531,7 +534,7 @@ public class ScrollGUI extends GuiScreen {
             String value;
 
             try {
-                value = String.valueOf(Float.parseFloat("0" + text));
+                value = String.valueOf(Float.parseFloat(text));
             } catch (NumberFormatException e) {
                 value = lastSafeText;
             }
