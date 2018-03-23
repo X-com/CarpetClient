@@ -50,7 +50,7 @@ public class ScrollGUI extends GuiScreen {
 
         for (CarpetRules.CarpetSettingEntry r : rules) {
             if (r.isNumber()) {
-                list.addNewText(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip());
+                list.addNewText(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip(), r.useInteger() );
             } else {
                 list.addNewButton(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip());
             }
@@ -113,8 +113,8 @@ public class ScrollGUI extends GuiScreen {
             this.entries.add(new ButtonRuleEntry(str, btnText, reset, info));
         }
 
-        public void addNewText(String str, String txtText, boolean reset, String info) {
-            this.entries.add(new TextRuleEntry(str, txtText, reset, info));
+        public void addNewText(String str, String txtText, boolean reset, String info, boolean useInt) {
+            this.entries.add(new TextRuleEntry(str, txtText, reset, info, useInt));
         }
 
         @Override
@@ -216,9 +216,9 @@ public class ScrollGUI extends GuiScreen {
         private class TextRuleEntry extends RuleEntry implements KeyboardEntry {
             private GuiNumericTextField field;
 
-            public TextRuleEntry(String ruleName, String text, boolean reset, String info) {
+            public TextRuleEntry(String ruleName, String text, boolean reset, String info, boolean useInt) {
                 super(ruleName, reset, info);
-                field = new GuiNumericTextField(0, fontRenderer, 0, 0, 100, 20);
+                field = new GuiNumericTextField(0, fontRenderer, 0, 0, 100, 20, useInt);
                 field.setText(text);
             }
 
@@ -462,45 +462,38 @@ public class ScrollGUI extends GuiScreen {
     }
 
     class GuiNumericTextField extends GuiTextField {
-        public GuiNumericTextField(int id, FontRenderer fontRenderer,
-                                   int x, int y, int width, int height) {
-            super(id, fontRenderer, x, y, width,
-                    height);
-            setText("0");
-        }
+
 
         /**
          * Last text that was successfully entered.
          */
         private String lastSafeText = "0";
+        private boolean useInteger = true;
+
+        public GuiNumericTextField(int id, FontRenderer fontRenderer,
+                                   int x, int y, int width, int height, boolean useInt) {
+            super(id, fontRenderer, x, y, width,
+                    height);
+            setText("0");
+            useInteger = useInt;
+        }
 
         @Override
         public void drawTextBox() {
             // Save last safe text.
 
             try {
-                Float.parseFloat(getText());
+                if(useInteger) {
+                    Integer.parseInt(getText());
+                }else {
+                    Float.parseFloat(getText());
+                }
                 lastSafeText = getText();
             } catch (NumberFormatException e) {
                 setText(lastSafeText);
             }
 
             super.drawTextBox();
-        }
-
-        /**
-         * Gets the current value.
-         *
-         * @return
-         */
-        public Float getValue() {
-            try {
-                return Float.parseFloat(getText());
-            } catch (NumberFormatException e) {
-                // Should not happen, hopefully.
-                e.printStackTrace();
-                return 0f;
-            }
         }
 
         /**
@@ -521,8 +514,11 @@ public class ScrollGUI extends GuiScreen {
 
             try {
                 if (text.contains("d") || text.contains("f")) return lastSafeText;
-                Float value = Float.parseFloat(text);
-                return String.valueOf(value);
+                if(useInteger) {
+                    return String.valueOf(Integer.parseInt(text));
+                }else{
+                    return String.valueOf(Float.parseFloat(text));
+                }
             } catch (NumberFormatException e) {
                 setText(lastSafeText);
                 return lastSafeText;
@@ -534,7 +530,11 @@ public class ScrollGUI extends GuiScreen {
             String value;
 
             try {
-                value = String.valueOf(Float.parseFloat(text));
+                if(useInteger) {
+                    value = String.valueOf(Integer.parseInt(text));
+                }else {
+                    value = String.valueOf(Float.parseFloat(text));
+                }
             } catch (NumberFormatException e) {
                 value = lastSafeText;
             }

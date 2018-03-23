@@ -137,14 +137,15 @@ public class CarpetRules {
             String rule = data.readString(100);
             String current = data.readString(100);
             String def = data.readString(100);
-            int optionsSize = data.readInt();
+            boolean isFloat = data.readBoolean();
+//            int optionsSize = data.readInt();
+//
+//            String[] options = new String[optionsSize];
+//            for (int optionNum = 0; optionNum < optionsSize; optionNum++) {
+//                options[optionNum] = data.readString(100);
+//            }
 
-            String[] options = new String[optionsSize];
-            for (int optionNum = 0; optionNum < optionsSize; optionNum++) {
-                options[optionNum] = data.readString(100);
-            }
-
-            rules.put(rule, new CarpetSettingEntry(rule, current, options, def));
+            rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
         }
     }
 
@@ -159,17 +160,19 @@ public class CarpetRules {
         private String defaultOption;
         private boolean isDefault;
         private String ruleTip;
+        private boolean isFloat;
 
         private int integer;
         private float flt;
         private boolean bool;
 
-        public CarpetSettingEntry(String rule, String currentOption, String[] options, String defaultOption) {
+        public CarpetSettingEntry(String rule, String currentOption, String[] options, String defaultOption, boolean isFlt) {
             this.rule = rule;
             this.currentOption = currentOption;
             this.options = options;
             this.defaultOption = defaultOption;
             ruleTip = "";
+            isFloat = isFlt;
             checkValues();
             checkDefault();
         }
@@ -257,6 +260,14 @@ public class CarpetRules {
             this.currentOption = change;
             checkValues();
             checkDefault();
+        }
+
+        /**
+         * Checks if this rule uses a floating point or integer when doing the text field restrictions.
+         * @return returns true for is integer field.
+         */
+        public boolean useInteger() {
+            return !isFloat;
         }
     }
 }
