@@ -426,7 +426,7 @@ public class ScrollGUI extends GuiScreen {
         }
 
         int infoX = guiWidth / 2 - infoBoxWidth / 2;
-        int infoY = guiHeight - bottomPadding - infoBoxHeight + 15;
+        int infoY = 40;
         int y = infoY + 5;
 
         Gui.drawRect(infoX, infoY, infoX + infoBoxWidth, infoY
