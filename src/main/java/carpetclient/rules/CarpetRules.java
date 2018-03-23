@@ -45,7 +45,7 @@ public class CarpetRules {
     public static void ruleData(PacketBuffer data) {
         String rule = data.readString(100);
         int infoType = data.readInt();
-        String text = data.readString(100);
+        String text = data.readString(10000);
 
         if (CHANGE_RULE == infoType) {
             rules.get(rule).changeRule(text);
