@@ -51,6 +51,6 @@ public class CarpetPluginChannel {
      * @param data The data that is being sent to the server.
      */
     public static void packatSender(PacketBuffer data) {
-        ClientPluginChannels.sendMessage(CARPET_CHANNEL_NAME, data, ChannelPolicy.DISPATCH_IF_REGISTERED);
+        ClientPluginChannels.sendMessage(CARPET_CHANNEL_NAME, data, ChannelPolicy.DISPATCH_ALWAYS);
     }
 }
