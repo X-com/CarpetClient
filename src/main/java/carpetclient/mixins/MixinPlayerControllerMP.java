@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /*
 Injecting code for block rotation. Editing the x value when sending the package "CPacketPlayerTryUseItemOnBlock" to be decoded by carpet.
@@ -41,8 +42,70 @@ public class MixinPlayerControllerMP {
     @Shadow private void syncCurrentPlayItem() { }
 
     // Nasty override cause Injection dosen't work. Hopefully this will be replaced by a clean Injection
-    @Overwrite
-    public EnumActionResult processRightClickBlock(EntityPlayerSP player, WorldClient worldIn, BlockPos pos, EnumFacing direction, Vec3d vec, EnumHand hand) {
+//    @Overwrite
+//    public EnumActionResult processRightClickBlock(EntityPlayerSP player, WorldClient worldIn, BlockPos pos, EnumFacing direction, Vec3d vec, EnumHand hand) {
+//        this.syncCurrentPlayItem();
+//        ItemStack itemstack = player.getHeldItem(hand);
+//        float f = (float) (vec.x - (double) pos.getX());
+//        float f1 = (float) (vec.y - (double) pos.getY());
+//        float f2 = (float) (vec.z - (double) pos.getZ());
+//        boolean flag = false;
+//
+//        if (!this.mc.world.getWorldBorder().contains(pos)) {
+//            return EnumActionResult.FAIL;
+//        } else {
+//            if (this.currentGameType != GameType.SPECTATOR) {
+//                IBlockState iblockstate = worldIn.getBlockState(pos);
+//
+//                if ((!player.isSneaking() || player.getHeldItemMainhand().isEmpty() && player.getHeldItemOffhand().isEmpty()) && iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, direction, f, f1, f2)) {
+//                    flag = true;
+//                }
+//
+//                if (!flag && itemstack.getItem() instanceof ItemBlock) {
+//                    ItemBlock itemblock = (ItemBlock) itemstack.getItem();
+//
+//                    if (!itemblock.canPlaceBlockOnSide(worldIn, pos, direction, player, itemstack)) {
+//                        return EnumActionResult.FAIL;
+//                    }
+//                }
+//            }
+//
+//            f = blockRotation(player, pos, f, direction, itemstack);
+//            this.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(pos, direction, hand, f, f1, f2));
+//
+//            if (!flag && this.currentGameType != GameType.SPECTATOR) {
+//                if (itemstack.isEmpty()) {
+//                    return EnumActionResult.PASS;
+//                } else if (player.getCooldownTracker().hasCooldown(itemstack.getItem())) {
+//                    return EnumActionResult.PASS;
+//                } else {
+//                    if (itemstack.getItem() instanceof ItemBlock && !player.canUseCommandBlock()) {
+//                        Block block = ((ItemBlock) itemstack.getItem()).getBlock();
+//
+//                        if (block instanceof BlockCommandBlock || block instanceof BlockStructure) {
+//                            return EnumActionResult.FAIL;
+//                        }
+//                    }
+//
+//                    if (this.currentGameType.isCreative()) {
+//                        int i = itemstack.getMetadata();
+//                        int j = itemstack.getCount();
+//                        EnumActionResult enumactionresult = itemstack.onItemUse(player, worldIn, pos, hand, direction, f, f1, f2);
+//                        itemstack.setItemDamage(i);
+//                        itemstack.setCount(j);
+//                        return enumactionresult;
+//                    } else {
+//                        return itemstack.onItemUse(player, worldIn, pos, hand, direction, f, f1, f2);
+//                    }
+//                }
+//            } else {
+//                return EnumActionResult.SUCCESS;
+//            }
+//        }
+//    }
+
+    @Inject(method = "processRightClickBlock", at = @At("HEAD"), cancellable = true)
+    public void canPlaceOnOver(EntityPlayerSP player, WorldClient worldIn, BlockPos pos, EnumFacing direction, Vec3d vec, EnumHand hand, CallbackInfoReturnable<EnumActionResult> cir) {
         this.syncCurrentPlayItem();
         ItemStack itemstack = player.getHeldItem(hand);
         float f = (float) (vec.x - (double) pos.getX());
@@ -51,7 +114,7 @@ public class MixinPlayerControllerMP {
         boolean flag = false;
 
         if (!this.mc.world.getWorldBorder().contains(pos)) {
-            return EnumActionResult.FAIL;
+            cir.setReturnValue(EnumActionResult.FAIL);
         } else {
             if (this.currentGameType != GameType.SPECTATOR) {
                 IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -64,7 +127,7 @@ public class MixinPlayerControllerMP {
                     ItemBlock itemblock = (ItemBlock) itemstack.getItem();
 
                     if (!itemblock.canPlaceBlockOnSide(worldIn, pos, direction, player, itemstack)) {
-                        return EnumActionResult.FAIL;
+                        cir.setReturnValue(EnumActionResult.FAIL);
                     }
                 }
             }
@@ -74,15 +137,15 @@ public class MixinPlayerControllerMP {
 
             if (!flag && this.currentGameType != GameType.SPECTATOR) {
                 if (itemstack.isEmpty()) {
-                    return EnumActionResult.PASS;
+                    cir.setReturnValue(EnumActionResult.PASS);
                 } else if (player.getCooldownTracker().hasCooldown(itemstack.getItem())) {
-                    return EnumActionResult.PASS;
+                    cir.setReturnValue(EnumActionResult.PASS);
                 } else {
                     if (itemstack.getItem() instanceof ItemBlock && !player.canUseCommandBlock()) {
                         Block block = ((ItemBlock) itemstack.getItem()).getBlock();
 
                         if (block instanceof BlockCommandBlock || block instanceof BlockStructure) {
-                            return EnumActionResult.FAIL;
+                            cir.setReturnValue(EnumActionResult.FAIL);
                         }
                     }
 
@@ -92,17 +155,17 @@ public class MixinPlayerControllerMP {
                         EnumActionResult enumactionresult = itemstack.onItemUse(player, worldIn, pos, hand, direction, f, f1, f2);
                         itemstack.setItemDamage(i);
                         itemstack.setCount(j);
-                        return enumactionresult;
+                        cir.setReturnValue(enumactionresult);
                     } else {
-                        return itemstack.onItemUse(player, worldIn, pos, hand, direction, f, f1, f2);
+                        cir.setReturnValue(itemstack.onItemUse(player, worldIn, pos, hand, direction, f, f1, f2));
                     }
                 }
             } else {
-                return EnumActionResult.SUCCESS;
+                cir.setReturnValue(EnumActionResult.SUCCESS);
             }
         }
     }
-
+    
     /**
      * A rotation alogrithm that will sneek data in the unused x value. Data will be decoded by carpet 
      * mod "accurateBlockPlacement" and place the block in the orientation that is coded.
