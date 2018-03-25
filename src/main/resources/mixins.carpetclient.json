@@ -17,6 +17,8 @@
     "MixinsPlayerInteractionManager",
     "MixinRenderGlobal",
     "MixinNetworkManager$5",
-    "gui.GUICarpet"
+    "gui.GUICarpet",
+    "MixinsItemPickaxe",
+    "MixinsItemShears"
   ]
 }

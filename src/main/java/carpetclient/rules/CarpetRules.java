@@ -46,6 +46,7 @@ public class CarpetRules {
         Config.relaxedBlockPlacement = getRule("relaxedBlockPlacement").getBoolean();
         Config.accurateBlockPlacement = getRule("accurateBlockPlacement").getBoolean();
         Config.controlQCrafting = getRule("ctrlQCrafting").getBoolean();
+        Config.missingTools = getRule("missingTools").getBoolean();
     }
 
     /**
