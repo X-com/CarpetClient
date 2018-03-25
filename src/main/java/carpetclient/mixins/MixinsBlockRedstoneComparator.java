@@ -1,5 +1,7 @@
 package carpetclient.mixins;
 
+import carpetclient.Config;
+import carpetclient.Hotkeys;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -11,6 +13,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -35,7 +38,7 @@ public abstract class MixinsBlockRedstoneComparator extends BlockRedstoneDiode{
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         // rotate comperator based on hotkeys
         facing = placer.getHorizontalFacing().getOpposite();
-        if (GuiScreen.isAltKeyDown()) {
+        if (Config.accurateBlockPlacement && Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
             facing = facing.getOpposite();
         }
         

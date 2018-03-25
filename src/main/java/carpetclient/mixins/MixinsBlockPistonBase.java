@@ -1,5 +1,7 @@
 package carpetclient.mixins;
 
+import carpetclient.Config;
+import carpetclient.Hotkeys;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.BlockPistonBase;
@@ -13,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -55,15 +58,20 @@ public abstract class MixinsBlockPistonBase extends BlockDirectional {
         }
     }
 
+    // Override to fix a client side visual affect when placing blocks in a different orientation.
     @Overwrite
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         // rotate piston/sticky-piston based on hotkeys
 
-        if (!GuiScreen.isCtrlKeyDown()) {
-            facing = EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite();
-        }
-        if (!GuiScreen.isAltKeyDown()) {
-            facing = facing.getOpposite();
+        if(Config.accurateBlockPlacement) {
+            if (!Keyboard.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
+                facing = EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite();
+            }
+            if (!Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
+                facing = facing.getOpposite();
+            }
+        }else{
+            facing = EnumFacing.getDirectionFromEntityLiving(pos, placer);
         }
         return this.getDefaultState().withProperty(FACING, facing).withProperty(EXTENDED, Boolean.valueOf(false));
     }

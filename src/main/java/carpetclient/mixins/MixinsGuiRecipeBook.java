@@ -2,6 +2,7 @@ package carpetclient.mixins;
 
 import java.util.List;
 
+import carpetclient.Config;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,7 +32,7 @@ public abstract class MixinsGuiRecipeBook extends Gui implements IRecipeUpdateLi
     private void handleRecipeClickedd(IRecipe p_193950_1_, List<Slot> p_193950_2_, int p_193950_3_, InventoryCraftResult p_193950_4_, CallbackInfo ci) {
         if (GuiScreen.isShiftKeyDown() && GuiScreen.isAltKeyDown() ){
             this.mc.playerController.windowClick(p_193950_3_, 0, 1, ClickType.QUICK_MOVE, this.mc.player);
-        } else if(GuiScreen.isShiftKeyDown() && GuiScreen.isCtrlKeyDown()) {
+        } else if(GuiScreen.isShiftKeyDown() && GuiScreen.isCtrlKeyDown() && Config.controlQCrafting) {
             this.mc.playerController.windowClick(p_193950_3_, 0, 1, ClickType.THROW, this.mc.player);
         }
     }

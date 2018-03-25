@@ -1,5 +1,7 @@
 package carpetclient.mixins;
 
+import carpetclient.Config;
+import carpetclient.Hotkeys;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockStructure;
@@ -28,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.lwjgl.input.Keyboard;
 
 /*
 Injecting code for block rotation. Editing the x value when sending the package "CPacketPlayerTryUseItemOnBlock" to be decoded by carpet.
@@ -132,7 +135,7 @@ public class MixinPlayerControllerMP {
                 }
             }
 
-            f = blockRotation(player, pos, f, direction, itemstack);
+            if(Config.accurateBlockPlacement) f = blockRotation(player, pos, f, direction, itemstack);
             this.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(pos, direction, hand, f, f1, f2));
 
             if (!flag && this.currentGameType != GameType.SPECTATOR) {
@@ -177,14 +180,15 @@ public class MixinPlayerControllerMP {
      * @return value that is coded for specific orientation that is determined by the players choices.
      */
     private float blockRotation(EntityPlayerSP player, BlockPos pos, float f, EnumFacing direction, ItemStack itemstack) {
-        if(GuiScreen.isCtrlKeyDown()){
-            
+//        if(GuiScreen.isCtrlKeyDown()){
+        if(Keyboard.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())){
             // rotate pistons for placing head into blocks
             if(isPiston(itemstack)){
                 direction = direction.getOpposite();
             }
             
-            float i = GuiScreen.isAltKeyDown() ? direction.getOpposite().getIndex() : direction.getIndex();
+//            float i = GuiScreen.isAltKeyDown() ? direction.getOpposite().getIndex() : direction.getIndex();
+            float i = Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode()) ? direction.getOpposite().getIndex() : direction.getIndex();
             return i + 2;
         }else{
             EnumFacing facing = null;
@@ -201,7 +205,8 @@ public class MixinPlayerControllerMP {
                 facing = facing.getOpposite();
             }
             
-            float i = GuiScreen.isAltKeyDown() ? facing.getOpposite().getIndex() : facing.getIndex();
+//            float i = GuiScreen.isAltKeyDown() ? facing.getOpposite().getIndex() : facing.getIndex();
+            float i = Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode()) ? facing.getOpposite().getIndex() : facing.getIndex();
             return i + 2;
         }
     }

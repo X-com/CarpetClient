@@ -1,5 +1,7 @@
 package carpetclient.mixins;
 
+import carpetclient.Config;
+import carpetclient.Hotkeys;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.BlockRedstoneComparator;
 import net.minecraft.block.BlockRedstoneDiode;
@@ -12,6 +14,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -27,11 +30,12 @@ public abstract class MixinsBlockRedstoneDiode extends BlockHorizontal {
         super(materialIn);
     }
 
+    // Override to fix a client side visual affect when placing blocks in a different orientation.
     @Overwrite
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         // rotate comperator based on hotkeys
         facing = placer.getHorizontalFacing().getOpposite();
-        if (GuiScreen.isAltKeyDown()) {
+        if (Config.accurateBlockPlacement && Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
             facing = facing.getOpposite();
         }
 

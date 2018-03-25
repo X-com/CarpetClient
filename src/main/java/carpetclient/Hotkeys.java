@@ -16,14 +16,18 @@ public class Hotkeys {
     public static KeyBinding toggleSnapAim = new KeyBinding("Snap Aim", Keyboard.KEY_F9, "Carpet Client");
     public static KeyBinding toggleSnapAimKeyLocker = new KeyBinding("Snap Aim Keylocker", Keyboard.KEY_LMENU, "Carpet Client");
 //    private static KeyBinding toggleMarkers = new KeyBinding("Markers", Keyboard.KEY_B, "Carpet Client");
-    public static KeyBinding toggleRBP = new KeyBinding("Relaxed Block Placement", Keyboard.KEY_P, "Carpet Client");
+//    public static KeyBinding toggleRBP = new KeyBinding("Relaxed Block Placement", Keyboard.KEY_P, "Carpet Client");
+    public static KeyBinding toggleBlockFlip = new KeyBinding("Block Rotation Flip", Keyboard.KEY_LMENU, "Carpet Client");
+    public static KeyBinding toggleBlockFacing = new KeyBinding("Block Rotation Face", Keyboard.KEY_LCONTROL, "Carpet Client");
 
     public static void init() {
 //        LiteLoader.getInput().registerKeyBinding(toggleMainMenu);
         LiteLoader.getInput().registerKeyBinding(toggleSnapAim);
         LiteLoader.getInput().registerKeyBinding(toggleSnapAimKeyLocker);
 //        LiteLoader.getInput().registerKeyBinding(toggleMarkers);
-        LiteLoader.getInput().registerKeyBinding(toggleRBP);
+//        LiteLoader.getInput().registerKeyBinding(toggleRBP);
+        LiteLoader.getInput().registerKeyBinding(toggleBlockFlip);
+        LiteLoader.getInput().registerKeyBinding(toggleBlockFacing);
     }
 
     public static void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
@@ -31,10 +35,11 @@ public class Hotkeys {
             return;
         }
 
-        if (toggleRBP.isPressed()) {
-            Config.relaxedBlockPlacement = !Config.relaxedBlockPlacement;
-            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Relaxed block placement: " + (Config.relaxedBlockPlacement ? "ON" : "OFF")));
-        } else if (toggleSnapAim.isPressed()) {
+//        if (toggleRBP.isPressed()) {
+//            Config.relaxedBlockPlacement = !Config.relaxedBlockPlacement;
+//            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Relaxed block placement: " + (Config.relaxedBlockPlacement ? "ON" : "OFF")));
+//        } else 
+        if (toggleSnapAim.isPressed()) {
             Config.snapAim = !Config.snapAim;
             minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("SnapAim: " + (Config.snapAim ? "ON" : "OFF")));
         }
