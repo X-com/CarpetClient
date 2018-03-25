@@ -4,9 +4,8 @@ package carpetclient;
 Config class for accessing mod variables.
  */
 public class Config {
-    public static boolean relaxedBlockPlacement = false;
+    public static boolean relaxedBlockPlacement = true;
     public static boolean snapAim = false;
-    public static boolean markers = false;
-    public static boolean accurateBlockPlacement = false;
-    public static boolean controlQCrafting = false;
+    public static boolean accurateBlockPlacement = true;
+    public static boolean controlQCrafting = true;
 }
