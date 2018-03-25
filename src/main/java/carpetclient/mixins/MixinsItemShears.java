@@ -18,17 +18,14 @@ import java.util.Set;
 
 @Mixin(ItemShears.class)
 public class MixinsItemShears extends Item {
-    
+
     @Inject(method = "getDestroySpeed", at = @At("HEAD"), cancellable = true)
     public void canPlaceOnOver(ItemStack stack, IBlockState state, CallbackInfoReturnable<Float> cir) {
         Block block = state.getBlock();
 
-        if (block != Blocks.WEB && state.getMaterial() != Material.LEAVES && (!Config.missingTools || state.getMaterial() != Material.SPONGE))
-        {
+        if (block != Blocks.WEB && state.getMaterial() != Material.LEAVES && (!Config.missingTools || state.getMaterial() != Material.SPONGE)) {
             cir.setReturnValue(block == Blocks.WOOL ? 5.0F : super.getDestroySpeed(stack, state));
-        }
-        else
-        {
+        } else {
             cir.setReturnValue(15.0F);
         }
     }

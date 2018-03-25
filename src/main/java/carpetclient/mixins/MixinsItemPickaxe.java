@@ -25,6 +25,6 @@ public class MixinsItemPickaxe extends ItemTool {
     @Inject(method = "getDestroySpeed", at = @At("HEAD"), cancellable = true)
     public void canPlaceOnOver(ItemStack stack, IBlockState state, CallbackInfoReturnable<Float> cir) {
         Material material = state.getMaterial();
-        cir.setReturnValue(material != Material.IRON && material != Material.ANVIL && material != Material.ROCK&& (!Config.missingTools || (material != Material.PISTON && material != Material.GLASS)) ? super.getDestroySpeed(stack, state) : this.efficiency);
+        cir.setReturnValue(material != Material.IRON && material != Material.ANVIL && material != Material.ROCK && (!Config.missingTools || (material != Material.PISTON && material != Material.GLASS)) ? super.getDestroySpeed(stack, state) : this.efficiency);
     }
 }
