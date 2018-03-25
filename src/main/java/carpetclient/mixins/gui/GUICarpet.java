@@ -20,16 +20,16 @@ public class GUICarpet extends GuiScreen {
 
     private static final int carpetClientID = 6000;
     GuiButton carpetButton;
-    
-    @Inject(method="initGui", at=@At("RETURN"))
+
+    @Inject(method = "initGui", at = @At("RETURN"))
     private void onInitGui(CallbackInfo ci) {
         injectButtons((GuiIngameMenu) (Object) this, buttonList);
     }
-    
+
     /*
      * Action handler for the button click.
      */
-    @Inject(method="actionPerformed", at=@At("HEAD"))
+    @Inject(method = "actionPerformed", at = @At("HEAD"))
     private void onActionPerformed(GuiButton guibutton, CallbackInfo ci) {
         handleButtonClick((GuiIngameMenu) (Object) this, guibutton);
     }

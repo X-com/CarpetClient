@@ -20,8 +20,7 @@ public class MixinsBlockPumpkin extends BlockHorizontal {
     }
 
     @Overwrite
-    public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
-    {
+    public boolean canPlaceBlockAt(World worldIn, BlockPos pos) {
         return (worldIn.getBlockState(pos.down()).getMaterial().isSolid() || Config.relaxedBlockPlacement) ? super.canPlaceBlockAt(worldIn, pos) : false;
     }
 }

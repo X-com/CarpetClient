@@ -162,6 +162,7 @@ public class CarpetRules {
 
     /**
      * Gets a specific rule.
+     *
      * @param rule String representation of the rule.
      * @return returns the rule that is requested.
      */
@@ -285,6 +286,7 @@ public class CarpetRules {
 
         /**
          * Checks if this rule uses a floating point or integer when doing the text field restrictions.
+         *
          * @return returns true for is integer field.
          */
         public boolean useInteger() {
@@ -293,6 +295,7 @@ public class CarpetRules {
 
         /**
          * Gets the boolean value of the rule.
+         *
          * @return returns the boolean value of the server rule.
          */
         public boolean getBoolean() {

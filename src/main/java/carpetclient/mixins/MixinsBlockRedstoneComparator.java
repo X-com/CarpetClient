@@ -25,10 +25,14 @@ import javax.annotation.Nullable;
 Mixen class to make comperator properly rotate without visual glitches when doing "accurateBlockPlacement".
  */
 @Mixin(BlockRedstoneComparator.class)
-public abstract class MixinsBlockRedstoneComparator extends BlockRedstoneDiode{
+public abstract class MixinsBlockRedstoneComparator extends BlockRedstoneDiode {
 
-    @Shadow public static @Final PropertyBool POWERED;
-    @Shadow public static @Final PropertyEnum<BlockRedstoneComparator.Mode> MODE;
+    @Shadow
+    public static @Final
+    PropertyBool POWERED;
+    @Shadow
+    public static @Final
+    PropertyEnum<BlockRedstoneComparator.Mode> MODE;
 
     protected MixinsBlockRedstoneComparator(boolean powered) {
         super(powered);
@@ -41,7 +45,7 @@ public abstract class MixinsBlockRedstoneComparator extends BlockRedstoneDiode{
         if (Config.accurateBlockPlacement && Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
             facing = facing.getOpposite();
         }
-        
+
         return this.getDefaultState().withProperty(FACING, facing).withProperty(POWERED, Boolean.valueOf(false)).withProperty(MODE, BlockRedstoneComparator.Mode.COMPARE);
     }
 }

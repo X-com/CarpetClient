@@ -40,7 +40,8 @@ public class CarpetPluginChannel {
 
         if (GUI_ALL_DATA == type) {
             CarpetRules.setAllRules(data);
-        } if (RULE_REQUEST == type) {
+        }
+        if (RULE_REQUEST == type) {
             CarpetRules.ruleData(data);
         }
     }

@@ -25,7 +25,7 @@ Mixen class to make comperator properly rotate without visual glitches when doin
  */
 @Mixin(BlockRedstoneDiode.class)
 public abstract class MixinsBlockRedstoneDiode extends BlockHorizontal {
-    
+
     protected MixinsBlockRedstoneDiode(Material materialIn) {
         super(materialIn);
     }

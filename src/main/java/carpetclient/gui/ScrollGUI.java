@@ -50,7 +50,7 @@ public class ScrollGUI extends GuiScreen {
 
         for (CarpetRules.CarpetSettingEntry r : rules) {
             if (r.isNumber()) {
-                list.addNewText(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip(), r.useInteger() );
+                list.addNewText(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip(), r.useInteger());
             } else {
                 list.addNewButton(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip());
             }
@@ -318,7 +318,7 @@ public class ScrollGUI extends GuiScreen {
 //                }
 
                 if (this.isMouseOverInfo(mouseX, mouseY)) {
-                    if(ruleInfo.length() > 0) hoveredToolTip = ruleInfo;
+                    if (ruleInfo.length() > 0) hoveredToolTip = ruleInfo;
                 }
             }
 
@@ -483,9 +483,9 @@ public class ScrollGUI extends GuiScreen {
             // Save last safe text.
 
             try {
-                if(useInteger) {
+                if (useInteger) {
                     Integer.parseInt(getText());
-                }else {
+                } else {
                     Float.parseFloat(getText());
                 }
                 lastSafeText = getText();
@@ -514,9 +514,9 @@ public class ScrollGUI extends GuiScreen {
 
             try {
                 if (text.contains("d") || text.contains("f")) return lastSafeText;
-                if(useInteger) {
+                if (useInteger) {
                     return String.valueOf(Integer.parseInt(text));
-                }else{
+                } else {
                     return String.valueOf(Float.parseFloat(text));
                 }
             } catch (NumberFormatException e) {
@@ -530,9 +530,9 @@ public class ScrollGUI extends GuiScreen {
             String value;
 
             try {
-                if(useInteger) {
+                if (useInteger) {
                     value = String.valueOf(Integer.parseInt(text));
-                }else {
+                } else {
                     value = String.valueOf(Float.parseFloat(text));
                 }
             } catch (NumberFormatException e) {
