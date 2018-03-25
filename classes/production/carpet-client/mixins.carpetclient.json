@@ -16,6 +16,9 @@
     "MixinsKeyBinding",
     "MixinsPlayerInteractionManager",
     "MixinRenderGlobal",
-    "gui.GUICarpet"
+    "MixinNetworkManager$5",
+    "gui.GUICarpet",
+    "MixinsItemPickaxe",
+    "MixinsItemShears"
   ]
 }

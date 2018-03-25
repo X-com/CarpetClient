@@ -81,6 +81,13 @@ public class CarpetRules {
         return res;
     }
 
+    public static void requestUpdate() {
+        PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
+        sender.writeInt(CarpetPluginChannel.GUI_ALL_DATA);
+
+        CarpetPluginChannel.packatSender(sender);
+    }
+
     /**
      * Requests server to change a rule.
      *

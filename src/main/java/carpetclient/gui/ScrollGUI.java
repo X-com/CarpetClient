@@ -33,7 +33,7 @@ public class ScrollGUI extends GuiScreen {
     private String title;
     private static final int SET_TEXT_FIELD = 0xE0E0E0, DEFAULT_TEXT_FIELD = 0x808080;
     @Nullable
-    private String hoveredToolTip;
+    private static String hoveredToolTip;
 
     public static void initGUI(GuiIngameMenu guiIngameMenu) {
         Minecraft.getMinecraft().displayGuiScreen(new ScrollGUI(guiIngameMenu));
@@ -65,6 +65,8 @@ public class ScrollGUI extends GuiScreen {
 
         this.buttonList.add(new GuiButton(100, this.width / 2 - 100,
                 this.height - 29, I18n.format("gui.done")));
+        this.buttonList.add(new GuiButton(666, this.width / 2 - 100,
+                15, I18n.format("Force Update")));
         list.setDimensions(this.width, this.height, 39, this.height - 32);
         updateGUI();
     }
@@ -73,6 +75,9 @@ public class ScrollGUI extends GuiScreen {
     protected void actionPerformed(GuiButton button) throws IOException {
         if (button.id == 100) {
             this.mc.displayGuiScreen(this.parent);
+        }
+        if (button.id == 666) {
+            CarpetRules.requestUpdate();
         }
     }
 
