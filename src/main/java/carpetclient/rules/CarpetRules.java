@@ -1,5 +1,6 @@
 package carpetclient.rules;
 
+import carpetclient.Config;
 import carpetclient.gui.ScrollGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import io.netty.buffer.Unpooled;
@@ -35,6 +36,16 @@ public class CarpetRules {
     public static void setAllRules(PacketBuffer data) {
         CarpetRules.data = data;
         decodeData();
+        editClientRules();
+    }
+
+    /**
+     * Edits the client rules based on server rules.
+     */
+    private static void editClientRules() {
+        Config.relaxedBlockPlacement = getRule("relaxedBlockPlacement").getBoolean();
+        Config.accurateBlockPlacement = getRule("accurateBlockPlacement").getBoolean();
+        Config.controlQCrafting = getRule("ctrlQCrafting").getBoolean();
     }
 
     /**
@@ -149,6 +160,15 @@ public class CarpetRules {
         }
     }
 
+    /**
+     * Gets a specific rule.
+     * @param rule String representation of the rule.
+     * @return returns the rule that is requested.
+     */
+    public static CarpetSettingEntry getRule(String rule) {
+        return rules.get(rule);
+    }
+
     /*
      * Class that stores the detailed rules.
      */
@@ -260,6 +280,7 @@ public class CarpetRules {
             this.currentOption = change;
             checkValues();
             checkDefault();
+            editClientRules();
         }
 
         /**
@@ -268,6 +289,14 @@ public class CarpetRules {
          */
         public boolean useInteger() {
             return !isFloat;
+        }
+
+        /**
+         * Gets the boolean value of the rule.
+         * @return returns the boolean value of the server rule.
+         */
+        public boolean getBoolean() {
+            return bool;
         }
     }
 }
