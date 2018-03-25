@@ -77,22 +77,22 @@ public class ScrollGUI extends GuiScreen {
     }
 
     public void ruleButtonClicked(String ruleName) {
-        System.out.println("button clicked " + ruleName);
+//        System.out.println("button clicked " + ruleName);
         CarpetRules.ruleChange(ruleName);
     }
 
     public void textButtonClicked(String ruleName, String text) {
-        System.out.println("text clicked " + ruleName + " " + text);
+//        System.out.println("text clicked " + ruleName + " " + text);
         CarpetRules.textRuleChange(ruleName, text);
     }
 
     public void resetButtonClicked(String ruleName) {
-        System.out.println("reset clicked " + ruleName);
+//        System.out.println("reset clicked " + ruleName);
         CarpetRules.resetRule(ruleName);
     }
 
     public void infoButtonClicked(String ruleName) {
-        System.out.println("info clicked " + ruleName);
+//        System.out.println("info clicked " + ruleName);
         CarpetRules.ruleTipRequest(ruleName);
     }
 
