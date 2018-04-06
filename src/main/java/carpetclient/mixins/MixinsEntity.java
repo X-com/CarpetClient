@@ -82,7 +82,5 @@ public abstract class MixinsEntity {
         } else {
             this.rotationYaw = storedRotationYaw;
         }
-        
-        System.out.println(this.rotationYaw);
     }
 }

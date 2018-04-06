@@ -14,6 +14,8 @@ import net.minecraft.network.PacketBuffer;
 
 public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener {
 
+    private boolean gameRunnin = false;
+
     @Override
     public String getVersion() {
         return "@VERSION@";
@@ -35,7 +37,11 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
     @Override
     public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
-        Hotkeys.onTick(minecraft, partialTicks, inGame, clock);
+        gameRunnin = minecraft.isIntegratedServerRunning() || minecraft.getCurrentServerData() != null;
+
+        if (gameRunnin) {
+            Hotkeys.onTick(minecraft, partialTicks, inGame, clock);
+        }
     }
 
     // Needed method for plugin channels. Data from the server.
@@ -52,7 +58,9 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
     @Override
     public void onPostRenderEntities(float partialTicks) {
-        MainRender.mainRender(partialTicks);
+        if (gameRunnin) {
+            MainRender.mainRender(partialTicks);
+        }
     }
 
     @Override

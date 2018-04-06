@@ -19,10 +19,6 @@ public class MainRender {
      * @param partialTicks -- not sure what this does.
      */
     public static void mainRender(float partialTicks) {
-        if (!Minecraft.getMinecraft().isIntegratedServerRunning()) {
-            return;
-        }
-
         mutex.lock();
 
         try {

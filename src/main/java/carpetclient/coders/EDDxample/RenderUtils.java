@@ -47,7 +47,6 @@ public class RenderUtils {
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
 
-
     private static void drawDot(double Ax, double Ay, double Az, Color color) {
         final int RED = color.getRed(), GREEN = color.getGreen(), BLUE = color.getBlue();
         Tessellator tessellator = Tessellator.getInstance();

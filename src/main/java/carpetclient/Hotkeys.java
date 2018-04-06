@@ -30,10 +30,6 @@ public class Hotkeys {
     }
 
     public static void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
-        if (!minecraft.isIntegratedServerRunning() && minecraft.getCurrentServerData() == null) {
-            return;
-        }
-
 //        if (toggleRBP.isPressed()) {
 //            Config.relaxedBlockPlacement = !Config.relaxedBlockPlacement;
 //            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Relaxed block placement: " + (Config.relaxedBlockPlacement ? "ON" : "OFF")));

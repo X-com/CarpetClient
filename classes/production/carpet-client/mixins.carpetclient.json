@@ -19,6 +19,7 @@
     "MixinNetworkManager$5",
     "gui.GUICarpet",
     "MixinsItemPickaxe",
-    "MixinsItemShears"
+    "MixinsItemShears",
+    "MixinsItemBucket"
   ]
 }
