@@ -1,14 +1,19 @@
 package carpetclient.coders.EDDxample;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import carpetclient.coders.EDDxample.RenderUtils;
+import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.Village;
 import net.minecraft.village.VillageDoorInfo;
@@ -69,12 +74,12 @@ public class VillageMarker {
                 center = new BlockPos(ints.get(0), ints.get(1), ints.get(2));
                 int r = ints.get(3);
                 color = entry.getValue();
-	            
+                
 				/* === POPULATION CAGE === */
 
                 if (population)
                     RenderUtils.drawBox(d0, d1, d2, center.getX() - r, center.getY() - 4, center.getZ() - r, center.getX() + r, center.getY() + 4, center.getZ() + r, color);
-	            
+                
 				/* === SPHERES === */
 
                 if (village_radius != 0)
@@ -95,7 +100,7 @@ public class VillageMarker {
                 }
             }
         }
-		
+        
         /* ===== DISABLE OPENGL STUFF ===== */
 
         RenderUtils.prepareOpenGL(false);
@@ -104,13 +109,11 @@ public class VillageMarker {
     /**
      * Sets the villages to draw once per tick (better than once per frame I guess :P)
      */
-    public static void genLists() {
+    public static void genLists(List<Village> villages) {
         centers.clear();
         radii.clear();
         doors.clear();
         boolean _golem = golem, _radius = population || village_radius != 0 || door_radius != 0, _lines = lines;
-
-        List<Village> villages = Minecraft.getMinecraft().getIntegratedServer().getEntityWorld().getVillageCollection().getVillageList();
 
         if (_golem || _radius || _lines) {
             for (int i = 0; i < villages.size(); i++) {
@@ -146,5 +149,29 @@ public class VillageMarker {
         list.add(pos.getY());
         list.add(pos.getZ());
         return list;
+    }
+
+    public static void villageUpdate(PacketBuffer data) {
+        List<Village> villageList = Lists.<Village>newArrayList();
+        NBTTagCompound nbt = null;
+        try {
+            nbt = data.readCompoundTag();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (nbt != null) {
+            NBTTagList nbttaglist = nbt.getTagList("Villages", 10);
+
+            for (int i = 0; i < nbttaglist.tagCount(); ++i) {
+                NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+                Village village = new Village();
+                village.readVillageDataFromNBT(nbttagcompound);
+                villageList.add(village);
+            }
+
+            genLists(villageList);
+        }
     }
 }

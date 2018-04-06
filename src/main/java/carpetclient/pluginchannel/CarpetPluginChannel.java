@@ -1,6 +1,7 @@
 package carpetclient.pluginchannel;
 
 
+import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.rules.CarpetRules;
 import com.google.common.collect.ImmutableList;
 import com.mumfrey.liteloader.core.ClientPluginChannels;
@@ -16,6 +17,7 @@ public class CarpetPluginChannel {
     
     public static final int GUI_ALL_DATA = 0;
     public static final int RULE_REQUEST = 1;
+    public static final int VILLAGE_MARKERS = 2;
 
     /**
      * Packate receiver method to handle incoming messages.
@@ -43,6 +45,9 @@ public class CarpetPluginChannel {
         }
         if (RULE_REQUEST == type) {
             CarpetRules.ruleData(data);
+        }
+        if (VILLAGE_MARKERS == type) {
+            VillageMarker.villageUpdate(data);
         }
     }
 
