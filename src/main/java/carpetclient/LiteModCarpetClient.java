@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import com.mumfrey.liteloader.LiteMod;
+import com.mumfrey.liteloader.PostRenderListener;
 import com.mumfrey.liteloader.Tickable;
 import com.mumfrey.liteloader.PluginChannelListener;
 import carpetclient.pluginchannel.CarpetPluginChannel;
@@ -11,7 +12,7 @@ import carpetclient.pluginchannel.CarpetPluginChannel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 
-public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener {
+public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener {
 
     @Override
     public String getVersion() {
@@ -47,5 +48,15 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
     @Override
     public List<String> getChannels() {
         return CarpetPluginChannel.CARPET_PLUGIN_CHANNEL;
+    }
+
+    @Override
+    public void onPostRenderEntities(float partialTicks) {
+        MainRender.mainRender(partialTicks);
+    }
+
+    @Override
+    public void onPostRender(float partialTicks) {
+
     }
 }
