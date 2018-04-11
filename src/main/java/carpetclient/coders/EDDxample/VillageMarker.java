@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import carpetclient.coders.EDDxample.RenderUtils;
+import carpetclient.gui.ClientGUI;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -18,6 +18,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.Village;
 import net.minecraft.village.VillageDoorInfo;
 
+/*
+Code from EDDxample used to render Village markers.
+ */
 public class VillageMarker {
 
     public static final Color[] colors = {new Color(0x00ffff), new Color(0xff00ff), new Color(0xffff00), new Color(0x0000ff), new Color(0x00ff00), new Color(0xff0000)};
@@ -30,12 +33,12 @@ public class VillageMarker {
 	/* ===== SETTINGS ===== */
 
     public static final int sphereDensity = 80;
-    static boolean population = true,
+    public static boolean population = true,
             golem = true,
             lines = true;
-    static int village_radius = 1, // 0 = OFF, 1 = DOTS, 2 = LINES, 3 = CIRCLE
+    public static int village_radius = 1, // 0 = OFF, 1 = DOTS, 2 = LINES, 3 = CIRCLE
             door_radius = 0;
-    static final String[] modes = {"OFF", "DOTS", "LINES", "CIRCLE"};
+    public static final String[] modes = {"OFF", "DOTS", "LINES", "CIRCLE"};
 
     /**
      * Draws the villages every frame
@@ -173,5 +176,26 @@ public class VillageMarker {
 
             genLists(villageList);
         }
+    }
+
+    public static void guiVillageOptions(int buttonID) {
+        switch (buttonID) {
+            case 0:
+                lines = !lines;
+                break;
+            case 1:
+                golem = !golem;
+                break;
+            case 2:
+                population = !population;
+                break;
+            case 3:
+                village_radius = (village_radius + 1) % modes.length;
+                break;
+            case 4:
+                door_radius = (door_radius + 1) % modes.length;
+                break;
+        }
+        ClientGUI.display();
     }
 }
