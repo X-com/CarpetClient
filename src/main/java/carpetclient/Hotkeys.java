@@ -6,16 +6,21 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.text.TextComponentString;
 import org.lwjgl.input.Keyboard;
 
+import carpetclient.pluginchannel.CarpetPluginChannel;
+import net.minecraft.network.PacketBuffer;
+import io.netty.buffer.Unpooled;
+
 /*
 Hotkey class to implement hotkeys for the carpet client. Changeable in the hotkey menu ingame.
  */
 public class Hotkeys {
 
-//    private static KeyBinding toggleMainMenu = new KeyBinding("Carpet Menu", Keyboard.KEY_M, "Carpet Client");
+    //    private static KeyBinding toggleMainMenu = new KeyBinding("Carpet Menu", Keyboard.KEY_M, "Carpet Client");
     public static KeyBinding toggleSnapAim = new KeyBinding("Snap Aim", Keyboard.KEY_F9, "Carpet Client");
     public static KeyBinding toggleSnapAimKeyLocker = new KeyBinding("Snap Aim Keylocker", Keyboard.KEY_LMENU, "Carpet Client");
-//    private static KeyBinding toggleMarkers = new KeyBinding("Markers", Keyboard.KEY_B, "Carpet Client");
-//    public static KeyBinding toggleRBP = new KeyBinding("Relaxed Block Placement", Keyboard.KEY_P, "Carpet Client");
+    private static KeyBinding toggleBoundingBoxMarkers = new KeyBinding("Bounding Box Markers", Keyboard.KEY_F8, "Carpet Client");
+    private static KeyBinding toggleVillageMarkers = new KeyBinding("Village Markers", Keyboard.KEY_F7, "Carpet Client");
+    //    public static KeyBinding toggleRBP = new KeyBinding("Relaxed Block Placement", Keyboard.KEY_P, "Carpet Client");
     public static KeyBinding toggleBlockFlip = new KeyBinding("Block Rotation Flip", Keyboard.KEY_LMENU, "Carpet Client");
     public static KeyBinding toggleBlockFacing = new KeyBinding("Block Rotation Face", Keyboard.KEY_LCONTROL, "Carpet Client");
 
@@ -23,7 +28,8 @@ public class Hotkeys {
 //        LiteLoader.getInput().registerKeyBinding(toggleMainMenu);
         LiteLoader.getInput().registerKeyBinding(toggleSnapAim);
         LiteLoader.getInput().registerKeyBinding(toggleSnapAimKeyLocker);
-//        LiteLoader.getInput().registerKeyBinding(toggleMarkers);
+        LiteLoader.getInput().registerKeyBinding(toggleBoundingBoxMarkers);
+        LiteLoader.getInput().registerKeyBinding(toggleVillageMarkers);
 //        LiteLoader.getInput().registerKeyBinding(toggleRBP);
         LiteLoader.getInput().registerKeyBinding(toggleBlockFlip);
         LiteLoader.getInput().registerKeyBinding(toggleBlockFacing);
@@ -37,6 +43,21 @@ public class Hotkeys {
         if (toggleSnapAim.isPressed()) {
             Config.snapAim = !Config.snapAim;
             minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("SnapAim: " + (Config.snapAim ? "ON" : "OFF")));
+        } else if (toggleBoundingBoxMarkers.isPressed()) {
+            Config.boundingBoxMarkers = !Config.boundingBoxMarkers;
+            if (Config.boundingBoxMarkers) {
+                PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
+                sender.writeInt(CarpetPluginChannel.BOUNDINGBOX_MARKERS);
+
+                CarpetPluginChannel.packatSender(sender);
+            }
+        } else if (toggleVillageMarkers.isPressed()) {
+            Config.villageMarkers = !Config.villageMarkers;
+            PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
+            sender.writeInt(CarpetPluginChannel.VILLAGE_MARKERS);
+            sender.writeBoolean(Config.villageMarkers);
+            
+            CarpetPluginChannel.packatSender(sender);
         }
     }
 }

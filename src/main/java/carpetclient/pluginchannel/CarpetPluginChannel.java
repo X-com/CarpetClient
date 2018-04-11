@@ -1,6 +1,7 @@
 package carpetclient.pluginchannel;
 
 
+import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.rules.CarpetRules;
 import com.google.common.collect.ImmutableList;
@@ -18,6 +19,7 @@ public class CarpetPluginChannel {
     public static final int GUI_ALL_DATA = 0;
     public static final int RULE_REQUEST = 1;
     public static final int VILLAGE_MARKERS = 2;
+    public static final int BOUNDINGBOX_MARKERS = 3;
 
     /**
      * Packate receiver method to handle incoming messages.
@@ -48,6 +50,9 @@ public class CarpetPluginChannel {
         }
         if (VILLAGE_MARKERS == type) {
             VillageMarker.villageUpdate(data);
+        }
+        if (BOUNDINGBOX_MARKERS == type) {
+            ShowBoundingBoxes.getStructureComponent(data);
         }
     }
 

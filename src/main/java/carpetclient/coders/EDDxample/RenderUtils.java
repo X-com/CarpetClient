@@ -10,7 +10,9 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-
+/*
+Code from EDDxample used to render markers ingame.
+ */
 public class RenderUtils {
     public static void prepareOpenGL(boolean b) {
         if (b) {

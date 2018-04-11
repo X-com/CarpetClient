@@ -1,11 +1,10 @@
 package carpetclient;
 
-import net.minecraft.client.Minecraft;
+import carpetclient.coders.EDDxample.ShowBoundingBoxes;
+import carpetclient.coders.EDDxample.VillageMarker;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import carpetclient.coders.EDDxample.VillageMarker;
 
 /*
  * Main render class to implement client render updates.
@@ -22,7 +21,12 @@ public class MainRender {
         mutex.lock();
 
         try {
-            VillageMarker.RenderVillages(partialTicks);
+            if (Config.boundingBoxMarkers) {
+                ShowBoundingBoxes.RenderStructures(partialTicks);
+            }
+            if (Config.villageMarkers) {
+                VillageMarker.RenderVillages(partialTicks);
+            }
         } finally {
             mutex.unlock();
         }
