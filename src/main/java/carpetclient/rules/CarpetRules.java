@@ -1,11 +1,11 @@
 package carpetclient.rules;
 
 import carpetclient.Config;
-import carpetclient.gui.ScrollGUI;
+import carpetclient.coders.Pokechu22.ScrollGUI;
+import carpetclient.gui.ClientGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
-import com.google.common.base.Charsets;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,7 +65,7 @@ public class CarpetRules {
             rules.get(rule).setRuleTip(text);
         }
 
-        ScrollGUI.updateGUI();
+        ClientGUI.display();
     }
 
     /**
@@ -150,6 +150,7 @@ public class CarpetRules {
      * Decoder for the packet into rules.
      */
     private static void decodeData() {
+        String carpetServerVersion = data.readString(1000);
         int ruleListSize = data.readInt();
 
         for (int ruleNum = 0; ruleNum < ruleListSize; ruleNum++) {
@@ -166,6 +167,8 @@ public class CarpetRules {
 
             rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
         }
+
+        ScrollGUI.setServerVersion(carpetServerVersion);
     }
 
     /**
@@ -250,7 +253,7 @@ public class CarpetRules {
         }
 
         /**
-         * Getter for the default being true or false.
+         * Getter for the default being true or false. The rule being in the reset or not.
          *
          * @return default value
          */

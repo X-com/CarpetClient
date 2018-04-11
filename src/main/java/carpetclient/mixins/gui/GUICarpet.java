@@ -1,6 +1,6 @@
 package carpetclient.mixins.gui;
 
-import carpetclient.gui.ScrollGUI;
+import carpetclient.coders.Pokechu22.ScrollGUI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;

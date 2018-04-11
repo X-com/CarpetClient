@@ -1,5 +1,6 @@
-package carpetclient.gui;
+package carpetclient.coders.Pokechu22;
 
+import carpetclient.gui.ClientGUI;
 import carpetclient.rules.CarpetRules;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -8,17 +9,13 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.network.PacketBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiListExtended;
-import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.input.Keyboard;
 
 /*
 This is a scrolling class for implementing scrollable GUI to minecraft.
@@ -28,9 +25,11 @@ For use of this code, ask permission from Pokechu22.
 public class ScrollGUI extends GuiScreen {
     private static final Logger LOGGER = LogManager.getLogger();
     private final GuiScreen parent;
-    private static GuiGameRuleList list;
     private static PacketBuffer data;
+    private final ClientGUI clientGUI;
     private String title;
+    private String title2 = "Carpet server version";
+    private static String serverVersion = "";
     private static final int SET_TEXT_FIELD = 0xE0E0E0, DEFAULT_TEXT_FIELD = 0x808080;
     @Nullable
     private static String hoveredToolTip;
@@ -38,47 +37,40 @@ public class ScrollGUI extends GuiScreen {
     public static void initGUI(GuiIngameMenu guiIngameMenu) {
         Minecraft.getMinecraft().displayGuiScreen(new ScrollGUI(guiIngameMenu));
     }
+    
+    public static void setServerVersion(String s){
+        serverVersion = s;
+    }
 
     public ScrollGUI(GuiScreen parent) {
         this.parent = parent;
-    }
-
-    public static void updateGUI() {
-        list.clear();
-
-        ArrayList<CarpetRules.CarpetSettingEntry> rules = CarpetRules.getAllRules();
-
-        for (CarpetRules.CarpetSettingEntry r : rules) {
-            if (r.isNumber()) {
-                list.addNewText(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip(), r.useInteger());
-            } else {
-                list.addNewButton(r.getRule(), r.getCurrentOption(), r.isDefault(), r.getRuleTip());
-            }
-        }
+        this.clientGUI = new ClientGUI(this);
     }
 
     public void initGui() {
-        if (this.list == null) {
-            this.list = new GuiGameRuleList();
+        if (ClientGUI.list == null) {
+            ClientGUI.list = new GuiGameRuleList();
         }
-        this.title = "Carpet Rules";
+        this.title = "Carpet Client";
 
         this.buttonList.add(new GuiButton(100, this.width / 2 - 100,
-                this.height - 29, I18n.format("gui.done")));
-        this.buttonList.add(new GuiButton(666, this.width / 2 - 100,
-                15, I18n.format("Force Update")));
-        list.setDimensions(this.width, this.height, 39, this.height - 32);
-        updateGUI();
+                this.height - 29, "Back"));
+//        this.buttonList.add(new GuiButton(666, this.width / 2 - 100,
+//                15, I18n.format("Force Update")));
+        clientGUI.getList().setDimensions(this.width, this.height, 39, this.height - 32);
+        ClientGUI.display();
     }
 
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         if (button.id == 100) {
-            this.mc.displayGuiScreen(this.parent);
+            if (clientGUI.isRootElseDropTo()) {
+                this.mc.displayGuiScreen(this.parent);
+            }
         }
-        if (button.id == 666) {
-            CarpetRules.requestUpdate();
-        }
+//        if (button.id == 666) {
+//            CarpetRules.requestUpdate();
+//        }
     }
 
     public void ruleButtonClicked(String ruleName) {
@@ -101,7 +93,11 @@ public class ScrollGUI extends GuiScreen {
         CarpetRules.ruleTipRequest(ruleName);
     }
 
-    private class GuiGameRuleList extends GuiListExtended {
+    public void buttonClicked(int buttonID) {
+        clientGUI.buttonGUIAction(buttonID);
+    }
+
+    public class GuiGameRuleList extends GuiListExtended {
         @Nullable
         private String lastClickedRule = null;
         private final List<IGuiListEntry> entries = new ArrayList<>();
@@ -114,8 +110,16 @@ public class ScrollGUI extends GuiScreen {
             entries.clear();
         }
 
-        public void addNewButton(String str, String btnText, boolean reset, String info) {
+        public void addNewButton(String btnText, int id) {
+            this.entries.add(new ButtonEntry(btnText, id));
+        }
+
+        public void addNewRuleButton(String str, String btnText, boolean reset, String info) {
             this.entries.add(new ButtonRuleEntry(str, btnText, reset, info));
+        }
+
+        public void addNewRuleButton(String str, String btnText, boolean reset, String info, int buttonAction) {
+            this.entries.add(new ButtonRuleEntry(str, btnText, reset, info, buttonAction));
         }
 
         public void addNewText(String str, String txtText, boolean reset, String info, boolean useInt) {
@@ -166,8 +170,52 @@ public class ScrollGUI extends GuiScreen {
             }
         }
 
+        private class ButtonEntry extends RuleEntry {
+            private GuiButton button;
+            private int buttonID;
+
+            public ButtonEntry(String btnText, int buttonID) {
+                super();
+                this.buttonID = buttonID;
+                button = new GuiButton(0, 0, 0, 150, 20, btnText);
+            }
+
+            @Override
+            protected void draw(int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, float partialTicks) {
+                this.button.x = x + listWidth / 2 - button.getButtonWidth() / 2;
+                this.button.y = y;
+//                this.button.displayString = getRule(ruleName);
+                button.drawButton(mc, mouseX, mouseY, partialTicks);
+            }
+
+            @Override
+            protected boolean mouseDown(int x, int y, int button) {
+                if (this.button.mousePressed(mc, x, y)) {
+                    this.button.playPressSound(mc.getSoundHandler());
+                    performRuleAction();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            protected void mouseUp(int x, int y, int button) {
+                this.button.mouseReleased(x, y);
+            }
+
+            @Override
+            public void updatePosition(int slotIndex, int x, int y, float partialTicks) {
+            }
+
+            protected void performRuleAction() {
+                buttonClicked(buttonID);
+            }
+        }
+
         private class ButtonRuleEntry extends RuleEntry {
             private GuiButton button;
+            private int buttonAction;
 
             public ButtonRuleEntry(String ruleName, boolean reset, String info) {
                 super(ruleName, reset, info);
@@ -177,6 +225,13 @@ public class ScrollGUI extends GuiScreen {
             public ButtonRuleEntry(String str, String btnText, boolean reset, String info) {
                 super(str, reset, info);
                 button = new GuiButton(0, 0, 0, 100, 20, btnText);
+                buttonAction = -1;
+            }
+
+            public ButtonRuleEntry(String str, String btnText, boolean reset, String info, int buttonAction) {
+                super(str, reset, info);
+                button = new GuiButton(0, 0, 0, 100, 20, btnText);
+                this.buttonAction = buttonAction;
             }
 
             @Override
@@ -214,7 +269,11 @@ public class ScrollGUI extends GuiScreen {
             }
 
             protected void performRuleAction() {
-                ruleButtonClicked(ruleName);
+                if (buttonAction < 0) {
+                    ruleButtonClicked(ruleName);
+                } else {
+                    buttonClicked(buttonAction);
+                }
             }
         }
 
@@ -286,10 +345,15 @@ public class ScrollGUI extends GuiScreen {
 
         private abstract class RuleEntry implements IGuiListEntry {
             @Nonnull
-            protected final String ruleName;
+            protected String ruleName;
+            private boolean justButton;
             private GuiButton resetButton;
             private GuiButton infoButton;
             private String ruleInfo;
+
+            public RuleEntry() {
+                justButton = true;
+            }
 
             public RuleEntry(@Nonnull String ruleName, boolean reset, String info) {
                 this.ruleName = ruleName;
@@ -302,16 +366,17 @@ public class ScrollGUI extends GuiScreen {
             @Override
             public final void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks) {
                 drawString(fontRenderer, this.ruleName, x, y + 6, 0xFFFFFFFF);
-                this.resetButton.x = x + listWidth / 2 + 110;
-                this.resetButton.y = y;
+                if (!justButton) {
+                    this.resetButton.x = x + listWidth / 2 + 110;
+                    this.resetButton.y = y;
 //                this.resetButton.enabled = isRuleSet(this.ruleName);
-                resetButton.drawButton(mc, mouseX, mouseY, partialTicks);
+                    resetButton.drawButton(mc, mouseX, mouseY, partialTicks);
 
-                this.infoButton.x = x + listWidth / 2 - 17;
-                this.infoButton.y = y + 2;
-                this.infoButton.enabled = (ruleInfo.length() == 0);
-                infoButton.drawButton(mc, mouseX, mouseY, partialTicks);
-
+                    this.infoButton.x = x + listWidth / 2 - 17;
+                    this.infoButton.y = y + 2;
+                    this.infoButton.enabled = (ruleInfo.length() == 0);
+                    infoButton.drawButton(mc, mouseX, mouseY, partialTicks);
+                }
                 this.draw(x, y, listWidth, slotHeight, mouseX, mouseY, partialTicks);
 
 //                if (this.isMouseOverControl(mouseX, mouseY)) {
@@ -330,23 +395,24 @@ public class ScrollGUI extends GuiScreen {
             @Override
             public final boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY) {
                 lastClickedRule = this.ruleName;
-
-                if (resetButton.mousePressed(mc, mouseX, mouseY)) {
-                    resetButton.playPressSound(mc.getSoundHandler());
-                    this.performResetAction();
-                    return true;
-                }
-                if (infoButton.mousePressed(mc, mouseX, mouseY)) {
-                    infoButton.playPressSound(mc.getSoundHandler());
-                    this.performInfoAction();
-                    return true;
+                if (!justButton) {
+                    if (resetButton.mousePressed(mc, mouseX, mouseY)) {
+                        resetButton.playPressSound(mc.getSoundHandler());
+                        this.performResetAction();
+                        return true;
+                    }
+                    if (infoButton.mousePressed(mc, mouseX, mouseY)) {
+                        infoButton.playPressSound(mc.getSoundHandler());
+                        this.performInfoAction();
+                        return true;
+                    }
                 }
                 return mouseDown(mouseX, mouseY, mouseEvent);
             }
 
             @Override
             public final void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY) {
-                resetButton.mouseReleased(mouseX, mouseY);
+                if (!justButton) resetButton.mouseReleased(mouseX, mouseY);
                 mouseUp(mouseX, mouseY, mouseEvent);
             }
 
@@ -359,6 +425,7 @@ public class ScrollGUI extends GuiScreen {
 //            protected abstract boolean isMouseOverControl(int mouseX, int mouseY);
 
             protected boolean isMouseOverInfo(int mouseX, int mouseY) {
+                if (justButton) return false;
                 return infoButton.isMouseOver();
             }
 
@@ -382,11 +449,12 @@ public class ScrollGUI extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         hoveredToolTip = null;
-        this.list.drawScreen(mouseX, mouseY, partialTicks);
+        clientGUI.getList().drawScreen(mouseX, mouseY, partialTicks);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         this.drawCenteredString(fontRenderer, title, width / 2, 4, 0xFFFFFF);
+        this.drawCenteredString(fontRenderer, String.format("%s: %s", title2, serverVersion), width / 2, 20, 0xFFFFFF);
 
         if (hoveredToolTip != null) {
             drawGuiInfoBox(hoveredToolTip, 360, 168, width, height, 48);
@@ -396,26 +464,26 @@ public class ScrollGUI extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
             throws IOException {
-        this.list.mouseClicked(mouseX, mouseY, mouseButton);
+        clientGUI.getList().mouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
-        this.list.mouseReleased(mouseX, mouseY, state);
+        clientGUI.getList().mouseReleased(mouseX, mouseY, state);
         super.mouseReleased(mouseX, mouseY, state);
     }
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        this.list.keyDown(typedChar, keyCode);
+        clientGUI.getList().keyDown(typedChar, keyCode);
         super.keyTyped(typedChar, keyCode);
     }
 
     @Override
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
-        this.list.handleMouseInput();
+        clientGUI.getList().handleMouseInput();
     }
 
     private static interface KeyboardEntry extends IGuiListEntry {
@@ -467,8 +535,6 @@ public class ScrollGUI extends GuiScreen {
     }
 
     class GuiNumericTextField extends GuiTextField {
-
-
         /**
          * Last text that was successfully entered.
          */
