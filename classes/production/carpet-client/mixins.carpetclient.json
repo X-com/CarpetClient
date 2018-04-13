@@ -20,6 +20,9 @@
     "gui.GUICarpet",
     "MixinsItemPickaxe",
     "MixinsItemShears",
-    "MixinsItemBucket"
+    "MixinsItemBucket",
+    "MixinMinecraft",
+    "IMixinMinecraft",
+    "IMixinTimer"
   ]
 }
