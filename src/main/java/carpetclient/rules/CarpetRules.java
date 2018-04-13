@@ -151,6 +151,7 @@ public class CarpetRules {
      */
     private static void decodeData() {
         String carpetServerVersion = data.readString(1000);
+        Config.tickRate = data.readFloat();
         int ruleListSize = data.readInt();
 
         for (int ruleNum = 0; ruleNum < ruleListSize; ruleNum++) {
@@ -161,8 +162,8 @@ public class CarpetRules {
 //            int optionsSize = data.readInt();
 //
 //            String[] options = new String[optionsSize];
-//            for (int optionNum = 0; optionNum < optionsSize; optionNum++) {
-//                options[optionNum] = data.readString(100);
+//            for (int optionNum = 0; optionNum < optionsSize; optionNum++) 
+//                options[optionNum] = data.readString(100);{
 //            }
 
             rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
@@ -179,6 +180,10 @@ public class CarpetRules {
      */
     public static CarpetSettingEntry getRule(String rule) {
         return rules.get(rule);
+    }
+
+    public static void setTickRate(PacketBuffer data) {
+        Config.tickRate = data.readFloat();
     }
 
     /*

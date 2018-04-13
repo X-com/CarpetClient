@@ -20,6 +20,7 @@ public class CarpetPluginChannel {
     public static final int RULE_REQUEST = 1;
     public static final int VILLAGE_MARKERS = 2;
     public static final int BOUNDINGBOX_MARKERS = 3;
+    public static final int TICKRATE_CHANGES = 4;
 
     /**
      * Packate receiver method to handle incoming messages.
@@ -53,6 +54,9 @@ public class CarpetPluginChannel {
         }
         if (BOUNDINGBOX_MARKERS == type) {
             ShowBoundingBoxes.getStructureComponent(data);
+        }
+        if (TICKRATE_CHANGES == type) {
+            CarpetRules.setTickRate(data);
         }
     }
 
