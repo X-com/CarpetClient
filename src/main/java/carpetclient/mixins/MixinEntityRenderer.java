@@ -16,9 +16,12 @@ import net.minecraft.util.math.MathHelper;
 import org.lwjgl.util.glu.Project;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityRenderer.class)
 public class MixinEntityRenderer {
@@ -34,6 +37,8 @@ public class MixinEntityRenderer {
     private boolean debugView;
     @Shadow
     private boolean renderHand;
+    @Shadow
+    public static int anaglyphField;
 
     @Shadow
     private boolean isDrawBlockOutline() {
@@ -77,12 +82,24 @@ public class MixinEntityRenderer {
     private void renderHand(float partialTicks, int pass) {
     }
 
+    @Shadow
+    private void updateLightmap(float partialTicks) {
+    }
+
+    @Shadow
+    public void getMouseOver(float partialTicks) {
+    }
+
     @Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;renderWorldPass(IFJ)V", ordinal = 0))
     public void redirectRenderWorld0(EntityRenderer renderer,
                                      int pass, float partialTicks, long finishTimeNano, // sub vars
                                      float partialTicksMain, long finishTimeNanoMain // main vars
     ) {
-        renderWorldPass(0, getRenderTicks(), TickRate.timerWorld.renderPartialTicks, finishTimeNanoMain);
+        if (TickRate.runTickRate) {
+            rend(0, getRenderTicks(), TickRate.timerWorld.renderPartialTicks, finishTimeNanoMain);
+        } else {
+            rend(0, getRenderTicks(), getRenderTicks(), finishTimeNanoMain);
+        }
     }
 
     @Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;renderWorldPass(IFJ)V", ordinal = 1))
@@ -90,7 +107,11 @@ public class MixinEntityRenderer {
                                      int pass, float partialTicks, long finishTimeNano, // sub vars
                                      float partialTicksMain, long finishTimeNanoMain // main vars
     ) {
-        renderWorldPass(1, getRenderTicks(), TickRate.timerWorld.renderPartialTicks, finishTimeNanoMain);
+        if (TickRate.runTickRate) {
+            rend(1, getRenderTicks(), TickRate.timerWorld.renderPartialTicks, finishTimeNanoMain);
+        } else {
+            rend(1, getRenderTicks(), getRenderTicks(), finishTimeNanoMain);
+        }
     }
 
     @Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;renderWorldPass(IFJ)V", ordinal = 2))
@@ -98,14 +119,18 @@ public class MixinEntityRenderer {
                                      int pass, float partialTicks, long finishTimeNano, // sub vars
                                      float partialTicksMain, long finishTimeNanoMain // main vars
     ) {
-        renderWorldPass(2, getRenderTicks(), TickRate.timerWorld.renderPartialTicks, finishTimeNanoMain);
+        if (TickRate.runTickRate) {
+            rend(2, getRenderTicks(), TickRate.timerWorld.renderPartialTicks, finishTimeNanoMain);
+        } else {
+            rend(2, getRenderTicks(), getRenderTicks(), finishTimeNanoMain);
+        }
     }
 
     private float getRenderTicks() {
         return ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer().renderPartialTicks;
     }
 
-    private void renderWorldPass(int pass, float partialTicks, float worldTicks, long finishTimeNano) {
+    private void rend(int pass, float partialTicks, float worldTicks, long finishTimeNano) {
         RenderGlobal renderglobal = this.mc.renderGlobal;
         ParticleManager particlemanager = this.mc.effectRenderer;
         boolean flag = this.isDrawBlockOutline();

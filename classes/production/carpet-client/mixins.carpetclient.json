@@ -23,6 +23,7 @@
     "MixinsItemBucket",
     "MixinMinecraft",
     "IMixinMinecraft",
-    "IMixinTimer"
+    "IMixinTimer",
+    "MixinEntityRenderer"
   ]
 }

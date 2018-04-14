@@ -1,6 +1,7 @@
 package carpetclient.rules;
 
 import carpetclient.Config;
+import carpetclient.coders.Cubitect.TickRate;
 import carpetclient.coders.Pokechu22.ScrollGUI;
 import carpetclient.gui.ClientGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
@@ -47,6 +48,7 @@ public class CarpetRules {
         Config.accurateBlockPlacement = getRule("accurateBlockPlacement").getBoolean();
         Config.controlQCrafting = getRule("ctrlQCrafting").getBoolean();
         Config.missingTools = getRule("missingTools").getBoolean();
+        TickRate.setTickRate(Config.tickRate);
     }
 
     /**
@@ -184,6 +186,7 @@ public class CarpetRules {
 
     public static void setTickRate(PacketBuffer data) {
         Config.tickRate = data.readFloat();
+        TickRate.setTickRate(Config.tickRate);
     }
 
     /*

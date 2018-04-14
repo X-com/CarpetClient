@@ -1,17 +1,20 @@
 package carpetclient.mixins;
 
+import carpetclient.Config;
 import carpetclient.coders.Cubitect.TickRate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MusicTicker;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiGameOver;
+import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiSleepMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
@@ -22,9 +25,11 @@ import net.minecraft.util.ReportedException;
 import net.minecraft.util.Timer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumDifficulty;
+import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
@@ -70,6 +75,21 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     private NetworkManager myNetworkManager;
     @Shadow
     long systemTime;
+    @Shadow
+    public GuiIngame ingameGUI;
+    @Shadow
+    public GuiScreen currentScreen;
+    @Shadow
+    public boolean inGameHasFocus;
+
+    @Shadow
+    public static long getSystemTime() {
+        return 0;
+    }
+
+    @Shadow
+    public void setIngameFocus() {
+    }
 
 //    @Inject(method = "<init>", at = @At(value = "HEAD"))
 //    public void initInject(CallbackInfo ci) {
@@ -78,7 +98,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
 
     @Inject(method = "runGameLoop", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;timer:Lnet/minecraft/util/Timer;", shift = At.Shift.BEFORE))
     public void injectWorldTimer(CallbackInfo ci) {
-        TickRate.timerWorld.updateTimer();
+        if (TickRate.runTickRate) {
+            TickRate.timerWorld.updateTimer();
+        }
     }
 
     @Redirect(method = "runGameLoop", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;updateCameraAndRender(FJ)V"))
@@ -86,26 +108,79 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
                                               float partialTicks, long nanoTime // updateCameraAndRender() vars
                                               // runGameLoop() vars
     ) {
-        entityRenderer.updateCameraAndRender(this.isGamePaused ? this.renderPartialTicksPaused : TickRate.timerWorld.renderPartialTicks, System.nanoTime());
+        if (TickRate.runTickRate) {
+            entityRenderer.updateCameraAndRender(this.isGamePaused ? this.renderPartialTicksPaused : TickRate.timerWorld.renderPartialTicks, System.nanoTime());
+        } else {
+            entityRenderer.updateCameraAndRender(this.isGamePaused ? this.renderPartialTicksPaused : timer.renderPartialTicks, System.nanoTime());
+        }
     }
 
-    @Inject(method = "runGameLoop", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;mcProfiler:Lnet/minecraft/profiler/Profiler;", ordinal = 4))
+    @Inject(method = "runGameLoop", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;mcProfiler:Lnet/minecraft/profiler/Profiler;", ordinal = 3, shift = At.Shift.BEFORE))
     public void injectPlayerWorldLoops(CallbackInfo ci) {
-        int playerTicks = this.timer.elapsedTicks;
-        while (playerTicks > 0) {
-            this.runTickPlayer();
-            playerTicks--;
-        }
-        int worldTicks = TickRate.timerWorld.elapsedTicks;
-        while (worldTicks > 0) {
-            this.runTickWorld();
-            worldTicks--;
+        if (TickRate.runTickRate) {
+            int playerTicks = this.timer.elapsedTicks;
+            int worldTicks = TickRate.timerWorld.elapsedTicks;
+            while (playerTicks > 0) {
+                this.runTickPlayer();
+                playerTicks--;
+            }
+            while (worldTicks > 0) {
+                this.runTickWorld();
+                worldTicks--;
+            }
         }
     }
 
     @Inject(method = "runTick", at = @At(value = "JUMP", opcode = Opcodes.IFNULL, ordinal = 9, shift = At.Shift.BEFORE), cancellable = true)
     public void injectJumpOutForWorldUpdate(CallbackInfo ci) {
-        ci.cancel();
+        if (TickRate.runTickRate) {
+            ci.cancel();
+        }
+    }
+
+    @Overwrite
+    private void runTickMouse() throws IOException {
+        while (Mouse.next()) {
+            int i = Mouse.getEventButton();
+            KeyBinding.setKeyBindState(i - 100, Mouse.getEventButtonState());
+
+            if (Mouse.getEventButtonState()) {
+                if (this.player.isSpectator() && i == 2) {
+                    this.ingameGUI.getSpectatorGui().onMiddleClick();
+                } else {
+                    KeyBinding.onTick(i - 100);
+                }
+            }
+
+            long j = getSystemTime() - this.systemTime;
+
+            if (j <= (long) Math.max(200F * (20.0f / Config.tickRate), 200L)) {
+                int k = Mouse.getEventDWheel();
+
+                if (k != 0) {
+                    if (this.player.isSpectator()) {
+                        k = k < 0 ? -1 : 1;
+
+                        if (this.ingameGUI.getSpectatorGui().isMenuActive()) {
+                            this.ingameGUI.getSpectatorGui().onMouseScroll(-k);
+                        } else {
+                            float f = MathHelper.clamp(this.player.capabilities.getFlySpeed() + (float) k * 0.005F, 0.0F, 0.2F);
+                            this.player.capabilities.setFlySpeed(f);
+                        }
+                    } else {
+                        this.player.inventory.changeCurrentItem(k);
+                    }
+                }
+
+                if (this.currentScreen == null) {
+                    if (!this.inGameHasFocus && Mouse.getEventButtonState()) {
+                        this.setIngameFocus();
+                    }
+                } else if (this.currentScreen != null) {
+                    this.currentScreen.handleMouseInput();
+                }
+            }
+        }
     }
 
     public void runTickPlayer() {
