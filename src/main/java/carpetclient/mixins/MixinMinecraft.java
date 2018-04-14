@@ -147,48 +147,99 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     /**
      * Overwrite of mouse tick handling to adjust for the tick rate changes.
      */
-    @Overwrite
-    private void runTickMouse() throws IOException {
-        while (Mouse.next()) {
-            int i = Mouse.getEventButton();
-            KeyBinding.setKeyBindState(i - 100, Mouse.getEventButtonState());
+//    @Overwrite
+//    private void runTickMouse() throws IOException {
+//        while (Mouse.next()) {
+//            int i = Mouse.getEventButton();
+//            KeyBinding.setKeyBindState(i - 100, Mouse.getEventButtonState());
+//
+//            if (Mouse.getEventButtonState()) {
+//                if (this.player.isSpectator() && i == 2) {
+//                    this.ingameGUI.getSpectatorGui().onMiddleClick();
+//                } else {
+//                    KeyBinding.onTick(i - 100);
+//                }
+//            }
+//
+//            long j = getSystemTime() - this.systemTime;
+//
+//            if (j <= (long) Math.max(200F * (20.0f / Config.tickRate), 200L)) {
+//                int k = Mouse.getEventDWheel();
+//
+//                if (k != 0) {
+//                    if (this.player.isSpectator()) {
+//                        k = k < 0 ? -1 : 1;
+//
+//                        if (this.ingameGUI.getSpectatorGui().isMenuActive()) {
+//                            this.ingameGUI.getSpectatorGui().onMouseScroll(-k);
+//                        } else {
+//                            float f = MathHelper.clamp(this.player.capabilities.getFlySpeed() + (float) k * 0.005F, 0.0F, 0.2F);
+//                            this.player.capabilities.setFlySpeed(f);
+//                        }
+//                    } else {
+//                        this.player.inventory.changeCurrentItem(k);
+//                    }
+//                }
+//
+//                if (this.currentScreen == null) {
+//                    if (!this.inGameHasFocus && Mouse.getEventButtonState()) {
+//                        this.setIngameFocus();
+//                    }
+//                } else if (this.currentScreen != null) {
+//                    this.currentScreen.handleMouseInput();
+//                }
+//            }
+//        }
+//    }
+    @Inject(method = "runTickMouse", at = @At(value = "HEAD"), cancellable = true)
+    public void injectRunTickMouse(CallbackInfo ci) {
+        if (TickRate.runTickRate) {
+            while (Mouse.next()) {
+                int i = Mouse.getEventButton();
+                KeyBinding.setKeyBindState(i - 100, Mouse.getEventButtonState());
 
-            if (Mouse.getEventButtonState()) {
-                if (this.player.isSpectator() && i == 2) {
-                    this.ingameGUI.getSpectatorGui().onMiddleClick();
-                } else {
-                    KeyBinding.onTick(i - 100);
-                }
-            }
-
-            long j = getSystemTime() - this.systemTime;
-
-            if (j <= (long) Math.max(200F * (20.0f / Config.tickRate), 200L)) {
-                int k = Mouse.getEventDWheel();
-
-                if (k != 0) {
-                    if (this.player.isSpectator()) {
-                        k = k < 0 ? -1 : 1;
-
-                        if (this.ingameGUI.getSpectatorGui().isMenuActive()) {
-                            this.ingameGUI.getSpectatorGui().onMouseScroll(-k);
-                        } else {
-                            float f = MathHelper.clamp(this.player.capabilities.getFlySpeed() + (float) k * 0.005F, 0.0F, 0.2F);
-                            this.player.capabilities.setFlySpeed(f);
-                        }
+                if (Mouse.getEventButtonState()) {
+                    if (this.player.isSpectator() && i == 2) {
+                        this.ingameGUI.getSpectatorGui().onMiddleClick();
                     } else {
-                        this.player.inventory.changeCurrentItem(k);
+                        KeyBinding.onTick(i - 100);
                     }
                 }
 
-                if (this.currentScreen == null) {
-                    if (!this.inGameHasFocus && Mouse.getEventButtonState()) {
-                        this.setIngameFocus();
+                long j = getSystemTime() - this.systemTime;
+
+                if (j <= (long) Math.max(200F * (20.0f / Config.tickRate), 200L)) {
+                    int k = Mouse.getEventDWheel();
+
+                    if (k != 0) {
+                        if (this.player.isSpectator()) {
+                            k = k < 0 ? -1 : 1;
+
+                            if (this.ingameGUI.getSpectatorGui().isMenuActive()) {
+                                this.ingameGUI.getSpectatorGui().onMouseScroll(-k);
+                            } else {
+                                float f = MathHelper.clamp(this.player.capabilities.getFlySpeed() + (float) k * 0.005F, 0.0F, 0.2F);
+                                this.player.capabilities.setFlySpeed(f);
+                            }
+                        } else {
+                            this.player.inventory.changeCurrentItem(k);
+                        }
                     }
-                } else if (this.currentScreen != null) {
-                    this.currentScreen.handleMouseInput();
+
+                    if (this.currentScreen == null) {
+                        if (!this.inGameHasFocus && Mouse.getEventButtonState()) {
+                            this.setIngameFocus();
+                        }
+                    } else if (this.currentScreen != null) {
+                        try {
+                            this.currentScreen.handleMouseInput();
+                        } catch (Exception e) {
+                        }
+                    }
                 }
             }
+
+            ci.cancel();
         }
     }
 
