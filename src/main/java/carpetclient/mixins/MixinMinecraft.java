@@ -1,15 +1,13 @@
 package carpetclient.mixins;
 
 import carpetclient.Config;
-import carpetclient.coders.Cubitect.TickRate;
+import carpetclient.rules.TickRate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MusicTicker;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiSleepMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.EntityRenderer;
@@ -18,7 +16,6 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.crash.ICrashReportDetail;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.util.ReportedException;
@@ -31,7 +28,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -39,6 +35,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
 
+/**
+ * Tick rate editing in Minecraft.java based on Cubitecks tick rate mod.
+ */
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft implements IMixinMinecraft {
 
@@ -91,11 +90,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     public void setIngameFocus() {
     }
 
-//    @Inject(method = "<init>", at = @At(value = "HEAD"))
-//    public void initInject(CallbackInfo ci) {
-//        timerWorld = new Timer(1.0F);
-//    }
-
+    /**
+     * Inject method to place a world timer update method next to the regular timer update. Disabled when tick speeds are synched.
+     */
     @Inject(method = "runGameLoop", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;timer:Lnet/minecraft/util/Timer;", shift = At.Shift.BEFORE))
     public void injectWorldTimer(CallbackInfo ci) {
         if (TickRate.runTickRate) {
@@ -103,6 +100,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         }
     }
 
+    /**
+     * Redirect method edit the updateCameraAndRender with the world timer instead of the regular timer. Disabled when tick speeds are synched
+     */
     @Redirect(method = "runGameLoop", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;updateCameraAndRender(FJ)V"))
     public void redirectUpdateCameraAndRender(EntityRenderer entityRenderer,
                                               float partialTicks, long nanoTime // updateCameraAndRender() vars
@@ -115,6 +115,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         }
     }
 
+    /**
+     * Inject after the runTick method have looped to update world and player entities differently. Disabled when tick speeds are synched.
+     */
     @Inject(method = "runGameLoop", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;mcProfiler:Lnet/minecraft/profiler/Profiler;", ordinal = 3, shift = At.Shift.BEFORE))
     public void injectPlayerWorldLoops(CallbackInfo ci) {
         if (TickRate.runTickRate) {
@@ -131,6 +134,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         }
     }
 
+    /**
+     * Inject to eject out of the run tick method for more granular editing of world and player entities. Disabled when tick speeds are synched.
+     */
     @Inject(method = "runTick", at = @At(value = "JUMP", opcode = Opcodes.IFNULL, ordinal = 9, shift = At.Shift.BEFORE), cancellable = true)
     public void injectJumpOutForWorldUpdate(CallbackInfo ci) {
         if (TickRate.runTickRate) {
@@ -138,6 +144,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         }
     }
 
+    /**
+     * Overwrite of mouse tick handling to adjust for the tick rate changes.
+     */
     @Overwrite
     private void runTickMouse() throws IOException {
         while (Mouse.next()) {
@@ -183,6 +192,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         }
     }
 
+    /**
+     * Updating player updates at regular speed at 20 ticks per second.
+     */
     public void runTickPlayer() {
         if (this.world != null) {
             if (this.player != null) {
@@ -206,6 +218,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         }
     }
 
+    /**
+     * Update world entities and rest of run tick method at servers tick rate.
+     */
     public void runTickWorld() {
         if (this.world != null) {
             if (this.player != null) {

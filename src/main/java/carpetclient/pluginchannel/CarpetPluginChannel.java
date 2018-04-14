@@ -4,6 +4,7 @@ package carpetclient.pluginchannel;
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.rules.CarpetRules;
+import carpetclient.rules.TickRate;
 import com.google.common.collect.ImmutableList;
 import com.mumfrey.liteloader.core.ClientPluginChannels;
 import com.mumfrey.liteloader.core.PluginChannels.ChannelPolicy;
@@ -15,7 +16,7 @@ Plugin channel class to implement a client server communication between carpet c
 public class CarpetPluginChannel {
     public static final String CARPET_CHANNEL_NAME = "CarpetClient";
     public static final ImmutableList CARPET_PLUGIN_CHANNEL = ImmutableList.of(CARPET_CHANNEL_NAME);
-    
+
     public static final int GUI_ALL_DATA = 0;
     public static final int RULE_REQUEST = 1;
     public static final int VILLAGE_MARKERS = 2;
@@ -56,7 +57,7 @@ public class CarpetPluginChannel {
             ShowBoundingBoxes.getStructureComponent(data);
         }
         if (TICKRATE_CHANGES == type) {
-            CarpetRules.setTickRate(data);
+            TickRate.setTickRate(data);
         }
     }
 

@@ -1,7 +1,6 @@
 package carpetclient.rules;
 
 import carpetclient.Config;
-import carpetclient.coders.Cubitect.TickRate;
 import carpetclient.coders.Pokechu22.ScrollGUI;
 import carpetclient.gui.ClientGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
@@ -182,11 +181,6 @@ public class CarpetRules {
      */
     public static CarpetSettingEntry getRule(String rule) {
         return rules.get(rule);
-    }
-
-    public static void setTickRate(PacketBuffer data) {
-        Config.tickRate = data.readFloat();
-        TickRate.setTickRate(Config.tickRate);
     }
 
     /*
