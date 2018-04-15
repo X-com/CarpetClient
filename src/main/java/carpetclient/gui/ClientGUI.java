@@ -1,9 +1,11 @@
 package carpetclient.gui;
 
+import carpetclient.Config;
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.coders.Pokechu22.ScrollGUI;
 import carpetclient.rules.CarpetRules;
+import carpetclient.rules.TickRate;
 
 import java.util.ArrayList;
 
@@ -53,7 +55,7 @@ public class ClientGUI {
             displayLayer = buttonID;
             display();
         } else if (displayLayer == CLIENT_OPTIONS) {
-
+            setOption(buttonID);
         } else if (displayLayer == CARPET_SERVER_RULE_OPTIONS) {
             if (buttonID == 0) {
                 CarpetRules.requestUpdate();
@@ -144,6 +146,25 @@ public class ClientGUI {
      */
     private static void displayClientOptions() {
         list.clear();
+
+        list.addNewRuleButton("Tick Rate", String.valueOf(Config.setTickRate), false, "Toggles if the client should slow the game down (Forge integrated clients might want to turn this off as the tick rate slowdown is not compatible with forge yet).", 0);
+        list.addNewRuleButton("Liquid ghost block fix", String.valueOf(Config.bucketGhostBlockFix), false, "Toggles the ghost block liquid option.", 1);
+    }
+
+    /**
+     * Set carpet client options
+     *
+     * @param option The id of the option to be toggled.
+     */
+    public static void setOption(int option) {
+        if (option == 0) {
+            Config.setTickRate = !Config.setTickRate;
+            TickRate.setTickClient();
+        } else if (option == 1) {
+            Config.bucketGhostBlockFix = !Config.bucketGhostBlockFix;
+        }
+
+        display();
     }
 
     /**
