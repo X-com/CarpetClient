@@ -15,4 +15,7 @@ public interface IMixinTimer {
 
     @Accessor("lastSyncSysClock")
     void setLastSyncSysClock(long time);
+
+    @Accessor("lastSyncSysClock")
+    long getLastSyncSysClock();
 }
