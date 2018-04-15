@@ -1,5 +1,6 @@
 package carpetclient.mixins;
 
+import carpetclient.Config;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
@@ -70,7 +71,7 @@ public class MixinsItemBucket extends Item {
 
                     if (material == Material.WATER && ((Integer) iblockstate.getValue(BlockLiquid.LEVEL)).intValue() == 0) {
                         playerIn.playSound(SoundEvents.ITEM_BUCKET_FILL, 1.0F, 1.0F);
-                        if (!worldIn.isRemote) {
+                        if (!worldIn.isRemote || !Config.bucketGhostBlockFix) {
                             worldIn.setBlockState(blockpos, Blocks.AIR.getDefaultState(), 11);
                             playerIn.addStat(StatList.getObjectUseStats(this));
                             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, this.fillBucket(itemstack, playerIn, Items.WATER_BUCKET));
@@ -78,7 +79,7 @@ public class MixinsItemBucket extends Item {
                         return new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
                     } else if (material == Material.LAVA && ((Integer) iblockstate.getValue(BlockLiquid.LEVEL)).intValue() == 0) {
                         playerIn.playSound(SoundEvents.ITEM_BUCKET_FILL_LAVA, 1.0F, 1.0F);
-                        if (!worldIn.isRemote) {
+                        if (!worldIn.isRemote || !Config.bucketGhostBlockFix) {
                             worldIn.setBlockState(blockpos, Blocks.AIR.getDefaultState(), 11);
                             playerIn.addStat(StatList.getObjectUseStats(this));
                             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, this.fillBucket(itemstack, playerIn, Items.LAVA_BUCKET));
@@ -116,6 +117,8 @@ public class MixinsItemBucket extends Item {
      */
     @Inject(method = "tryPlaceContainedLiquid", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSound(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/SoundEvent;Lnet/minecraft/util/SoundCategory;FF)V"), cancellable = true)
     public void tryPlaceContainedLiquidInject(EntityPlayer player, World worldIn, BlockPos posIn, CallbackInfoReturnable<Boolean> cir) {
+        if(!Config.bucketGhostBlockFix) return;
+        
         SoundEvent soundevent = this.containedBlock == Blocks.FLOWING_LAVA ? SoundEvents.ITEM_BUCKET_EMPTY_LAVA : SoundEvents.ITEM_BUCKET_EMPTY;
         player.playSound(soundevent, 1.0F, 1.0F);
         if (worldIn.isRemote) cir.setReturnValue(true);

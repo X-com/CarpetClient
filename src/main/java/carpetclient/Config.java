@@ -11,5 +11,6 @@ public class Config {
     public static boolean missingTools = false;
     public static boolean boundingBoxMarkers = false;
     public static boolean villageMarkers = false;
+    public static boolean bucketGhostBlockFix = true;
     public static float tickRate;
 }
