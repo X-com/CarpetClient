@@ -12,7 +12,6 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
@@ -22,18 +21,12 @@ import net.minecraft.util.ReportedException;
 import net.minecraft.util.Timer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumDifficulty;
-import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.io.IOException;
 
 /**
  * Tick rate editing in Minecraft.java based on Cubitecks tick rate mod.
@@ -90,11 +83,6 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     public void setIngameFocus() {
     }
 
-//    @Inject(method = "<init>", at = @At(value = "RETURN"))
-//    public void injectConstroctor(CallbackInfo ci) {
-//        System.out.println("head test");
-//    }
-    
     /**
      * Inject method to place a world timer update method next to the regular timer update. Disabled when tick speeds are synched.
      */
@@ -150,103 +138,16 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     }
 
     /**
-     * Overwrite of mouse tick handling to adjust for the tick rate changes.
+     * Modify constant in scroll mouse to fix the issue when slowing down.
      */
-//    @Overwrite
-//    private void runTickMouse() throws IOException {
-//        while (Mouse.next()) {
-//            int i = Mouse.getEventButton();
-//            KeyBinding.setKeyBindState(i - 100, Mouse.getEventButtonState());
-//
-//            if (Mouse.getEventButtonState()) {
-//                if (this.player.isSpectator() && i == 2) {
-//                    this.ingameGUI.getSpectatorGui().onMiddleClick();
-//                } else {
-//                    KeyBinding.onTick(i - 100);
-//                }
-//            }
-//
-//            long j = getSystemTime() - this.systemTime;
-//
-//            if (j <= (long) Math.max(200F * (20.0f / Config.tickRate), 200L)) {
-//                int k = Mouse.getEventDWheel();
-//
-//                if (k != 0) {
-//                    if (this.player.isSpectator()) {
-//                        k = k < 0 ? -1 : 1;
-//
-//                        if (this.ingameGUI.getSpectatorGui().isMenuActive()) {
-//                            this.ingameGUI.getSpectatorGui().onMouseScroll(-k);
-//                        } else {
-//                            float f = MathHelper.clamp(this.player.capabilities.getFlySpeed() + (float) k * 0.005F, 0.0F, 0.2F);
-//                            this.player.capabilities.setFlySpeed(f);
-//                        }
-//                    } else {
-//                        this.player.inventory.changeCurrentItem(k);
-//                    }
-//                }
-//
-//                if (this.currentScreen == null) {
-//                    if (!this.inGameHasFocus && Mouse.getEventButtonState()) {
-//                        this.setIngameFocus();
-//                    }
-//                } else if (this.currentScreen != null) {
-//                    this.currentScreen.handleMouseInput();
-//                }
-//            }
-//        }
-//    }
-//    @Inject(method = "runTickMouse", at = @At(value = "HEAD"), cancellable = true)
-//    public void injectRunTickMouse(CallbackInfo ci) {
-//        if (TickRate.runTickRate) {
-//            while (Mouse.next()) {
-//                int i = Mouse.getEventButton();
-//                KeyBinding.setKeyBindState(i - 100, Mouse.getEventButtonState());
-//
-//                if (Mouse.getEventButtonState()) {
-//                    if (this.player.isSpectator() && i == 2) {
-//                        this.ingameGUI.getSpectatorGui().onMiddleClick();
-//                    } else {
-//                        KeyBinding.onTick(i - 100);
-//                    }
-//                }
-//
-//                long j = getSystemTime() - this.systemTime;
-//
-//                if (j <= (long) Math.max(200F * (20.0f / Config.tickRate), 200L)) {
-//                    int k = Mouse.getEventDWheel();
-//
-//                    if (k != 0) {
-//                        if (this.player.isSpectator()) {
-//                            k = k < 0 ? -1 : 1;
-//
-//                            if (this.ingameGUI.getSpectatorGui().isMenuActive()) {
-//                                this.ingameGUI.getSpectatorGui().onMouseScroll(-k);
-//                            } else {
-//                                float f = MathHelper.clamp(this.player.capabilities.getFlySpeed() + (float) k * 0.005F, 0.0F, 0.2F);
-//                                this.player.capabilities.setFlySpeed(f);
-//                            }
-//                        } else {
-//                            this.player.inventory.changeCurrentItem(k);
-//                        }
-//                    }
-//
-//                    if (this.currentScreen == null) {
-//                        if (!this.inGameHasFocus && Mouse.getEventButtonState()) {
-//                            this.setIngameFocus();
-//                        }
-//                    } else if (this.currentScreen != null) {
-//                        try {
-//                            this.currentScreen.handleMouseInput();
-//                        } catch (Exception e) {
-//                        }
-//                    }
-//                }
-//            }
-//
-//            ci.cancel();
-//        }
-//    }
+    @ModifyConstant(method = "runTickMouse", constant = @Constant(longValue = 200L))
+    private long runTickMouseFix(long value) {
+        if (TickRate.runTickRate) {
+            return (long) Math.max(200F * (20.0f / Config.tickRate), 200L);
+        } else {
+            return 200L;
+        }
+    }
 
     /**
      * Updating player updates at regular speed at 20 ticks per second.
