@@ -15,16 +15,25 @@ public class TickRate {
     public static Timer timerWorld = new Timer(20.0f);
 
     /**
-     * Setter for the tick rate on the client based on a set tick speed.
+     * Setter tick rate in the config files for later setting the client to the tick rate.
      *
      * @param setTick Tick rate that is to be set on the client.
      */
     public static void setTickRate(float setTick) {
-        runTickRate = (20.0f != setTick);
         Config.tickRate = setTick;
-        ((IMixinTimer) timerWorld).setTickLength(1000.0F / setTick);
-        ((IMixinTimer) timerWorld).setLastSyncSysClock(Minecraft.getSystemTime());
-        ((IMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).setLastSyncSysClock(Minecraft.getSystemTime());
+        setTickClient();
+    }
+
+    /**
+     * Sets the game tick after the values are set.
+     */
+    public static void setTickClient() {
+        runTickRate = Config.setTickRate && (20.0f != Config.tickRate);
+        if(runTickRate) {
+            ((IMixinTimer) timerWorld).setTickLength(1000.0F / Config.tickRate);
+            ((IMixinTimer) timerWorld).setLastSyncSysClock(((IMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).getLastSyncSysClock());
+//        ((IMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).setLastSyncSysClock(Minecraft.getSystemTime());
+        }
     }
 
     /**
