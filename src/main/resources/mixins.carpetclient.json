@@ -24,6 +24,7 @@
     "MixinMinecraft",
     "IMixinMinecraft",
     "IMixinTimer",
-    "MixinEntityRenderer"
+    "MixinEntityRenderer",
+    "MixinCraftingManager"
   ]
 }
