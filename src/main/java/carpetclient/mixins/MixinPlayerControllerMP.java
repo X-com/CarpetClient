@@ -106,7 +106,7 @@ public class MixinPlayerControllerMP {
      * @return value that is coded for specific orientation that is determined by the players choices.
      */
     private float blockRotation(EntityPlayerSP player, BlockPos pos, float f, EnumFacing direction, ItemStack itemstack) {
-        if (rotationType(f, itemstack)) return f;
+        if (!rotationType(f, itemstack)) return f;
 
         if (Keyboard.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
             // rotate pistons for placing head into blocks
