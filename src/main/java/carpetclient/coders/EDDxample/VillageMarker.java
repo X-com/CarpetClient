@@ -113,9 +113,7 @@ public class VillageMarker {
      * Sets the villages to draw once per tick (better than once per frame I guess :P)
      */
     public static void genLists(List<Village> villages) {
-        centers.clear();
-        radii.clear();
-        doors.clear();
+        clearLists();
         boolean _golem = golem, _radius = population || village_radius != 0 || door_radius != 0, _lines = lines;
 
         if (_golem || _radius || _lines) {
@@ -197,5 +195,11 @@ public class VillageMarker {
                 break;
         }
         ClientGUI.display();
+    }
+
+    public static void clearLists() {
+        centers.clear();
+        radii.clear();
+        doors.clear();
     }
 }

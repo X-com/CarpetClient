@@ -3,6 +3,8 @@ package carpetclient;
 import java.io.File;
 import java.util.List;
 
+import carpetclient.coders.EDDxample.ShowBoundingBoxes;
+import carpetclient.coders.EDDxample.VillageMarker;
 import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.PostRenderListener;
 import com.mumfrey.liteloader.Tickable;
@@ -15,6 +17,7 @@ import net.minecraft.network.PacketBuffer;
 public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener {
 
     private boolean gameRunnin = false;
+    private boolean loggedOut = false;
 
     @Override
     public String getVersion() {
@@ -41,6 +44,11 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
         if (gameRunnin) {
             Hotkeys.onTick(minecraft, partialTicks, inGame, clock);
+            loggedOut = true;
+        } else if (loggedOut) {
+            loggedOut = false;
+            VillageMarker.clearLists();
+            ShowBoundingBoxes.clear();
         }
     }
 
