@@ -42,7 +42,7 @@ public class Hotkeys {
 //        } else 
         if (toggleSnapAim.isPressed()) {
             Config.snapAim = !Config.snapAim;
-            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("SnapAim: " + (Config.snapAim ? "ON" : "OFF")));
+            Util.printToChat("SnapAim: " + (Config.snapAim ? "ON" : "OFF") );
         } else if (toggleBoundingBoxMarkers.isPressed()) {
             Config.boundingBoxMarkers = !Config.boundingBoxMarkers;
             if (Config.boundingBoxMarkers) {
