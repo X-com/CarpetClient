@@ -14,8 +14,9 @@ Big thanks from nessie to help add this fix.
 @Mixin(RenderGlobal.class)
 public class MixinRenderGlobal {
 
-    @Inject(method = "notifyLightSet", at = @At("HEAD"), cancellable = true)
-    public void notifyLightSet(BlockPos pos, CallbackInfo ci) {
-        ci.cancel();
-    }
+    // disabled as nolight already have this fix
+//    @Inject(method = "notifyLightSet", at = @At("HEAD"), cancellable = true)
+//    public void notifyLightSet(BlockPos pos, CallbackInfo ci) {
+//        ci.cancel();
+//    }
 }
