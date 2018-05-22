@@ -1,28 +1,19 @@
 package carpetclient.coders.EDDxample;
 
-import java.awt.Color;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import carpetclient.gui.ClientGUI;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.Pair;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.DimensionType;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.structure.MapGenStructureIO;
+import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
-import net.minecraft.world.gen.structure.StructureComponent;
+
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
 
 /*
 Code inspeiration from EDDxample.
@@ -30,6 +21,7 @@ Code inspeiration from EDDxample.
 A class to show bounding boxes of different structures on the server.
  */
 public class ShowBoundingBoxes {
+    private static Random randy = new Random();
     public static Minecraft mc = Minecraft.getMinecraft();
 
     public static final int OUTER_BOUNDING_BOX = 0;
@@ -56,7 +48,7 @@ public class ShowBoundingBoxes {
             false
     };
 
-    private static ArrayList<StructureBoundingBox>[] group = new ArrayList[9];
+    private static ArrayList<StructureBoundingBox>[] group = new ArrayList[10];
     private static Color[] colors = {
             new Color(0xFFFF00), //0
             new Color(0xFF0000), //1
@@ -67,6 +59,7 @@ public class ShowBoundingBoxes {
             new Color(0xFFFFFF), //6
             new Color(0x0000FF), //7
             new Color(0x00FF00), //8
+            new Color(0x00FF00), //9
     };
 
     public static final int renderDist = 160;
@@ -86,7 +79,7 @@ public class ShowBoundingBoxes {
      */
     public static void RenderStructures(float partialTicks) {
         if (group == null) return;
-
+        
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         final double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
         final double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
@@ -95,14 +88,11 @@ public class ShowBoundingBoxes {
         RenderUtils.prepareOpenGL(true);
 
         if (show[SLIME_CHUNKS]) {
-            int cnkX = (int) player.posX / 16;
-            int cnkZ = (int) player.posZ / 16;
-
-            for (int ChunkX = cnkX - 10; ChunkX < cnkX + 10; ChunkX++) {
-                for (int ChunkZ = cnkZ - 10; ChunkZ < cnkZ + 10; ChunkZ++) {
-                    if (mc.world.provider.getDimensionType() == DimensionType.OVERWORLD && new Chunk(player.world, ChunkX, ChunkZ).getRandomWithSeed(seed).nextInt(10) == 0) {
-                        RenderUtils.drawBox(d0, d1, d2, (ChunkX << 4), 0, (ChunkZ << 4), (ChunkX << 4) + 16, 40, (ChunkZ << 4) + 16, new Color(0x00FF00));
-                    }
+            ArrayList<StructureBoundingBox> array = group[SLIME_CHUNKS];
+            if (array == null) return;
+            for (StructureBoundingBox box : array) {
+                if (insideRenderDistance(box, player)) {
+                    RenderUtils.drawBox(d0, d1, d2, box.minX, box.minY, box.minZ, box.maxX + 1, box.maxY + 1, box.maxZ + 1, colors[SLIME_CHUNKS]);
                 }
             }
         }
@@ -181,7 +171,25 @@ public class ShowBoundingBoxes {
                     group[type].add(boundingBox);
                 }
             }
+
+            EntityPlayerSP player = Minecraft.getMinecraft().player;
+            int cnkX = (int) player.posX / 16;
+            int cnkZ = (int) player.posZ / 16;
+
+            for (int ChunkX = cnkX - 20; ChunkX < cnkX + 20; ChunkX++) {
+                for (int ChunkZ = cnkZ - 20; ChunkZ < cnkZ + 20; ChunkZ++) {
+                    if (mc.world.provider.getDimensionType() == DimensionType.OVERWORLD && isSlimeChunk(ChunkX, ChunkZ, seed)) {
+                        StructureBoundingBox boundingBox = new StructureBoundingBox(ChunkX << 4, 0, ChunkZ << 4, (ChunkX << 4) + 16, 40, (ChunkZ << 4) + 16);
+                        group[SLIME_CHUNKS].add(boundingBox);
+                    }
+                }
+            }
         }
+    }
+
+    private static boolean isSlimeChunk(int x, int z, long seed) {
+        randy.setSeed(seed + (long)(x * x * 4987142) + (long)(x * 5947611) + (long)(z * z) * 4392871L + (long)(z * 389711) ^ 987234911L);
+        return randy.nextInt(10) == 0;
     }
 
     /**
@@ -192,5 +200,9 @@ public class ShowBoundingBoxes {
     public static void guiBoudingBoxOptions(int buttonID) {
         show[buttonID] = !show[buttonID];
         ClientGUI.display();
+    }
+    
+    public static void clear(){
+        group = null;
     }
 }
