@@ -12,6 +12,6 @@ public class Config {
     public static boolean boundingBoxMarkers = false;
     public static boolean villageMarkers = false;
     public static boolean bucketGhostBlockFix = true;
-    public static boolean setTickRate = true;;
+    public static boolean setTickRate = false;
     public static float tickRate;
 }
