@@ -60,4 +60,14 @@ public class Hotkeys {
             CarpetPluginChannel.packatSender(sender);
         }
     }
+    
+    public static boolean isKeyDown(int code){
+        try{
+            return Keyboard.isKeyDown(code);
+        }catch(Exception e){
+            Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Something went wrong with the hotkey. Reset it in the menu to get it working again."));
+        }
+        
+        return false;
+    }
 }

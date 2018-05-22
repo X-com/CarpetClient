@@ -8,14 +8,12 @@ import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -64,10 +62,10 @@ public abstract class MixinsBlockPistonBase extends BlockDirectional {
         // rotate piston/sticky-piston based on hotkeys
 
         if(Config.accurateBlockPlacement) {
-            if (!Keyboard.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
+            if (!Hotkeys.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
                 facing = EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite();
             }
-            if (!Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
+            if (!Hotkeys.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
                 facing = facing.getOpposite();
             }
         }else{

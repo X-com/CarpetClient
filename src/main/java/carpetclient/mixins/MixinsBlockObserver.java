@@ -32,10 +32,10 @@ public class MixinsBlockObserver extends BlockDirectional {
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         // rotate observer based on hotkeys
         if (Config.accurateBlockPlacement) {
-            if (!Keyboard.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
+            if (!Hotkeys.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
                 facing = EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite();
             }
-            if (Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
+            if (Hotkeys.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
                 facing = facing.getOpposite();
             }
         } else {

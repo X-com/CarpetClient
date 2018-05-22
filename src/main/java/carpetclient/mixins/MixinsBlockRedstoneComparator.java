@@ -42,7 +42,7 @@ public abstract class MixinsBlockRedstoneComparator extends BlockRedstoneDiode {
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         // rotate comperator based on hotkeys
         facing = placer.getHorizontalFacing().getOpposite();
-        if (Config.accurateBlockPlacement && Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
+        if (Config.accurateBlockPlacement && Hotkeys.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
             facing = facing.getOpposite();
         }
 
