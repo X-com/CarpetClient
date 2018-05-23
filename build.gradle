@@ -24,7 +24,7 @@ buildscript {
 
 apply plugin: 'java'
 
-version = "v0.6c"
+version = "v0.6d"
 group = "Xcom"
 archivesBaseName = "Carpet Client"
 
