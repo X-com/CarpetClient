@@ -83,17 +83,15 @@ public class MixinPlayerControllerMP {
             return true;
         } else if (isDiode(is)) {
             return true;
+        }else if(allowedBlocks(is)){
+            return true;
         }
 
         return false;
     }
 
-//    @ModifyVariable(method = "processRightClickBlock", ordinal = 0, at = @At(value = "FIELD", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;connection:Lnet/minecraft/client/network/NetHandlerPlayClient;"))
-//    private float plsnameme(float f, EntityPlayerSP player, WorldClient worldIn, BlockPos pos, EnumFacing direction, Vec3d vec, EnumHand hand) {
-//        System.out.println("float f " + f);
-//        return f;
-//    }
 
+//    @ModifyVariable(method = "processRightClickBlock", ordinal = 0, at = @At(value = "FIELD", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;connection:Lnet/minecraft/client/network/NetHandlerPlayClient;"))
     /**
      * A rotation alogrithm that will sneek data in the unused x value. Data will be decoded by carpet
      * mod "accurateBlockPlacement" and place the block in the orientation that is coded.
@@ -108,13 +106,13 @@ public class MixinPlayerControllerMP {
     private float blockRotation(EntityPlayerSP player, BlockPos pos, float f, EnumFacing direction, ItemStack itemstack) {
         if (!rotationType(f, itemstack)) return f;
 
-        if (Keyboard.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
+        if (Hotkeys.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
             // rotate pistons for placing head into blocks
             if (isPiston(itemstack)) {
                 direction = direction.getOpposite();
             }
 
-            float i = Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode()) ? direction.getOpposite().getIndex() : direction.getIndex();
+            float i = Hotkeys.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode()) ? direction.getOpposite().getIndex() : direction.getIndex();
             return i + 2;
         } else {
             EnumFacing facing = null;
@@ -132,7 +130,7 @@ public class MixinPlayerControllerMP {
             }
 
 //            float i = GuiScreen.isAltKeyDown() ? facing.getOpposite().getIndex() : facing.getIndex();
-            float i = Keyboard.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode()) ? facing.getOpposite().getIndex() : facing.getIndex();
+            float i = Hotkeys.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode()) ? facing.getOpposite().getIndex() : facing.getIndex();
             return i + 2;
         }
     }
@@ -168,5 +166,15 @@ public class MixinPlayerControllerMP {
     public boolean isObserver(ItemStack itemstack) {
         int id = Item.getIdFromItem(itemstack.getItem());
         return id == 218;
+    }
+
+    /**
+     * 
+     * @param itemstack The item that is to be checked if it should be allowed to get player rotated.
+     * @return Returns if the item type is allowed or not to be rotated.
+     */
+    private boolean allowedBlocks(ItemStack itemstack) {
+        int id = Item.getIdFromItem(itemstack.getItem());
+        return id == 23 || id == 158 || (id >= 235 && id <= 250);
     }
 }
