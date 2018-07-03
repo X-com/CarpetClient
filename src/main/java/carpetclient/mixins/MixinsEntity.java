@@ -2,6 +2,7 @@ package carpetclient.mixins;
 
 import carpetclient.Config;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityBoat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,7 +48,7 @@ public abstract class MixinsEntity {
      */
     @Inject(method = "turn", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevRotationPitch:F", opcode = Opcodes.PUTFIELD))
     public void post(float yaw, float pitch, CallbackInfo ci) {
-        snapAim(this.ridingEntity != null, yaw);
+        snapAim(this.ridingEntity, yaw);
     }
 
     /**
@@ -59,10 +60,16 @@ public abstract class MixinsEntity {
     
     /**
      * Overriding the aim of the player to snap to angles of 45 degrees
-     * @param inBoat Checks if the player is riding a boat to skip snapping.
+     * @param riding Gets the type of entity the player is riding.
      * @param yaw The angle in which the player will turn, sent in from the turn method.
      */
-    private void snapAim(boolean inBoat, float yaw) {
+    private void snapAim(Entity riding, float yaw) {
+        boolean inBoat = false;
+        
+        if(riding != null && riding instanceof EntityBoat){
+            inBoat = true;
+        }
+        
         if (inBoat || !Config.snapAim){
             updateStoredRotationYaw();
             return;
