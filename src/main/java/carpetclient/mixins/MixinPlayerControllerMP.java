@@ -7,8 +7,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
@@ -18,7 +16,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
-import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -83,7 +80,9 @@ public class MixinPlayerControllerMP {
             return true;
         } else if (isDiode(is)) {
             return true;
-        }else if(allowedBlocks(is)){
+        }else if(isDispenser(is)){
+            return true;
+        }else if(isGlazedTerracotta(is)){
             return true;
         }
 
@@ -118,7 +117,7 @@ public class MixinPlayerControllerMP {
             EnumFacing facing = null;
 
             // different type of placement for diodes
-            if (isDiode(itemstack)) {
+            if (isDiode(itemstack) || isGlazedTerracotta(itemstack)) {
                 facing = player.getHorizontalFacing().getOpposite();
             } else {
                 facing = EnumFacing.getDirectionFromEntityLiving(pos.offset(direction), player);
@@ -169,12 +168,24 @@ public class MixinPlayerControllerMP {
     }
 
     /**
+     * Checks to see if its dispenser or dropper.
      * 
      * @param itemstack The item that is to be checked if it should be allowed to get player rotated.
      * @return Returns if the item type is allowed or not to be rotated.
      */
-    private boolean allowedBlocks(ItemStack itemstack) {
+    private boolean isDispenser(ItemStack itemstack) {
         int id = Item.getIdFromItem(itemstack.getItem());
-        return id == 23 || id == 158 || (id >= 235 && id <= 250);
+        return id == 23 || id == 158;
+    }
+
+    /**
+     * Checks to see if its any kind of glazed terracotta.
+     *
+     * @param itemstack The item that is to be checked if it should be allowed to get player rotated.
+     * @return Returns if the item type is allowed or not to be rotated.
+     */
+    private boolean isGlazedTerracotta(ItemStack itemstack){
+        int id = Item.getIdFromItem(itemstack.getItem());
+        return id >= 235 && id <= 250;
     }
 }
