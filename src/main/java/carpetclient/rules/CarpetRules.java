@@ -43,10 +43,14 @@ public class CarpetRules {
      * Edits the client rules based on server rules.
      */
     private static void editClientRules() {
-        Config.relaxedBlockPlacement = getRule("relaxedBlockPlacement").getBoolean();
-        Config.accurateBlockPlacement = getRule("accurateBlockPlacement").getBoolean();
-        Config.controlQCrafting = getRule("ctrlQCrafting").getBoolean();
-        Config.missingTools = getRule("missingTools").getBoolean();
+        if (hasRule("relaxedBlockPlacement"))
+            Config.relaxedBlockPlacement = getRule("relaxedBlockPlacement").getBoolean();
+        if (hasRule("accurateBlockPlacement"))
+            Config.accurateBlockPlacement = getRule("accurateBlockPlacement").getBoolean();
+        if (hasRule("controlQCrafting"))
+            Config.controlQCrafting = getRule("ctrlQCrafting").getBoolean();
+        if (hasRule("missingTools"))
+            Config.missingTools = getRule("missingTools").getBoolean();
         TickRate.setTickRate(Config.tickRate);
     }
 
@@ -181,6 +185,14 @@ public class CarpetRules {
      */
     public static CarpetSettingEntry getRule(String rule) {
         return rules.get(rule);
+    }
+    
+    public static boolean hasRule(String rule) {
+        return rules.containsKey(rule);
+    }
+    
+    public static void resetToDefaults() {
+        rules.values().forEach(rule -> rule.changeRule(rule.defaultOption));
     }
 
     /*

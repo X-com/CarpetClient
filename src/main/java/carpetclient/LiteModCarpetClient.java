@@ -10,7 +10,7 @@ import com.mumfrey.liteloader.PostRenderListener;
 import com.mumfrey.liteloader.Tickable;
 import com.mumfrey.liteloader.PluginChannelListener;
 import carpetclient.pluginchannel.CarpetPluginChannel;
-
+import carpetclient.rules.CarpetRules;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 
@@ -47,6 +47,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
             loggedOut = true;
         } else if (loggedOut) {
             loggedOut = false;
+            CarpetRules.resetToDefaults();
             VillageMarker.clearLists();
             ShowBoundingBoxes.clear();
         }
