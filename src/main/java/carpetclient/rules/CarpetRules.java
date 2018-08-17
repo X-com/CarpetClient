@@ -51,6 +51,8 @@ public class CarpetRules {
             Config.controlQCrafting = getRule("ctrlQCrafting").getBoolean();
         if (hasRule("missingTools"))
             Config.missingTools = getRule("missingTools").getBoolean();
+        if (hasRule("structureBlockLimit"))
+            Config.structureBlockLimit = getRule("structureBlockLimit").integer;
         TickRate.setTickRate(Config.tickRate);
     }
 
