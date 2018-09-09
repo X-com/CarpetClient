@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.authlib.GameProfile;
 
+import carpetclient.Config;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.world.World;
@@ -23,7 +24,8 @@ public class MixinEntityPlayerSP extends AbstractClientPlayer {
                     + "START_FALL_FLYING:"
                     + "Lnet/minecraft/network/play/client/CPacketEntityAction$Action;"))
     public void onElytraDeploy(CallbackInfo ci) {
-        setFlag(7, true);
+        if (Config.elytraFix)
+            setFlag(7, true);
     }
     
 }
