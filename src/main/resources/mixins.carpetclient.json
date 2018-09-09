@@ -13,6 +13,8 @@
     "MixinsBlockRedstoneComparator",
     "MixinsBlockRedstoneDiode",
     "MixinsEntity",
+    "MixinEntityLivingBase",
+    "MixinEntityPlayerSP",
     "MixinsKeyBinding",
     "MixinsPlayerInteractionManager",
     "MixinRenderGlobal",
