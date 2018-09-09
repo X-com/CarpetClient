@@ -15,5 +15,5 @@ public class Config {
     public static int structureBlockLimit = 32;
     public static boolean setTickRate = false;
     public static float tickRate;
-    public static boolean elytraFix = true;
+    public static boolean elytraFix = false;
 }

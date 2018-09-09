@@ -23,7 +23,6 @@ public class Hotkeys {
     //    public static KeyBinding toggleRBP = new KeyBinding("Relaxed Block Placement", Keyboard.KEY_P, "Carpet Client");
     public static KeyBinding toggleBlockFlip = new KeyBinding("Block Rotation Flip", Keyboard.KEY_LMENU, "Carpet Client");
     public static KeyBinding toggleBlockFacing = new KeyBinding("Block Rotation Face", Keyboard.KEY_LCONTROL, "Carpet Client");
-    public static KeyBinding toggleElytraFix = new KeyBinding("Elytra Fix", Keyboard.KEY_F10, "Carpet Client");
 
     public static void init() {
 //        LiteLoader.getInput().registerKeyBinding(toggleMainMenu);
@@ -34,7 +33,6 @@ public class Hotkeys {
 //        LiteLoader.getInput().registerKeyBinding(toggleRBP);
         LiteLoader.getInput().registerKeyBinding(toggleBlockFlip);
         LiteLoader.getInput().registerKeyBinding(toggleBlockFacing);
-        LiteLoader.getInput().registerKeyBinding(toggleElytraFix);
     }
 
     public static void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
@@ -60,9 +58,6 @@ public class Hotkeys {
             sender.writeBoolean(Config.villageMarkers);
             
             CarpetPluginChannel.packatSender(sender);
-        } else if (toggleElytraFix.isPressed()) {
-            Config.elytraFix = !Config.elytraFix;
-            Util.printToChat("Elytra Fix: " + (Config.elytraFix ? "ON" : "OFF"));
         }
     }
     
