@@ -191,7 +191,7 @@ public class ShowBoundingBoxes {
     }
     
     public static void largeBoundingBoxStructures(PacketBuffer data) {
-        int count = data.readVarInt();
+        int count = data.readUnsignedByte() + 1;
         for (int i = 0; i < count; i++) {
             NBTTagCompound nbt = null;
             try {
