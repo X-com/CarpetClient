@@ -48,7 +48,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
         } else if (loggedOut) {
             loggedOut = false;
             CarpetRules.resetToDefaults();
-            VillageMarker.clearLists();
+            VillageMarker.clearLists(0);
             ShowBoundingBoxes.clear();
         }
     }
