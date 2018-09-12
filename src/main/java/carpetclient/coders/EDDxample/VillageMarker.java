@@ -29,6 +29,8 @@ public class VillageMarker {
     static HashMap<BlockPos, Color> centers = new HashMap<BlockPos, Color>();
     static HashMap<List<Integer>, Color> radii = new HashMap<List<Integer>, Color>();
     static List<List<Integer>> doors = new ArrayList<List<Integer>>();
+    static int expectedVillageCount = 0;
+    static int villageCount = 0;
     
 	/* ===== SETTINGS ===== */
 
@@ -113,35 +115,45 @@ public class VillageMarker {
      * Sets the villages to draw once per tick (better than once per frame I guess :P)
      */
     public static void genLists(List<Village> villages) {
-        clearLists();
+        clearLists(villages.size());
+        boolean _golem = golem, _radius = population || village_radius != 0 || door_radius != 0, _lines = lines;
+        if (_golem || _radius || _lines) {
+            for (int i = 0; i < villages.size(); i++) {
+                addVillageToList(villages.get(i));
+            }
+        }
+    }
+    
+    public static void addVillageToList(Village village) {
+        if (villageCount >= expectedVillageCount)
+            return;
+        
         boolean _golem = golem, _radius = population || village_radius != 0 || door_radius != 0, _lines = lines;
 
         if (_golem || _radius || _lines) {
-            for (int i = 0; i < villages.size(); i++) {
-                Village village = villages.get(i);
-                BlockPos center = village.getCenter();
-                int r = village.getVillageRadius();
-                Color color = colors[i % colors.length];
+            BlockPos center = village.getCenter();
+            int r = village.getVillageRadius();
+            Color color = colors[villageCount % colors.length];
 
-                if (_golem) centers.put(center, color);
+            if (_golem) centers.put(center, color);
 
-                List<Integer> l = new ArrayList<Integer>();
-                addPos(l, center);
-                l.add(r);
+            List<Integer> l = new ArrayList<Integer>();
+            addPos(l, center);
+            l.add(r);
 
-                if (_radius) radii.put(l, color);
+            if (_radius) radii.put(l, color);
 
-                if (_lines) {
-                    doors.add(new ArrayList<Integer>(64));
-                    List<Integer> list = doors.get(i);
-                    list.add(color.getRGB());
-                    addPos(list, center);
-                    for (VillageDoorInfo d : village.getVillageDoorInfoList()) {
-                        addPos(list, d.getDoorBlockPos());
-                    }
-                    doors.set(i, list);
+            if (_lines) {
+                List<Integer> list = new ArrayList<Integer>(64);
+                doors.add(list);
+                list.add(color.getRGB());
+                addPos(list, center);
+                for (VillageDoorInfo d : village.getVillageDoorInfoList()) {
+                    addPos(list, d.getDoorBlockPos());
                 }
             }
+            
+            villageCount++;
         }
     }
 
@@ -175,6 +187,24 @@ public class VillageMarker {
             genLists(villageList);
         }
     }
+    
+    public static void largeVillageUpdate(PacketBuffer data) {
+        int count = data.readUnsignedByte() + 1;
+        for (int i = 0; i < count; i++) {
+            NBTTagCompound villageTag;
+            try {
+                villageTag = data.readCompoundTag();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            if (villageTag != null) {
+                Village village = new Village();
+                village.readVillageDataFromNBT(villageTag);
+                VillageMarker.addVillageToList(village);
+            }
+        }
+    }
 
     public static void guiVillageOptions(int buttonID) {
         switch (buttonID) {
@@ -197,9 +227,11 @@ public class VillageMarker {
         ClientGUI.display();
     }
 
-    public static void clearLists() {
+    public static void clearLists(int expectedCount) {
         centers.clear();
         radii.clear();
         doors.clear();
+        expectedVillageCount = expectedCount;
+        villageCount = 0;
     }
 }

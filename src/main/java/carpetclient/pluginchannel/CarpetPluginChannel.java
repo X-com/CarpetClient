@@ -1,13 +1,14 @@
 package carpetclient.pluginchannel;
 
 
+import com.google.common.collect.ImmutableList;
+import com.mumfrey.liteloader.core.ClientPluginChannels;
+import com.mumfrey.liteloader.core.PluginChannels.ChannelPolicy;
+
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.rules.CarpetRules;
 import carpetclient.rules.TickRate;
-import com.google.common.collect.ImmutableList;
-import com.mumfrey.liteloader.core.ClientPluginChannels;
-import com.mumfrey.liteloader.core.PluginChannels.ChannelPolicy;
 import net.minecraft.network.PacketBuffer;
 
 /*
@@ -22,6 +23,10 @@ public class CarpetPluginChannel {
     public static final int VILLAGE_MARKERS = 2;
     public static final int BOUNDINGBOX_MARKERS = 3;
     public static final int TICKRATE_CHANGES = 4;
+    public static final int LARGE_VILLAGE_MARKERS_START = 5;
+    public static final int LARGE_VILLAGE_MARKERS = 6;
+    public static final int LARGE_BOUNDINGBOX_MARKERS_START = 7;
+    public static final int LARGE_BOUNDINGBOX_MARKERS = 8;
 
     /**
      * Packate receiver method to handle incoming messages.
@@ -58,6 +63,21 @@ public class CarpetPluginChannel {
         }
         if (TICKRATE_CHANGES == type) {
             TickRate.setTickRate(data);
+        }
+        if (LARGE_VILLAGE_MARKERS_START == type) {
+            int villageCount = data.readVarInt();
+            if (villageCount >= 10000)
+                villageCount = 10000;
+            VillageMarker.clearLists(villageCount);
+        }
+        if (LARGE_VILLAGE_MARKERS == type) {
+            VillageMarker.largeVillageUpdate(data);
+        }
+        if (LARGE_BOUNDINGBOX_MARKERS_START == type) {
+            ShowBoundingBoxes.largeBoundingBoxStructuresStart(data);
+        }
+        if (LARGE_BOUNDINGBOX_MARKERS == type) {
+            ShowBoundingBoxes.largeBoundingBoxStructures(data);
         }
     }
 

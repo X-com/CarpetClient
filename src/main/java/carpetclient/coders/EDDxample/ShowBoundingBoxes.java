@@ -65,6 +65,8 @@ public class ShowBoundingBoxes {
     public static final int renderDist = 160;
     public static long seed = 0;
     public static int dimension = -2;
+    private static int expectedStructureCount = 0;
+    private static int structureCount = 0;
 
     static {
         for (int i = 0; i < group.length; i++) {
@@ -154,37 +156,86 @@ public class ShowBoundingBoxes {
 
         World worldIn = Minecraft.getMinecraft().world;
         if (nbt != null && worldIn != null) {
-            for (int i = 0; i < group.length; i++) {
-                group[i].clear();
-            }
-
             NBTTagList nbttaglist = nbt.getTagList("Boxes", 9);
-            dimension = nbt.getInteger("Dimention");
-            seed = nbt.getLong("Seed");
-
-            for (int i = 0; i < nbttaglist.tagCount(); ++i) {
+            
+            ArrayList<NBTTagCompound> allBoxes = new ArrayList<>();
+            for (int i = 0; i < nbttaglist.tagCount(); i++) {
                 NBTTagList boxList = (NBTTagList) nbttaglist.get(i);
-                for (int j = 0; j < boxList.tagCount(); ++j) {
-                    NBTTagCompound compound = boxList.getCompoundTagAt(j);
-                    int type = compound.getInteger("type");
-                    StructureBoundingBox boundingBox = new StructureBoundingBox(compound.getIntArray("bb"));
-                    group[type].add(boundingBox);
+                for (int j = 0; j < boxList.tagCount(); j++) {
+                    allBoxes.add(boxList.getCompoundTagAt(j));
                 }
             }
+            
+            structureComponentInitialSettings(nbt, allBoxes.size());
+            
+            for (NBTTagCompound box : allBoxes)
+                addStructure(box);
+        }
+    }
+    
+    public static void largeBoundingBoxStructuresStart(PacketBuffer data) {
+        NBTTagCompound nbt = null;
+        try {
+            nbt = data.readCompoundTag();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        
+        if (nbt != null && Minecraft.getMinecraft().world != null) {
+            int expected = data.readVarInt();
+            if (expected >= 100000)
+                expected = 100000;
+            structureComponentInitialSettings(nbt, expected);
+        }
+    }
+    
+    public static void largeBoundingBoxStructures(PacketBuffer data) {
+        int count = data.readUnsignedByte() + 1;
+        for (int i = 0; i < count; i++) {
+            NBTTagCompound nbt = null;
+            try {
+                nbt = data.readCompoundTag();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            if (nbt != null && Minecraft.getMinecraft().world != null) {
+                addStructure(nbt);
+            }
+        }
+    }
+    
+    public static void structureComponentInitialSettings(NBTTagCompound nbt, int expectedStructureCount_) {
+        structureCount = 0;
+        expectedStructureCount = expectedStructureCount_;
+        
+        dimension = nbt.getInteger("Dimention");
+        seed = nbt.getLong("Seed");
+        
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        int cnkX = (int) player.posX / 16;
+        int cnkZ = (int) player.posZ / 16;
 
-            EntityPlayerSP player = Minecraft.getMinecraft().player;
-            int cnkX = (int) player.posX / 16;
-            int cnkZ = (int) player.posZ / 16;
-
-            for (int ChunkX = cnkX - 20; ChunkX < cnkX + 20; ChunkX++) {
-                for (int ChunkZ = cnkZ - 20; ChunkZ < cnkZ + 20; ChunkZ++) {
-                    if (mc.world.provider.getDimensionType() == DimensionType.OVERWORLD && isSlimeChunk(ChunkX, ChunkZ, seed)) {
-                        StructureBoundingBox boundingBox = new StructureBoundingBox(ChunkX << 4, 0, ChunkZ << 4, (ChunkX << 4) + 16, 40, (ChunkZ << 4) + 16);
-                        group[SLIME_CHUNKS].add(boundingBox);
-                    }
+        for (int ChunkX = cnkX - 20; ChunkX < cnkX + 20; ChunkX++) {
+            for (int ChunkZ = cnkZ - 20; ChunkZ < cnkZ + 20; ChunkZ++) {
+                if (mc.world.provider.getDimensionType() == DimensionType.OVERWORLD && isSlimeChunk(ChunkX, ChunkZ, seed)) {
+                    StructureBoundingBox boundingBox = new StructureBoundingBox(ChunkX << 4, 0, ChunkZ << 4, (ChunkX << 4) + 16, 40, (ChunkZ << 4) + 16);
+                    group[SLIME_CHUNKS].add(boundingBox);
                 }
             }
         }
+    }
+    
+    public static void addStructure(NBTTagCompound compound) {
+        if (structureCount >= expectedStructureCount)
+            return;
+        
+        int type = compound.getInteger("type");
+        StructureBoundingBox boundingBox = new StructureBoundingBox(compound.getIntArray("bb"));
+        group[type].add(boundingBox);
+        
+        structureCount++;
     }
 
     private static boolean isSlimeChunk(int x, int z, long seed) {
@@ -203,6 +254,9 @@ public class ShowBoundingBoxes {
     }
     
     public static void clear(){
-        group = null;
+        for (ArrayList<StructureBoundingBox> l : group)
+            l.clear();
+        structureCount = 0;
+        expectedStructureCount = 0;
     }
 }
