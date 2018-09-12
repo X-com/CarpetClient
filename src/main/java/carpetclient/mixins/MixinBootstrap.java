@@ -1,5 +1,7 @@
 package carpetclient.mixins;
 
+import java.lang.reflect.Method;
+
 import org.apache.logging.log4j.LogManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,7 +12,6 @@ import carpetclient.NewCrafting;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
 
 @Mixin(Bootstrap.class)
 public class MixinBootstrap {
@@ -29,12 +30,11 @@ public class MixinBootstrap {
         } catch (IllegalAccessError e) {
             // Method is private, Forge is present
             try {
-                recipe.getClass().getMethod("setRegistryName", ResourceLocation.class).invoke(recipe, new ResourceLocation(name));
-                Class<?> forgeRegistryEntry = Class.forName("net.minecraftforge.registries.IForgeRegistryEntry");
-                Class<?> gameRegistry = Class.forName("net.minecraftforge.fml.common.registry.GameRegistry");
-                gameRegistry.getMethod("register", forgeRegistryEntry).invoke(null, recipe);
+                Method method = CraftingManager.class.getDeclaredMethod("func_193379_a", String.class, IRecipe.class);
+                method.setAccessible(true);
+                method.invoke(null, name, recipe);
             } catch (Exception e1) {
-                LogManager.getLogger().warn("Couldn't add firework recipe");
+                LogManager.getLogger().error("Couldn't add recipe", e1);
             }
         }
     }
