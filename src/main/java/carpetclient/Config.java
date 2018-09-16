@@ -16,4 +16,5 @@ public class Config {
     public static boolean setTickRate = false;
     public static float tickRate;
     public static boolean elytraFix = false;
+    public static boolean clipThroughPistons = true;
 }

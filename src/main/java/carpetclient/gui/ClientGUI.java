@@ -150,6 +150,7 @@ public class ClientGUI {
         list.addNewRuleButton("Tick Rate", String.valueOf(Config.setTickRate), false, "Toggles if the client should slow the game down (Forge integrated clients might want to turn this off as the tick rate slowdown is not compatible with forge yet).", 0);
         list.addNewRuleButton("Liquid ghost block fix", String.valueOf(Config.bucketGhostBlockFix), false, "Toggles the ghost block liquid option.", 1);
         list.addNewRuleButton("Elytra Fix", String.valueOf(Config.elytraFix), false, "Earthcomputers hacky elytra fix.", 2);
+        list.addNewRuleButton("Clip Through Pistons fix", String.valueOf(Config.clipThroughPistons), false, "Parcially fixes clipping through pistons, clipping can still happen but this helps.", 2);
     }
 
     /**
