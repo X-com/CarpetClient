@@ -77,3 +77,10 @@ mixin {
 runClient {
     systemProperty 'mixin.debug', 'true'
 }*/
+
+repositories {
+    maven { url = "http://repo.spongepowered.org/maven" }
+}
+dependencies {
+    compile 'org.jetbrains.java.decompiler:fernflower:sponge-SNAPSHOT'
+}

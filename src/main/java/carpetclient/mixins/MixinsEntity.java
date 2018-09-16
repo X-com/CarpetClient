@@ -2,12 +2,14 @@ package carpetclient.mixins;
 
 import carpetclient.Config;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityBoat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.lib.Opcodes;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /*
@@ -89,5 +91,16 @@ public abstract class MixinsEntity {
         } else {
             this.rotationYaw = storedRotationYaw;
         }
+    }
+
+    @Redirect(method = "move", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/MoverType;PISTON:Lnet/minecraft/entity/MoverType;", opcode = Opcodes.GETSTATIC))
+    public MoverType eventReceivedMixins(Entity obj
+                                       , // from MoverType.PISTON
+                                       MoverType p_move_1_, double p_move_2_, double p_move_4_, double p_move_6_ // from move
+    ) {
+        if(!obj.world.isRemote){
+            return null;
+        }
+        return MoverType.PISTON;
     }
 }
