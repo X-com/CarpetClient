@@ -10,7 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
 
-@Mixin(EntityLivingBase.class)
+@Mixin(value = EntityLivingBase.class, priority = 999)
 public abstract class MixinEntityLivingBase extends Entity {
 
     public MixinEntityLivingBase(World worldIn) {

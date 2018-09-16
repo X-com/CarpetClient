@@ -12,7 +12,7 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.world.World;
 
-@Mixin(EntityPlayerSP.class)
+@Mixin(value = EntityPlayerSP.class, priority = 999)
 public class MixinEntityPlayerSP extends AbstractClientPlayer {
 
     public MixinEntityPlayerSP(World worldIn, GameProfile playerProfile) {
