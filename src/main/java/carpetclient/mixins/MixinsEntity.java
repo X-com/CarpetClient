@@ -98,7 +98,7 @@ public abstract class MixinsEntity {
     @Redirect(method = "move", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/MoverType;PISTON:Lnet/minecraft/entity/MoverType;", opcode = Opcodes.GETSTATIC))
     public MoverType redirectMoveType() {
         if(world.isRemote && Config.clipThroughPistons){
-            return MoverType.SELF;
+            return MoverType.SHULKER;
         }
         return MoverType.PISTON;
     }
