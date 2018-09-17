@@ -166,6 +166,8 @@ public class ClientGUI {
             Config.bucketGhostBlockFix = !Config.bucketGhostBlockFix;
         } else if (option == 2) {
             Config.elytraFix = !Config.elytraFix;
+        } else if (option == 3) {
+            Config.clipThroughPistons = !Config.clipThroughPistons;
         }
 
         display();
