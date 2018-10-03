@@ -23,7 +23,8 @@ public class Hotkeys {
     //    public static KeyBinding toggleRBP = new KeyBinding("Relaxed Block Placement", Keyboard.KEY_P, "Carpet Client");
     public static KeyBinding toggleBlockFlip = new KeyBinding("Block Rotation Flip", Keyboard.KEY_LMENU, "Carpet Client");
     public static KeyBinding toggleBlockFacing = new KeyBinding("Block Rotation Face", Keyboard.KEY_LCONTROL, "Carpet Client");
-
+    public static KeyBinding chunkDebug = new KeyBinding("Chunk debug", Keyboard.KEY_F6, "Carpet Client");
+    
     public static void init() {
 //        LiteLoader.getInput().registerKeyBinding(toggleMainMenu);
         LiteLoader.getInput().registerKeyBinding(toggleSnapAim);
@@ -33,6 +34,7 @@ public class Hotkeys {
 //        LiteLoader.getInput().registerKeyBinding(toggleRBP);
         LiteLoader.getInput().registerKeyBinding(toggleBlockFlip);
         LiteLoader.getInput().registerKeyBinding(toggleBlockFacing);
+        LiteLoader.getInput().registerKeyBinding(chunkDebug);
     }
 
     public static void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
@@ -57,6 +59,22 @@ public class Hotkeys {
             sender.writeInt(CarpetPluginChannel.VILLAGE_MARKERS);
             sender.writeBoolean(Config.villageMarkers);
             
+            CarpetPluginChannel.packatSender(sender);
+        } else if (toggleVillageMarkers.isPressed()) {
+            Config.villageMarkers = !Config.villageMarkers;
+            PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
+            sender.writeInt(CarpetPluginChannel.VILLAGE_MARKERS);
+            sender.writeBoolean(Config.villageMarkers);
+
+            CarpetPluginChannel.packatSender(sender);
+        } else if (chunkDebug.isPressed()) {
+            Config.chunkDebug = !Config.chunkDebug;
+            PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
+            sender.writeInt(CarpetPluginChannel.CHUNK_LOGGER);
+            sender.writeBoolean(Config.chunkDebug); // this is the bit to turn on or off
+            sender.writeBoolean(true); // this is the bit to send stacktraces
+
+            Util.printToChat("Chunk Debug: " + (Config.chunkDebug ? "ON" : "OFF") );
             CarpetPluginChannel.packatSender(sender);
         }
     }

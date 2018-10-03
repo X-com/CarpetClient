@@ -1,6 +1,7 @@
 package carpetclient.pluginchannel;
 
 
+import carpetclient.coders.zerox53ee71ebe11e.ZeroXstuff;
 import com.google.common.collect.ImmutableList;
 import com.mumfrey.liteloader.core.ClientPluginChannels;
 import com.mumfrey.liteloader.core.PluginChannels.ChannelPolicy;
@@ -27,6 +28,7 @@ public class CarpetPluginChannel {
     public static final int LARGE_VILLAGE_MARKERS = 6;
     public static final int LARGE_BOUNDINGBOX_MARKERS_START = 7;
     public static final int LARGE_BOUNDINGBOX_MARKERS = 8;
+    public static final int CHUNK_LOGGER = 9;
 
     /**
      * Packate receiver method to handle incoming messages.
@@ -78,6 +80,9 @@ public class CarpetPluginChannel {
         }
         if (LARGE_BOUNDINGBOX_MARKERS == type) {
             ShowBoundingBoxes.largeBoundingBoxStructures(data);
+        }
+        if (CHUNK_LOGGER == type) {
+            ZeroXstuff.chunkLogger(data);
         }
     }
 
