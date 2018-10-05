@@ -1,5 +1,6 @@
 package carpetclient.coders.zerox53ee71ebe11e;
 
+import carpetclient.gui.DebugWindow;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
@@ -21,7 +22,7 @@ public class ZeroXstuff {
 
     public static final int PACKET_EVENTS = 0;
     public static final int PACKET_STACKTRACE = 1;
-    public static final int PACKET_STACKTRACE_ALL = 2;
+    public static ChunkLogData data = new ChunkLogData();
 
     public static void chunkLogger(PacketBuffer data) {
         int type = data.readInt();
@@ -39,8 +40,6 @@ public class ZeroXstuff {
         if (PACKET_EVENTS == type) {
             unpackNBT(nbt);
         } else if (PACKET_STACKTRACE == type) {
-            addStackTrace(nbt);
-        } else if (PACKET_STACKTRACE_ALL == type) {
             unpackNBTStackTrace(nbt);
         }
     }
@@ -57,30 +56,28 @@ public class ZeroXstuff {
     private static void addStackTrace(NBTTagCompound nbttagcompound) {
         int id = nbttagcompound.getInteger("id");
         String stack = nbttagcompound.getString("stack");
-        System.out.println("stack " + id + " " + stack);
+        data.addStackTrace(id, stack);
+//        System.out.println("stack " + id + " " + stack);
     }
 
     private static void unpackNBT(NBTTagCompound nbt) {
-        NBTTagList dimentionList = nbt.getTagList("dimensionData", 10);
+        NBTTagList list = nbt.getTagList("data", 10);
         int time = nbt.getInteger("time");
-        
-        for(int j = 0; j < dimentionList.tagCount(); ++j) {
-            NBTTagCompound dimentionNBT = dimentionList.getCompoundTagAt(j);
+        ChunkLogData.TimeIndex timeIndex = data.addData(time);
+        for(int j = 0; j < list.tagCount(); ++j) {
+            NBTTagCompound chunk = list.getCompoundTagAt(j);
             
-            NBTTagList chunkList = dimentionNBT.getTagList("chunkData", 10);
-            int dimension = dimentionNBT.getInteger("dimention");
+            int x = chunk.getInteger("x");
+            int z = chunk.getInteger("z");
+            int dimention = chunk.getInteger("d");
+            int event = chunk.getInteger("event");
+            int stacktrace = chunk.getInteger("trace");
 
-            for (int i = 0; i < chunkList.tagCount(); ++i) {
-                NBTTagCompound nbttagcompound = chunkList.getCompoundTagAt(i);
-
-                int chunkX = nbttagcompound.getInteger("chunkX");
-                int chunkZ = nbttagcompound.getInteger("chunkZ");
-                int status = nbttagcompound.getInteger("status");
-                int stackTraceIndex = nbttagcompound.getInteger("stackTraceIndex");
-                
-                System.out.println(" chunk: " + chunkX +" " + chunkZ + " status: " + status + " stackTraceIndex: " + stackTraceIndex + " dim: " + dimension);
-            }
+//            System.out.println("X: " + x + " Z: " + z + " D: " + dimention + " E: "+ event + " S: " + stacktrace);
+            timeIndex.addToDimention(dimention, x, z, event, stacktrace, j);
         }
+
+        DebugWindow.debug.updateCanvas(data.latestIndex());
     }
     
     /////////// temp stuff ///////////////

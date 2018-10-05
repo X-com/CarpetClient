@@ -1,5 +1,6 @@
 package carpetclient;
 
+import carpetclient.gui.DebugWindow;
 import com.mumfrey.liteloader.core.LiteLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -69,13 +70,8 @@ public class Hotkeys {
             CarpetPluginChannel.packatSender(sender);
         } else if (chunkDebug.isPressed()) {
             Config.chunkDebug = !Config.chunkDebug;
-            PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
-            sender.writeInt(CarpetPluginChannel.CHUNK_LOGGER);
-            sender.writeBoolean(Config.chunkDebug); // this is the bit to turn on or off
-            sender.writeBoolean(true); // this is the bit to send stacktraces
 
-            Util.printToChat("Chunk Debug: " + (Config.chunkDebug ? "ON" : "OFF") );
-            CarpetPluginChannel.packatSender(sender);
+            DebugWindow.debug.setVis(Config.chunkDebug);
         }
     }
     

@@ -13,6 +13,8 @@
     "MixinsBlockRedstoneComparator",
     "MixinsBlockRedstoneDiode",
     "MixinsEntity",
+    "MixinEntityLivingBase",
+    "MixinEntityPlayerSP",
     "MixinsKeyBinding",
     "MixinsPlayerInteractionManager",
     "MixinRenderGlobal",
@@ -25,7 +27,7 @@
     "IMixinMinecraft",
     "IMixinTimer",
     "MixinEntityRenderer",
-    "MixinCraftingManager",
+    "MixinBootstrap",
     "MixinTileEntityStructure"
   ]
 }
