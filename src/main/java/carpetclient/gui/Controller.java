@@ -143,12 +143,17 @@ public class Controller {
         int minZ = viewZ - sizeZ / 2;
         int maxZ = viewZ + sizeZ / 2;
 
+        canvas.clearColors();
+        
         SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
         for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
             Chunkdata.ChunkLogCoords chunk = entry.getKey();
             if (chunk == null) continue;
             Chunkdata.ChunkLogEvent event = list.get(chunk);
-            if (event == null) continue;
+            if (event == null){
+                canvas.setGridColor(chunk.space.x, chunk.space.z, getColor(Chunkdata.Event.MISSED_EVENT_ERROR));
+                continue;
+            }
             canvas.setGridColor(chunk.space.x, chunk.space.z, getColor(event.event));
         }
 

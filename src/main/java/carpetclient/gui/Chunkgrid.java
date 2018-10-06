@@ -89,4 +89,10 @@ public class Chunkgrid extends JPanel {
         gridZ = getHeight() / scale;
         gridX = getWidth() / scale;
     }
+
+    public void clearColors() {
+        for (int i = 0; i < 1000000; i++) {
+            colors[i] = Color.BLACK;
+        }
+    }
 }
