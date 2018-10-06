@@ -214,8 +214,8 @@ public class DebugWindow {
         return canvas;
     }
 
-    public void updateCanvas(int index) {
-        control.liveUpdate(index);
+    public void updateCanvas(int time) {
+        control.liveUpdate(time);
     }
 
     public int getComboBoxValue() {

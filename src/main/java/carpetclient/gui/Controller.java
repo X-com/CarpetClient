@@ -1,6 +1,7 @@
 package carpetclient.gui;
 
 import carpetclient.coders.zerox53ee71ebe11e.ChunkLogData;
+import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 import carpetclient.coders.zerox53ee71ebe11e.ZeroXstuff;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import io.netty.buffer.Unpooled;
@@ -11,18 +12,22 @@ import net.minecraft.util.math.BlockPos;
 import java.awt.Color;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.util.Map;
+import java.util.SortedMap;
+
+import static carpetclient.coders.zerox53ee71ebe11e.Chunkdata.Event.*;
 
 public class Controller {
     DebugWindow debug;
     boolean start = false;
     private boolean live = false;
-    private int lastIndex;
+    private int lastGametick;
     private int viewX;
     private int viewZ;
 
     public Controller(DebugWindow d) {
         debug = d;
-        lastIndex = 0;
+        lastGametick = 0;
     }
 
     public boolean startStop() {
@@ -63,21 +68,21 @@ public class Controller {
 
     public void back() {
         live = false;
-        setTick(lastIndex - 1);
+        setTick(ZeroXstuff.data.getPrevGametick(lastGametick));
     }
 
     public void forward() {
         live = false;
-        setTick(lastIndex + 1);
+        setTick(ZeroXstuff.data.getNextGametick(lastGametick));
     }
 
     public void current() {
         live = true;
-        setTick(ZeroXstuff.data.latestIndex());
+        setTick(ZeroXstuff.data.getLastGametick());
     }
 
     public void comboBoxAction() {
-        setTick(lastIndex);
+        setTick(lastGametick);
     }
 
     public void setTime(KeyEvent e) {
@@ -93,21 +98,21 @@ public class Controller {
 
         //TODO: fix dimention selection
 
-        setTick(lastIndex);
+        setTick(lastGametick);
     }
 
     public void setX(KeyEvent e, JTextArea textX) {
         if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
         viewX = integerInputs(e, textX, viewX);
         textX.setText(Integer.toString(viewX));
-        setTick(lastIndex);
+        setTick(lastGametick);
     }
 
     public void setZ(KeyEvent e, JTextArea textZ) {
         if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
         viewZ = integerInputs(e, textZ, viewZ);
         textZ.setText(Integer.toString(viewZ));
-        setTick(lastIndex);
+        setTick(lastGametick);
     }
 
     private int integerInputs(KeyEvent e, JTextArea box, int oldNum) {
@@ -122,27 +127,35 @@ public class Controller {
         return newNum;
     }
 
-    public void liveUpdate(int index) {
+    public void liveUpdate(int time) {
         if (!live) return;
-        setTick(index);
+        setTick(time);
     }
 
-    void setTick(int index) {
-        ChunkLogData.TimeIndex timeIndex = ZeroXstuff.data.timeIndexByIndex(index);
-        if (timeIndex == null) return;
-        lastIndex = index;
+    void setTick(int gametick) {
         int dimention = debug.getComboBoxValue();
-
-        int time = timeIndex.getTime();
-        debug.setTimeTextField("Index: " + Integer.toString(index) + " Time: " + Integer.toString(time));
         Chunkgrid canvas = debug.getCanvas();
+        int sizeX = canvas.sizeX();
+        int sizeZ = canvas.sizeZ();
 
-        for (int z = 0; z < canvas.sizeZ(); z++) {
-            for (int x = 0; x < canvas.sizeX(); x++) {
-                int event = timeIndex.getChunkEvent(getOffsetX(x, canvas), getOffsetZ(z, canvas), dimention);
-                canvas.setGridColor(x, z, getColor(event));
-            }
+        int minX = viewX - sizeX / 2;
+        int maxX = viewX + sizeX / 2;
+        int minZ = viewZ - sizeZ / 2;
+        int maxZ = viewZ + sizeZ / 2;
+
+        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
+        for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
+            Chunkdata.ChunkLogCoords chunk = entry.getKey();
+            if (chunk == null) continue;
+            Chunkdata.ChunkLogEvent event = list.get(chunk);
+            if (event == null) continue;
+            canvas.setGridColor(chunk.space.x, chunk.space.z, getColor(event.event));
         }
+
+        lastGametick = gametick;
+
+        debug.setTimeTextField(Integer.toString(gametick));
+
         canvas.invalidate();
         canvas.repaint();
     }
@@ -160,7 +173,7 @@ public class Controller {
         int cx = canvas.getGridX(x);
         int cz = canvas.getGridY(y);
         canvas.showSelection(cx, cz);
-        setTick(lastIndex);
+        setTick(lastGametick);
     }
 
     // retard color system
@@ -171,34 +184,42 @@ public class Controller {
     final Color cunloadqueueing = new Color(255, 255, 0);
     final Color cunloading = new Color(255, 0, 0);
     final Color cunloadingcanceled = new Color(0, 0, 255);
-
     final Color cloading = new Color(0, 255, 0);
 
-    Color getColor(int event) {
+    Color getColor(Chunkdata.Event event) {
         Color color = new Color(255, 255, 255);
         switch (event) {
-            case 0:
+            case MISSED_EVENT_ERROR:
                 color = cunloaded;
                 break;
-            case 1:
+            case UNLOADING:
                 color = cplayerloaded;
                 break;
-            case 2:
+            case LOADING:
                 color = cloaded;
                 break;
-            case 3:
+            case PLAYER_ENTERS:
                 color = cunloadqueued;
                 break;
-            case 4:
+            case PLAYER_LEAVES:
                 color = cunloadqueueing;
                 break;
-            case 5:
+            case QUEUE_UNLOAD:
                 color = cunloading;
                 break;
-            case 6:
+            case CANCEL_UNLOAD:
                 color = cunloadingcanceled;
                 break;
-            case 7:
+            case UNQUEUE_UNLOAD:
+                color = cloading;
+                break;
+            case GENERATING:
+                color = cloading;
+                break;
+            case POPULATING:
+                color = cloading;
+                break;
+            case GENERATING_STRUCTURES:
                 color = cloading;
                 break;
         }
@@ -209,6 +230,6 @@ public class Controller {
     public void scroll(int scrollAmount) {
         Chunkgrid canvas = debug.getCanvas();
         canvas.setScale(scrollAmount);
-        setTick(lastIndex);
+        setTick(lastGametick);
     }
 }

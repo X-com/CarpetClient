@@ -22,7 +22,7 @@ public class ZeroXstuff {
 
     public static final int PACKET_EVENTS = 0;
     public static final int PACKET_STACKTRACE = 1;
-    public static ChunkLogData data = new ChunkLogData();
+    public static Chunkdata data = new Chunkdata();
 
     public static void chunkLogger(PacketBuffer data) {
         int type = data.readInt();
@@ -56,16 +56,16 @@ public class ZeroXstuff {
     private static void addStackTrace(NBTTagCompound nbttagcompound) {
         int id = nbttagcompound.getInteger("id");
         String stack = nbttagcompound.getString("stack");
-        data.addStackTrace(id, stack);
+        data.addStacktrace(stack);
 //        System.out.println("stack " + id + " " + stack);
     }
 
     private static void unpackNBT(NBTTagCompound nbt) {
         NBTTagList list = nbt.getTagList("data", 10);
         int time = nbt.getInteger("time");
-        ChunkLogData.TimeIndex timeIndex = data.addData(time);
-        for(int j = 0; j < list.tagCount(); ++j) {
-            NBTTagCompound chunk = list.getCompoundTagAt(j);
+//        ChunkLogData.TimeIndex timeIndex = data.addData(time);
+        for(int index = 0; index < list.tagCount(); ++index) {
+            NBTTagCompound chunk = list.getCompoundTagAt(index);
             
             int x = chunk.getInteger("x");
             int z = chunk.getInteger("z");
@@ -74,10 +74,11 @@ public class ZeroXstuff {
             int stacktrace = chunk.getInteger("trace");
 
 //            System.out.println("X: " + x + " Z: " + z + " D: " + dimention + " E: "+ event + " S: " + stacktrace);
-            timeIndex.addToDimention(dimention, x, z, event, stacktrace, j);
+//            timeIndex.addToDimention(dimention, x, z, event, stacktrace, index);
+            data.addData(time, index, x, z, dimention, event, stacktrace);
         }
 
-        DebugWindow.debug.updateCanvas(data.latestIndex());
+        DebugWindow.debug.updateCanvas(time);
     }
     
     /////////// temp stuff ///////////////
