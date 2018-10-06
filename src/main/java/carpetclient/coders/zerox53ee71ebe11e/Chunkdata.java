@@ -339,39 +339,36 @@ public class Chunkdata {
             if (!isNextGametick(gametick)) {
                 // can't update efficiently, just seek
                 currentMap.clear();
-                currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, minz, maxx, maxz));
+                currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz));
             } else {
                 // update the set
                 ChunkLogCoords minEntry = new ChunkLogCoords(null, timeMin);
                 ChunkLogCoords maxEntry = new ChunkLogCoords(null, timeMax);
                 ChunkLogCoords minChunk = new ChunkLogCoords(minx, 0, dimension, gametick, 0);
                 ChunkLogCoords maxChunk = new ChunkLogCoords(maxx, 0, dimension, gametick, 0);
+                TreeMap<ChunkLogCoords, ChunkLogEvent> newEvents = new TreeMap(compareGroupChunks);
+                newEvents.putAll(getAllLogsForGametick(gametick));
                 for (int z = minz; z < maxz; ++z) {
                     minChunk.space.z = z;
                     maxChunk.space.z = z;
-                    SortedMap<ChunkLogCoords, ChunkLogEvent> chunkLineNow[] = new SortedMap[2];
-                    chunkLineNow[0] = chunkLogs.logsGroupedByTime.subMap(minChunk, maxChunk);
-                    chunkLineNow[1] = playerLogs.logsGroupedByTime.subMap(minChunk, maxChunk);
                     // remove superseded entries
-                    for (SortedMap<ChunkLogCoords, ChunkLogEvent> nowZ : chunkLineNow) {
-                        for (Entry<ChunkLogCoords, ChunkLogEvent> entry : nowZ.entrySet()) {
-                            ChunkLogChunkCoords coords = entry.getKey().space;
-                            minEntry.space = coords;
-                            maxEntry.space = coords;
-                            ChunkLogEvent event = entry.getValue();
-                            SortedMap<ChunkLogCoords, ChunkLogEvent> currentEntries = currentMap.subMap(minEntry, true, maxEntry, true);
-                            Iterator<Entry<ChunkLogCoords, ChunkLogEvent>> iter = currentEntries.entrySet().iterator();
-                            while (iter.hasNext()) {
-                                Entry<ChunkLogCoords, ChunkLogEvent> x = iter.next();
-                                if (x.getValue().event.isPlayerEvent() == event.event.isPlayerEvent()) {
-                                    iter.remove();
-                                }
+                    SortedMap<ChunkLogCoords, ChunkLogEvent> nowZ = newEvents.subMap(minChunk, maxChunk);
+                    for (Entry<ChunkLogCoords, ChunkLogEvent> entry : nowZ.entrySet()) {
+                        ChunkLogChunkCoords coords = entry.getKey().space;
+                        minEntry.space = coords;
+                        maxEntry.space = coords;
+                        ChunkLogEvent event = entry.getValue();
+                        SortedMap<ChunkLogCoords, ChunkLogEvent> currentEntries = currentMap.subMap(minEntry, true, maxEntry, true);
+                        Iterator<Entry<ChunkLogCoords, ChunkLogEvent>> iter = currentEntries.entrySet().iterator();
+                        while (iter.hasNext()) {
+                            Entry<ChunkLogCoords, ChunkLogEvent> x = iter.next();
+                            if (x.getValue().event.isPlayerEvent() == event.event.isPlayerEvent()) {
+                                iter.remove();
                             }
                         }
                     }
                     // add new entries
-                    currentMap.putAll(chunkLineNow[0]);
-                    currentMap.putAll(chunkLineNow[1]);
+                    currentMap.putAll(nowZ);
                 }
             }
             this.gametick = gametick;
