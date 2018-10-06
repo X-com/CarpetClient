@@ -288,7 +288,7 @@ public class Chunkdata {
                     (minx >= this.maxx) || (minz >= this.maxz) ||
                     (maxx <= this.minx) || (maxz <= this.minz)) {
                 currentMap.clear();
-                currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, minz, maxx, maxz));
+                currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz));
             }
             // Display area just slightly adjusted, just get updates
             else {
@@ -298,19 +298,19 @@ public class Chunkdata {
                 }
                 if (minx < this.minx) {
                     // area that got added to the left
-                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, Integer.max(minz, this.minz), this.minx, Integer.min(maxz, this.maxz)));
+                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, this.minx, Integer.max(minz, this.minz), Integer.min(maxz, this.maxz)));
                 }
                 if (maxx > this.maxx) {
                     // area that got added to the right
-                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, this.maxx, Integer.max(minz, this.minz), maxx, Integer.min(maxz, this.maxz)));
+                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, this.maxx, maxx, Integer.max(minz, this.minz), Integer.min(maxz, this.maxz)));
                 }
                 if (minz < this.minz) {
                     // area that got added to the top
-                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, minz, maxx, this.minz));
+                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, maxx, minz, this.minz));
                 }
                 if (maxz > this.maxz) {
                     // area that got added to the buttom
-                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, this.maxz, maxx, maxz));
+                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, maxx, this.maxz, maxz));
                 }
             }
             this.dimension = dimension;
@@ -327,11 +327,8 @@ public class Chunkdata {
             if (gametick == this.gametick + 1) {
                 return true;
             }
-            int mv = Integer.MAX_VALUE;
-            ChunkLogCoords maxnow = new ChunkLogCoords(mv, mv, mv, this.gametick, mv);
-            ChunkLogCoords playernext = playerLogs.logsGroupedByTime.higherKey(maxnow);
-            ChunkLogCoords chunknext = chunkLogs.logsGroupedByTime.higherKey(maxnow);
-            return (Integer.min(playernext.time.gametick, chunknext.time.gametick) == gametick);
+            int next = getNextGametick(this.gametick);
+	    return gametick <= next;
         }
 
         /* 
