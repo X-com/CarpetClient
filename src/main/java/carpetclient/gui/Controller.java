@@ -24,10 +24,12 @@ public class Controller {
     private int lastGametick;
     private int viewX;
     private int viewZ;
+    private Chunkdata.MapView chunkData;
 
     public Controller(DebugWindow d) {
         debug = d;
         lastGametick = 0;
+        chunkData = ZeroXstuff.data.getChunkData();
     }
 
     public boolean startStop() {
@@ -38,7 +40,7 @@ public class Controller {
         live = true;
         if (start) {
             home();
-        }else{
+        } else {
             ZeroXstuff.data.clear();
         }
         PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
@@ -98,8 +100,9 @@ public class Controller {
         debug.setXTest(Integer.toString(viewX));
         debug.setZText(Integer.toString(viewZ));
 
-        //TODO: fix dimention selection
+        //TODO: fix dimention swap for player home
 
+        setMapViewData();
         setTick(lastGametick);
     }
 
@@ -107,6 +110,7 @@ public class Controller {
         if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
         viewX = integerInputs(e, textX, viewX);
         textX.setText(Integer.toString(viewX));
+        setMapViewData();
         setTick(lastGametick);
     }
 
@@ -114,6 +118,7 @@ public class Controller {
         if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
         viewZ = integerInputs(e, textZ, viewZ);
         textZ.setText(Integer.toString(viewZ));
+        setMapViewData();
         setTick(lastGametick);
     }
 
@@ -134,6 +139,21 @@ public class Controller {
         setTick(time);
     }
 
+    private void setMapViewData() {
+        Chunkgrid canvas = debug.getCanvas();
+        int sizeX = canvas.sizeX();
+        int sizeZ = canvas.sizeZ();
+
+        int minX = viewX - sizeX / 2;
+        int maxX = viewX + sizeX / 2;
+        int minZ = viewZ - sizeZ / 2;
+        int maxZ = viewZ + sizeZ / 2;
+
+        int dimention = debug.getComboBoxValue();
+
+        chunkData.seekSpace(dimention, minX, maxX, minZ, maxZ);
+    }
+
     void setTick(int gametick) {
         int dimention = debug.getComboBoxValue();
         Chunkgrid canvas = debug.getCanvas();
@@ -146,17 +166,21 @@ public class Controller {
         int maxZ = viewZ + sizeZ / 2;
 
         canvas.clearColors();
-        
-        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
+
+        chunkData.seekTime(gametick);
+
+        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = chunkData.getDisplayArea();
+
+//        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
         for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
             Chunkdata.ChunkLogCoords chunk = entry.getKey();
             if (chunk == null) continue;
             Chunkdata.ChunkLogEvent event = list.get(chunk);
-            if (event == null){
-                canvas.setGridColor(chunk.space.x, chunk.space.z, getColor(Chunkdata.Event.MISSED_EVENT_ERROR));
+            if (event == null) {
+                canvas.setGridColor(chunk.space.x - minX, chunk.space.z - minZ, getColor(Chunkdata.Event.MISSED_EVENT_ERROR));
                 continue;
             }
-            canvas.setGridColor(chunk.space.x, chunk.space.z, getColor(event.event));
+            canvas.setGridColor(chunk.space.x - minX, chunk.space.z - minZ, getColor(event.event));
         }
 
         lastGametick = gametick;
@@ -179,8 +203,9 @@ public class Controller {
         Chunkgrid canvas = debug.getCanvas();
         int cx = canvas.getGridX(x);
         int cz = canvas.getGridY(y);
-        canvas.showSelection(cx, cz);
-        setTick(lastGametick);
+        System.out.println("Selected: " + cx + " " + cz);
+//        canvas.showSelection(cx, cz);
+//        setTick(lastGametick);
     }
 
     // retard color system

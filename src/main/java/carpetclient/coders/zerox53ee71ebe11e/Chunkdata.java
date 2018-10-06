@@ -27,9 +27,11 @@ public class Chunkdata {
                     return false;
             }
         }
+
     }
 
     public static class ChunkLogChunkCoords {
+
         public int x;
         public int z;
         public int d;
@@ -65,9 +67,11 @@ public class Chunkdata {
         public int hashCode() {
             return (x * 1281773681) + (z * 1298815619) + (d * 2022620329);
         }
+
     }
 
     public static class ChunkLogTimeCoords {
+
         public int gametick;
         public int eventNumber;
 
@@ -99,9 +103,11 @@ public class Chunkdata {
         public int hashCode() {
             return (gametick * 2145814481) + (eventNumber * 1247900611);
         }
+
     }
 
     public static class ChunkLogEvent {
+
         public Event event;
         public int stackTraceId;
 
@@ -123,9 +129,11 @@ public class Chunkdata {
         public int hashCode() {
             return (event.ordinal() * 1369892371) + (stackTraceId * 1713470669);
         }
+
     }
 
     public static class ChunkLogCoords {
+
         public ChunkLogChunkCoords space;
         public ChunkLogTimeCoords time;
 
@@ -153,9 +161,11 @@ public class Chunkdata {
             return time.hashCode() + space.hashCode();
         }
 
+
     }
 
     int latestGametick;
+
     static final Comparator<ChunkLogCoords> compareGroupTime = new Comparator<ChunkLogCoords>() {
         @Override
         public int compare(ChunkLogCoords a, ChunkLogCoords b) {
@@ -167,7 +177,6 @@ public class Chunkdata {
             }
         }
     };
-
     static final Comparator<ChunkLogCoords> compareGroupChunks = new Comparator<ChunkLogCoords>() {
         @Override
         public int compare(ChunkLogCoords a, ChunkLogCoords b) {
@@ -181,16 +190,18 @@ public class Chunkdata {
     };
 
     static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(0, 0);
-    static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
+    static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
     ArrayList<String> allStackTraces = new ArrayList();
+
     public SortedLogs playerLogs = new SortedLogs();
     public SortedLogs chunkLogs = new SortedLogs();
-
     HashMap<ChunkLogChunkCoords, ChunkLogChunkCoords> allChunks = new HashMap();
+
     HashMap<ChunkLogEvent, ChunkLogEvent> allEvents = new HashMap();
 
     public class SortedLogs {
+
         TreeMap<ChunkLogCoords, ChunkLogEvent> logsGroupedByTime = new TreeMap(compareGroupTime);
         TreeMap<ChunkLogCoords, ChunkLogEvent> logsGroupedByChunk = new TreeMap(compareGroupChunks);
 
@@ -246,9 +257,15 @@ public class Chunkdata {
             logsGroupedByTime.clear();
             logsGroupedByChunk.clear();
         }
+
+    }
+
+    public MapView getChunkData() {
+        return new MapView();
     }
 
     public class MapView {
+
         TreeMap<ChunkLogCoords, ChunkLogEvent> currentMap = new TreeMap(compareGroupChunks);
         int dimension = -1;
         int gametick = -1;
@@ -262,7 +279,7 @@ public class Chunkdata {
          * min coordinates are inclusive
          * max coordinates are exclusive
          */
-        public void seekSpace(int dimension, int minx, int minz, int maxx, int maxz) {
+        public void seekSpace(int dimension, int minx, int maxx, int minz, int maxz) {
             if ((minx > maxx) || (minz > maxz)) {
                 throw new IllegalArgumentException("Illegal range: min>max");
             }
