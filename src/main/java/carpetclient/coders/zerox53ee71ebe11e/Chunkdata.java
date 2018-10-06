@@ -241,6 +241,11 @@ public class Chunkdata {
             this.logsGroupedByChunk.put(coords, event);
             this.logsGroupedByTime.put(coords, event);
         }
+
+        public void clear() {
+            logsGroupedByTime.clear();
+            logsGroupedByChunk.clear();
+        }
     }
 
     public class MapView {
@@ -469,5 +474,13 @@ public class Chunkdata {
         int tick1 = next1 != null ? next1.time.gametick : getFirstGametick();
         int tick2 = next2 != null ? next2.time.gametick : getFirstGametick();
         return Integer.max(tick1, tick2);
+    }
+
+    public void clear() {
+        allChunks.clear();
+        playerLogs.clear();
+        chunkLogs.clear();
+        allChunks.clear();
+        allEvents.clear();
     }
 }

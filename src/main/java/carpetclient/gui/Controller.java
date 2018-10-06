@@ -38,6 +38,8 @@ public class Controller {
         live = true;
         if (start) {
             home();
+        }else{
+            ZeroXstuff.data.clear();
         }
         PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
         sender.writeInt(CarpetPluginChannel.CHUNK_LOGGER);
@@ -198,7 +200,7 @@ public class Controller {
                 color = cunloaded;
                 break;
             case UNLOADING:
-                color = cplayerloaded;
+                color = cunloaded;
                 break;
             case LOADING:
                 color = cloaded;
