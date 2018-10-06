@@ -129,7 +129,6 @@ public class Chunkdata {
         public int hashCode() {
             return (event.ordinal() * 1369892371) + (stackTraceId * 1713470669);
         }
-
     }
 
     public static class ChunkLogCoords {
@@ -328,7 +327,7 @@ public class Chunkdata {
                 return true;
             }
             int next = getNextGametick(this.gametick);
-	    return gametick <= next;
+            return gametick <= next;
         }
 
         /* 
@@ -493,5 +492,12 @@ public class Chunkdata {
         chunkLogs.clear();
         allChunks.clear();
         allEvents.clear();
+    }
+
+    public String getStackTraceString(int stackTraceId) {
+        if (stackTraceId < 0 || stackTraceId >= allStackTraces.size()) {
+            return "No stack trace found by that stack trace id: " + stackTraceId;
+        }
+        return allStackTraces.get(stackTraceId);
     }
 }

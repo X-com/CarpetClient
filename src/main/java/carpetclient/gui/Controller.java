@@ -40,7 +40,6 @@ public class Controller {
         live = true;
         if (start) {
             home();
-        } else {
             ZeroXstuff.data.clear();
         }
         PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
@@ -169,9 +168,13 @@ public class Controller {
 
         chunkData.seekTime(gametick);
 
-        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = chunkData.getDisplayArea();
+        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list;
 
-//        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
+        if (debug.getStackTrace()) { // temporary hackfix to display 2 data types
+            list = chunkData.getDisplayArea();
+        } else {
+            list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
+        }
         for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
             Chunkdata.ChunkLogCoords chunk = entry.getKey();
             if (chunk == null) continue;
@@ -201,11 +204,31 @@ public class Controller {
 
     public void selectchunk(int x, int y) {
         Chunkgrid canvas = debug.getCanvas();
+        int dimention = debug.getComboBoxValue();
+        int sizeX = canvas.sizeX();
+        int sizeZ = canvas.sizeZ();
+
         int cx = canvas.getGridX(x);
         int cz = canvas.getGridY(y);
-        System.out.println("Selected: " + cx + " " + cz);
-//        canvas.showSelection(cx, cz);
-//        setTick(lastGametick);
+
+        int minX = viewX - sizeX / 2;
+        int maxX = viewX + sizeX / 2;
+        int minZ = viewZ - sizeZ / 2;
+        int maxZ = viewZ + sizeZ / 2;
+
+        System.out.println("Selected: " + cx + " " + cz + " " + (cx + minX) + " " + (cz + minZ));
+        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(lastGametick, dimention, minX, maxX, minZ, maxZ);
+        for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
+            Chunkdata.ChunkLogCoords chunk = entry.getKey();
+            if (chunk == null) continue;
+            Chunkdata.ChunkLogEvent event = list.get(chunk);
+            if (event == null) {
+                continue;
+            }
+            if (chunk.space.x == (cx + minX) && chunk.space.z == (cz + minZ)) {
+                System.out.println("Event: " + event.event.toString() + "\nStackTrace:\n" + ZeroXstuff.data.getStackTraceString(event.stackTraceId));
+            }
+        }
     }
 
     // retard color system
