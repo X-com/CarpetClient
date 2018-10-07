@@ -619,6 +619,26 @@ public class Chunkdata implements Serializable {
         return Integer.max(tick1, tick2);
     }
 
+    public int getPreviousGametickForChunk(int gametick, int x, int z, int d){
+        SortedMap<ChunkLogCoords, ChunkLogEvent> map = getAllLogsForChunk(new ChunkLogChunkCoords(x, z, d));
+        ChunkLogCoords coords = new ChunkLogCoords(x,z,d,gametick,0);
+        SortedMap<ChunkLogCoords, ChunkLogEvent> head = map.headMap(coords);
+        if(head.isEmpty()){
+            return gametick;
+        }
+        return head.lastKey().time.gametick;
+    }
+
+    public int getNextGametickForChunk(int gametick, int x, int z, int d){
+        SortedMap<ChunkLogCoords, ChunkLogEvent> map = getAllLogsForChunk(new ChunkLogChunkCoords(x, z, d));
+        ChunkLogCoords coords = new ChunkLogCoords(x,z,d,gametick+1,0);
+        SortedMap<ChunkLogCoords, ChunkLogEvent> tail = map.tailMap(coords);
+        if(tail.isEmpty()){
+            return gametick;
+        }
+        return tail.firstKey().time.gametick;
+    }
+
     public void clear() {
         allChunks.clear();
         playerLogs.clear();
