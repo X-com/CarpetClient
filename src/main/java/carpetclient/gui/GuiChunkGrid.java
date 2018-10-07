@@ -23,6 +23,7 @@ public class GuiChunkGrid extends GuiScreen {
     private GuiCheckbox stackTracesCheckbox;
     private GuiButton loadButton;
     private GuiButton saveButton;
+    private GuiButton currentButton;
 
     private int time;
     private int xText;
@@ -53,12 +54,12 @@ public class GuiChunkGrid extends GuiScreen {
 
         addButton(loadButton = new GuiButton(2, getFooterX(2), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Load"));
         addButton(saveButton = new GuiButton(3, getFooterX(3), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Save"));
-        loadButton.enabled = saveButton.enabled = controller.start;
+        loadButton.enabled = saveButton.enabled = !controller.start;
 
         addButton(new GuiButton(4, getFooterX(0), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Back"));
         addButton(new GuiButton(5, getFooterX(1), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Forward"));
 
-        addButton(new GuiButton(6, getFooterX(3), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Current"));
+        addButton(currentButton = new GuiButton(6, getFooterX(3), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Current"));
 
         addButton(new GuiButton(7, getFooterX(0), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Home"));
         addButton(dimensionButton = new GuiButton(8, getFooterX(3), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, DIMENSION_NAMES[selectedDimension]));
@@ -70,10 +71,12 @@ public class GuiChunkGrid extends GuiScreen {
             case 0:
                 if (controller.startStop()) {
                     startStopButton.displayString = "Stop";
-                    loadButton.enabled = saveButton.enabled = true;
+                    loadButton.enabled = saveButton.enabled = false;
+                    currentButton.enabled = true;
                 } else {
                     startStopButton.displayString = "Start";
-                    loadButton.enabled = saveButton.enabled = false;
+                    loadButton.enabled = saveButton.enabled = true;
+                    currentButton.enabled = false;
                 }
                 break;
             case 1:
@@ -226,5 +229,10 @@ public class GuiChunkGrid extends GuiScreen {
 
     public void liveUpdate(int time) {
         controller.liveUpdate(time);
+    }
+
+    public void setSelectedDimension(int dimension) {
+        selectedDimension = dimension;
+        dimensionButton.displayString = DIMENSION_NAMES[selectedDimension];
     }
 }

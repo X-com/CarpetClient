@@ -654,7 +654,7 @@ public class Chunkdata implements Serializable {
         return allStackTraces.get(stackTraceId);
     }
 
-    private void writeObject(java.io.ObjectOutputStream out)
+    public void writeObject(java.io.ObjectOutputStream out)
             throws IOException {
         int stcount = allStackTraces.size();
         out.writeInt(stcount);
@@ -677,7 +677,7 @@ public class Chunkdata implements Serializable {
             }
         }
     }
-    private void readObject(java.io.ObjectInputStream in)
+    public void readObject(java.io.ObjectInputStream in)
             throws IOException, ClassNotFoundException {
         clear();
         int stcount = in.readInt();
