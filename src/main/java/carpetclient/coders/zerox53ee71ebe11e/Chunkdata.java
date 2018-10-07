@@ -32,7 +32,6 @@ public class Chunkdata implements Serializable {
                     return false;
             }
         }
-
     }
 
     public static class ChunkLogChunkCoords {
@@ -181,6 +180,7 @@ public class Chunkdata implements Serializable {
             }
         }
     };
+
     static final Comparator<ChunkLogCoords> compareGroupChunks = new Comparator<ChunkLogCoords>() {
         @Override
         public int compare(ChunkLogCoords a, ChunkLogCoords b) {
@@ -266,7 +266,110 @@ public class Chunkdata implements Serializable {
         return new MapView();
     }
 
-    public class MapView {
+    public class EventView {
+        int order;
+        ChunkLogEvent event;
+
+        EventView(int order, ChunkLogEvent event){
+            this.order = order;
+            this.event = event;
+        }
+
+        int getOrder(){
+            return this.order;
+        }
+
+        public Event getType(){
+            return event.event;
+        }
+
+        public String getStacktrace(){
+            if(this.event.stackTraceId < allStackTraces.size()){
+                return allStackTraces.get(this.event.stackTraceId);
+            }
+            else{
+                return null;
+            }
+        }
+    }
+
+    public class ChunkView implements Iterable<EventView> {
+        SortedMap<ChunkLogCoords, ChunkLogEvent> events;
+        int gametick;
+
+        ChunkView(SortedMap<ChunkLogCoords, ChunkLogEvent> events, int gametick) {
+            this.events = events;
+            this.gametick = gametick;
+        }
+
+        @Override
+        public Iterator<EventView> iterator() {
+            return new Iterator<EventView>() {
+                Iterator<Entry<ChunkLogCoords, ChunkLogEvent>> i = events.entrySet().iterator();
+                Entry<ChunkLogCoords, ChunkLogEvent> n = null;
+
+                @Override
+                public boolean hasNext() {
+                    while (n == null || (n.getKey().time.gametick != gametick)) {
+                        if (i.hasNext()) {
+                            n = i.next();
+                        } else {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                @Override
+                public EventView next() {
+                    if (hasNext()) {
+                        return new EventView(n.getKey().time.eventNumber, n.getValue());
+                    } else {
+                        throw new NoSuchElementException();
+                    }
+                }
+            };
+        }
+
+        public int getX() {
+            return events.firstKey().space.x;
+        }
+
+        public int getZ() {
+            return events.firstKey().space.z;
+        }
+
+        public int getDimension() {
+            return events.firstKey().space.d;
+        }
+
+        public boolean isPlayerLoaded() {
+            boolean x = false;
+            int count = 0;
+            for (ChunkLogEvent event : events.values()) {
+                if (event.event.isPlayerEvent()) {
+                    count++;
+                    if (count > 1) {
+                        System.err.println("Your crappy data structure is completely broken");
+                    }
+                    x = event.event == Event.PLAYER_ENTERS;
+                }
+            }
+            return x;
+        }
+
+        public boolean isLoaded() {
+            boolean loaded = false;
+            for (ChunkLogEvent event : events.values()) {
+                if (!event.event.isPlayerEvent()) {
+                    loaded = event.event != Event.UNLOADING;
+                }
+            }
+            return loaded;
+        }
+    }
+
+    public class MapView implements Iterable<ChunkView> {
 
         TreeMap<ChunkLogCoords, ChunkLogEvent> currentMap = new TreeMap(compareGroupChunks);
         int dimension = -1;
@@ -374,6 +477,33 @@ public class Chunkdata implements Serializable {
                 }
             }
             this.gametick = gametick;
+        }
+
+        @Override
+        public Iterator<ChunkView> iterator(){
+            return new Iterator<ChunkView>(){
+                SortedMap<ChunkLogCoords,ChunkLogEvent> rest = currentMap;
+                ChunkLogCoords max = new ChunkLogCoords(0,0, dimension,0,0);
+
+                @Override
+                public boolean hasNext(){
+                    return !rest.isEmpty();
+                }
+
+                @Override
+                public ChunkView next(){
+                    if(!hasNext())
+                    {
+                        throw new NoSuchElementException();
+                    }
+                    ChunkLogCoords nextChunk = rest.firstKey();
+                    max.space.x = nextChunk.space.x+1;
+                    max.space.z = nextChunk.space.z;
+                    SortedMap<ChunkLogCoords,ChunkLogEvent> mapChunk = rest.headMap(max);
+                    rest = rest.tailMap(max);
+                    return new ChunkView(mapChunk,gametick);
+                }
+            };
         }
 
         public SortedMap<ChunkLogCoords, ChunkLogEvent> getDisplayArea() {
