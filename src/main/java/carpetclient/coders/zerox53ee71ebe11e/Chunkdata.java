@@ -150,6 +150,16 @@ public class Chunkdata implements Serializable {
             time = new ChunkLogTimeCoords(gametick, eventNumber);
         }
 
+        ChunkLogCoords(ChunkLogChunkCoords space, int gametick, int eventNumber) {
+            this.space = space;
+            time = new ChunkLogTimeCoords(gametick, eventNumber);
+        }
+
+        ChunkLogCoords(int x, int z, int d, ChunkLogTimeCoords time) {
+            space = new ChunkLogChunkCoords(x, z, d);
+            this.time = time;
+        }
+
         @Override
         public boolean equals(Object oo) {
             if (oo instanceof ChunkLogCoords) {
@@ -164,6 +174,10 @@ public class Chunkdata implements Serializable {
             return time.hashCode() + space.hashCode();
         }
 
+        @Override
+        public String toString(){
+            return String.format("gametick: %d order: %d x: %d z: %d d: %d", time.gametick, time.eventNumber, space.x,space.z,space.d);
+        }
 
     }
 
@@ -193,6 +207,8 @@ public class Chunkdata implements Serializable {
         }
     };
 
+    static final ChunkLogChunkCoords spaceMin = new ChunkLogChunkCoords(Integer.MIN_VALUE,Integer.MIN_VALUE,0);
+    static final ChunkLogChunkCoords spaceMax = new ChunkLogChunkCoords(Integer.MAX_VALUE,Integer.MAX_VALUE,0);
     static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(0, 0);
     static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
@@ -208,16 +224,14 @@ public class Chunkdata implements Serializable {
         TreeMap<ChunkLogCoords, ChunkLogEvent> logsGroupedByChunk = new TreeMap(compareGroupChunks);
 
         public SortedMap<ChunkLogCoords, ChunkLogEvent> getLogsForGametick(int gametick) {
-            int mv = Integer.MAX_VALUE;
-            ChunkLogCoords low = new ChunkLogCoords(0, 0, 0, gametick, 0);
-            ChunkLogCoords high = new ChunkLogCoords(mv, mv, mv, gametick, mv);
+            ChunkLogCoords low = new ChunkLogCoords(spaceMin, gametick, 0);
+            ChunkLogCoords high = new ChunkLogCoords(spaceMax, gametick, Integer.MAX_VALUE);
             return logsGroupedByTime.subMap(low, true, high, true);
         }
 
         public SortedMap<ChunkLogCoords, ChunkLogEvent> getLogsForChunk(ChunkLogChunkCoords coords) {
-            int mv = Integer.MAX_VALUE;
-            ChunkLogCoords low = new ChunkLogCoords(coords, new ChunkLogTimeCoords(0, 0));
-            ChunkLogCoords high = new ChunkLogCoords(coords, new ChunkLogTimeCoords(mv, mv));
+            ChunkLogCoords low = new ChunkLogCoords(coords, timeMin);
+            ChunkLogCoords high = new ChunkLogCoords(coords, timeMax);
             return logsGroupedByChunk.subMap(low, true, high, true);
         }
 
@@ -226,12 +240,11 @@ public class Chunkdata implements Serializable {
                 int dimension,
                 int minx, int maxx, int minz, int maxz) {
             TreeMap<ChunkLogCoords, ChunkLogEvent> logs = new TreeMap(compareGroupTime);
-            int mv = Integer.MAX_VALUE;
             TreeMap<ChunkLogCoords, ChunkLogEvent> thisGametick = new TreeMap(compareGroupChunks);
             thisGametick.putAll(getLogsForGametick(gametick));
             ChunkLogChunkCoords coords = new ChunkLogChunkCoords(0, 0, dimension);
-            ChunkLogCoords minLog = new ChunkLogCoords(coords, new ChunkLogTimeCoords(gametick, 0));
-            ChunkLogCoords maxLog = new ChunkLogCoords(coords, new ChunkLogTimeCoords(gametick, mv));
+            ChunkLogCoords minLog = new ChunkLogCoords(coords, gametick, 0);
+            ChunkLogCoords maxLog = new ChunkLogCoords(coords, gametick, Integer.MAX_VALUE);
             for (int z = minz; z < maxz; ++z) {
                 for (int x = minx; x < maxx; ++x) {
                     coords.x = x;
@@ -602,21 +615,23 @@ public class Chunkdata implements Serializable {
     }
 
     public int getNextGametick(int gametick) {
-        ChunkLogCoords min = new ChunkLogCoords(0, 0, 0, gametick + 1, 0);
+        ChunkLogCoords min = new ChunkLogCoords(spaceMin, gametick + 1, 0);
         ChunkLogCoords next1 = this.playerLogs.logsGroupedByTime.ceilingKey(min);
         ChunkLogCoords next2 = this.chunkLogs.logsGroupedByTime.ceilingKey(min);
         int tick1 = next1 != null ? next1.time.gametick : getLastGametick();
         int tick2 = next2 != null ? next2.time.gametick : getLastGametick();
-        return Integer.min(tick1, tick2);
+        int newtick = Integer.max(tick1,tick2);
+        return newtick;
     }
 
     public int getPrevGametick(int gametick) {
-        ChunkLogCoords min = new ChunkLogCoords(0, 0, 0, gametick, 0);
+        ChunkLogCoords min = new ChunkLogCoords(spaceMin, gametick, 0);
         ChunkLogCoords next1 = this.playerLogs.logsGroupedByTime.lowerKey(min);
         ChunkLogCoords next2 = this.chunkLogs.logsGroupedByTime.lowerKey(min);
         int tick1 = next1 != null ? next1.time.gametick : getFirstGametick();
         int tick2 = next2 != null ? next2.time.gametick : getFirstGametick();
-        return Integer.max(tick1, tick2);
+        int newtick = Integer.max(tick1,tick2);
+        return newtick;
     }
 
     public int getPreviousGametickForChunk(int gametick, int x, int z, int d){
