@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.io.*;
 import java.util.Map;
 import java.util.SortedMap;
 
@@ -47,20 +48,35 @@ public class Controller {
     }
 
     public void load() {
-//        JFileChooser fc = new JFileChooser();
-//        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-//        int rval = fc.showOpenDialog(frame);
-//        if(rval == JFileChooser.APPROVE_OPTION) {
-//            String path = fc.getSelectedFile().getPath();
-//            dirTextField.setText(path);
-//            ChunkWatch.this.updateFileList(path);
-//        }
-
-        //TODO: Load stuff
+        JFrame frame = new JFrame();
+        JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int rval = fc.showOpenDialog(frame);
+        if (rval == JFileChooser.APPROVE_OPTION) {
+            String path = fc.getSelectedFile().getPath();
+            try {
+                ZeroXstuff.data.readObject(new ObjectInputStream(new FileInputStream(path)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void save() {
-        //TODO: Save stuff
+        JFrame frame = new JFrame();
+        JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        int rval = fc.showOpenDialog(frame);
+        if (rval == JFileChooser.APPROVE_OPTION) {
+            String path = fc.getSelectedFile().getPath();
+            try {
+                ZeroXstuff.data.writeObject(new ObjectOutputStream(new FileOutputStream(path)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void back() {
@@ -93,10 +109,20 @@ public class Controller {
         debug.setXText(viewX);
         debug.setZText(viewZ);
 
-        //TODO: fix dimention swap for player home
+        changeDimentionTo(Minecraft.getMinecraft().player.dimension);
 
         setMapViewData();
         setTick(lastGametick);
+    }
+
+    private void changeDimentionTo(int dimension) {
+        if (dimension == -1) {
+            debug.setSelectedDimension(1);
+        } else if (dimension == 1) {
+            debug.setSelectedDimension(2);
+        } else if (dimension == 0) {
+            debug.setSelectedDimension(0);
+        }
     }
 
     public void setX(KeyEvent e, JTextArea textX) {

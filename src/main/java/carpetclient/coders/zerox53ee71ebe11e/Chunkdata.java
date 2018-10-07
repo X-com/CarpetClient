@@ -1,9 +1,14 @@
 package carpetclient.coders.zerox53ee71ebe11e;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.IOException;
 
-public class Chunkdata {
+public class Chunkdata implements Serializable {
 
     public static enum Event {
         MISSED_EVENT_ERROR,
@@ -27,7 +32,6 @@ public class Chunkdata {
                     return false;
             }
         }
-
     }
 
     public static class ChunkLogChunkCoords {
@@ -83,7 +87,7 @@ public class Chunkdata {
         public int compareTo(ChunkLogTimeCoords other) {
             if (this.gametick != other.gametick) {
                 return this.gametick > other.gametick ? 1 : -1;
-            } else if (this.eventNumber > other.eventNumber) {
+            } else if (this.eventNumber != other.eventNumber) {
                 return this.eventNumber > other.eventNumber ? 1 : -1;
             } else {
                 return 0;
@@ -176,6 +180,7 @@ public class Chunkdata {
             }
         }
     };
+
     static final Comparator<ChunkLogCoords> compareGroupChunks = new Comparator<ChunkLogCoords>() {
         @Override
         public int compare(ChunkLogCoords a, ChunkLogCoords b) {
@@ -189,14 +194,12 @@ public class Chunkdata {
     };
 
     static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(0, 0);
-
     static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
-    ArrayList<String> allStackTraces = new ArrayList();
 
+    ArrayList<String> allStackTraces = new ArrayList();
     public SortedLogs playerLogs = new SortedLogs();
     public SortedLogs chunkLogs = new SortedLogs();
     HashMap<ChunkLogChunkCoords, ChunkLogChunkCoords> allChunks = new HashMap();
-
     HashMap<ChunkLogEvent, ChunkLogEvent> allEvents = new HashMap();
 
     public class SortedLogs {
@@ -263,7 +266,110 @@ public class Chunkdata {
         return new MapView();
     }
 
-    public class MapView {
+    public class EventView {
+        int order;
+        ChunkLogEvent event;
+
+        EventView(int order, ChunkLogEvent event){
+            this.order = order;
+            this.event = event;
+        }
+
+        int getOrder(){
+            return this.order;
+        }
+
+        public Event getType(){
+            return event.event;
+        }
+
+        public String getStacktrace(){
+            if(this.event.stackTraceId < allStackTraces.size()){
+                return allStackTraces.get(this.event.stackTraceId);
+            }
+            else{
+                return null;
+            }
+        }
+    }
+
+    public class ChunkView implements Iterable<EventView> {
+        SortedMap<ChunkLogCoords, ChunkLogEvent> events;
+        int gametick;
+
+        ChunkView(SortedMap<ChunkLogCoords, ChunkLogEvent> events, int gametick) {
+            this.events = events;
+            this.gametick = gametick;
+        }
+
+        @Override
+        public Iterator<EventView> iterator() {
+            return new Iterator<EventView>() {
+                Iterator<Entry<ChunkLogCoords, ChunkLogEvent>> i = events.entrySet().iterator();
+                Entry<ChunkLogCoords, ChunkLogEvent> n = null;
+
+                @Override
+                public boolean hasNext() {
+                    while (n == null || (n.getKey().time.gametick != gametick)) {
+                        if (i.hasNext()) {
+                            n = i.next();
+                        } else {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                @Override
+                public EventView next() {
+                    if (hasNext()) {
+                        return new EventView(n.getKey().time.eventNumber, n.getValue());
+                    } else {
+                        throw new NoSuchElementException();
+                    }
+                }
+            };
+        }
+
+        public int getX() {
+            return events.firstKey().space.x;
+        }
+
+        public int getZ() {
+            return events.firstKey().space.z;
+        }
+
+        public int getDimension() {
+            return events.firstKey().space.d;
+        }
+
+        public boolean isPlayerLoaded() {
+            boolean x = false;
+            int count = 0;
+            for (ChunkLogEvent event : events.values()) {
+                if (event.event.isPlayerEvent()) {
+                    count++;
+                    if (count > 1) {
+                        System.err.println("Your crappy data structure is completely broken");
+                    }
+                    x = event.event == Event.PLAYER_ENTERS;
+                }
+            }
+            return x;
+        }
+
+        public boolean isLoaded() {
+            boolean loaded = false;
+            for (ChunkLogEvent event : events.values()) {
+                if (!event.event.isPlayerEvent()) {
+                    loaded = event.event != Event.UNLOADING;
+                }
+            }
+            return loaded;
+        }
+    }
+
+    public class MapView implements Iterable<ChunkView> {
 
         TreeMap<ChunkLogCoords, ChunkLogEvent> currentMap = new TreeMap(compareGroupChunks);
         int dimension = -1;
@@ -373,6 +479,33 @@ public class Chunkdata {
             this.gametick = gametick;
         }
 
+        @Override
+        public Iterator<ChunkView> iterator(){
+            return new Iterator<ChunkView>(){
+                SortedMap<ChunkLogCoords,ChunkLogEvent> rest = currentMap;
+                ChunkLogCoords max = new ChunkLogCoords(0,0, dimension,0,0);
+
+                @Override
+                public boolean hasNext(){
+                    return !rest.isEmpty();
+                }
+
+                @Override
+                public ChunkView next(){
+                    if(!hasNext())
+                    {
+                        throw new NoSuchElementException();
+                    }
+                    ChunkLogCoords nextChunk = rest.firstKey();
+                    max.space.x = nextChunk.space.x+1;
+                    max.space.z = nextChunk.space.z;
+                    SortedMap<ChunkLogCoords,ChunkLogEvent> mapChunk = rest.headMap(max);
+                    rest = rest.tailMap(max);
+                    return new ChunkView(mapChunk,gametick);
+                }
+            };
+        }
+
         public SortedMap<ChunkLogCoords, ChunkLogEvent> getDisplayArea() {
             return currentMap;
         }
@@ -446,7 +579,7 @@ public class Chunkdata {
             int minx, int maxx, int minz, int maxz) {
         SortedMap<ChunkLogCoords, ChunkLogEvent> map1 = playerLogs.getLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz);
         SortedMap<ChunkLogCoords, ChunkLogEvent> map2 = chunkLogs.getLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz);
-        TreeMap map = new TreeMap(compareGroupChunks);
+        TreeMap<ChunkLogCoords, ChunkLogEvent> map = new TreeMap(compareGroupChunks);
         map.putAll(map1);
         map.putAll(map2);
         return map;
@@ -486,6 +619,26 @@ public class Chunkdata {
         return Integer.max(tick1, tick2);
     }
 
+    public int getPreviousGametickForChunk(int gametick, int x, int z, int d){
+        SortedMap<ChunkLogCoords, ChunkLogEvent> map = getAllLogsForChunk(new ChunkLogChunkCoords(x, z, d));
+        ChunkLogCoords coords = new ChunkLogCoords(x,z,d,gametick,0);
+        SortedMap<ChunkLogCoords, ChunkLogEvent> head = map.headMap(coords);
+        if(head.isEmpty()){
+            return gametick;
+        }
+        return head.lastKey().time.gametick;
+    }
+
+    public int getNextGametickForChunk(int gametick, int x, int z, int d){
+        SortedMap<ChunkLogCoords, ChunkLogEvent> map = getAllLogsForChunk(new ChunkLogChunkCoords(x, z, d));
+        ChunkLogCoords coords = new ChunkLogCoords(x,z,d,gametick+1,0);
+        SortedMap<ChunkLogCoords, ChunkLogEvent> tail = map.tailMap(coords);
+        if(tail.isEmpty()){
+            return gametick;
+        }
+        return tail.firstKey().time.gametick;
+    }
+
     public void clear() {
         allChunks.clear();
         playerLogs.clear();
@@ -499,5 +652,51 @@ public class Chunkdata {
             return "No stack trace found by that stack trace id: " + stackTraceId;
         }
         return allStackTraces.get(stackTraceId);
+    }
+
+    public void writeObject(java.io.ObjectOutputStream out)
+            throws IOException {
+        int stcount = allStackTraces.size();
+        out.writeInt(stcount);
+        for(String s: allStackTraces){
+            out.writeObject(s);
+        }
+        int eventCount = playerLogs.logsGroupedByTime.size() + chunkLogs.logsGroupedByTime.size();
+        Map<ChunkLogCoords,ChunkLogEvent> maps[] = new Map[]{playerLogs.logsGroupedByTime, chunkLogs.logsGroupedByChunk};
+        for(Map<ChunkLogCoords,ChunkLogEvent> map : maps) {
+            for (Entry<ChunkLogCoords, ChunkLogEvent> entry : playerLogs.logsGroupedByTime.entrySet()) {
+                ChunkLogCoords coords = entry.getKey();
+                ChunkLogEvent event = entry.getValue();
+                out.writeInt(coords.space.x);
+                out.writeInt(coords.space.z);
+                out.writeInt(coords.space.d);
+                out.writeInt(coords.time.gametick);
+                out.writeInt(coords.time.eventNumber);
+                out.writeInt(event.event.ordinal());
+                out.writeInt(event.stackTraceId);
+            }
+        }
+    }
+    public void readObject(java.io.ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
+        clear();
+        int stcount = in.readInt();
+        for(int i = 0; i<stcount; ++i){
+            this.addStacktrace((String) in.readObject());
+        }
+        int eventCount = in.readInt();
+        for(int i = 0;i<eventCount;++i){
+            int x = in.readInt();
+            int z = in.readInt();
+            int d = in.readInt();
+            int tick = in.readInt();
+            int evnum = in.readInt();
+            int event = in.readInt();
+            int traceid = in.readInt();
+            this.addData(tick,evnum,x,z,d,event,traceid);
+        }
+    }
+    private void readObjectNoData()
+            throws ObjectStreamException{
     }
 }
