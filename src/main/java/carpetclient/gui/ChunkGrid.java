@@ -1,5 +1,6 @@
 package carpetclient.gui;
 
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -29,59 +30,26 @@ public class ChunkGrid {
         int cellWidth = width / scaledWidth;
 
         cellSize = Math.min(cellHeight, cellWidth);
-        double frame = 0.13;
+//        double frame = 0;
 
-        drawRect(thisX, thisY, thisX + width - 1, thisY + height - 1, 0xff808080);
-        drawRect(thisX + selectionX * cellSize,
-                thisY + selectionY * cellSize,
-                thisX + selectionX * cellSize + cellSize - 1,
-                thisY + selectionY * cellSize + cellSize - 1,
-                0xff000000);
+//        drawRect(thisX, thisY, thisX + width - 1, thisY + height - 1, 0xff808080);
+//        drawRect(thisX + selectionX * cellSize,
+//                thisY + selectionY * cellSize,
+//                thisX + selectionX * cellSize + cellSize - 1,
+//                thisY + selectionY * cellSize + cellSize - 1,
+//                0xff000000);
 
         for (int z = 0; z < scaledHeight; ++z) {
             for (int x = 0; x < scaledWidth; ++x) {
                 int rx = x * cellSize;
                 int ry = z * cellSize;
-                drawRect(thisX + rx + frame,
-                        thisY + ry + frame,
-                        thisX + rx + frame + cellSize - frame,
-                        thisY + ry + frame + cellSize - frame,
+                Gui.drawRect(thisX + rx,
+                        thisY + ry,
+                        thisX + rx + cellSize,
+                        thisY + ry + cellSize,
                         getGridColor(x, z));
             }
         }
-    }
-
-    public static void drawRect(double left, double top, double right, double bottom, int color) {
-        if (left < right) {
-            double i = left;
-            left = right;
-            right = i;
-        }
-
-        if (top < bottom) {
-            double j = top;
-            top = bottom;
-            bottom = j;
-        }
-
-        float f3 = (float) (color >> 24 & 255) / 255.0F;
-        float f = (float) (color >> 16 & 255) / 255.0F;
-        float f1 = (float) (color >> 8 & 255) / 255.0F;
-        float f2 = (float) (color & 255) / 255.0F;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.color(f, f1, f2, f3);
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
-        bufferbuilder.pos(left, bottom, 0.0D).endVertex();
-        bufferbuilder.pos(right, bottom, 0.0D).endVertex();
-        bufferbuilder.pos(right, top, 0.0D).endVertex();
-        bufferbuilder.pos(left, top, 0.0D).endVertex();
-        tessellator.draw();
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
     }
 
     public int getGridX(int pixelX) {
@@ -114,7 +82,9 @@ public class ChunkGrid {
 
     public int getGridColor(int x, int z) {
         Integer col = colors.get(new Point(x, z));
-        return col == null ? 0xff000000 : col;
+        if (col == null) return 0xff000000;
+        if ((x + z) % 2 == 0) col += 0x080808;
+        return col;
     }
 
     public int sizeX() {
