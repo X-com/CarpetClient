@@ -44,8 +44,8 @@ public class ChunkGrid {
                 int ry = z * cellSize;
                 drawRect(thisX + rx + frame,
                         thisY + ry + frame,
-                        thisX + rx + frame + cellSize - 2 * frame - 1,
-                        thisY + ry + frame + cellSize - 2 * frame - 1,
+                        thisX + rx + frame + cellSize - frame,
+                        thisY + ry + frame + cellSize - frame,
                         getGridColor(x, z));
             }
         }
