@@ -1,6 +1,7 @@
 package carpetclient.coders.zerox53ee71ebe11e;
 
-import carpetclient.gui.DebugWindow;
+import carpetclient.gui.GuiChunkGrid;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
@@ -78,7 +79,9 @@ public class ZeroXstuff {
             data.addData(time, index, x, z, dimention, event, stacktrace);
         }
 
-        DebugWindow.debug.updateCanvas(time);
+        if (Minecraft.getMinecraft().currentScreen instanceof GuiChunkGrid) {
+            ((GuiChunkGrid) Minecraft.getMinecraft().currentScreen).liveUpdate(time);
+        }
     }
     
     /////////// temp stuff ///////////////

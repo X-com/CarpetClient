@@ -75,3 +75,11 @@ nb-configuration.xml
 *.iws
 *.launch
 *.number
+
+# Minecraft #
+#############
+.auth.json
+.mixin.out/
+liteconfig/
+/options.txt
+/servers.dat

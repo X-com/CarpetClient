@@ -5,7 +5,6 @@ import java.util.List;
 
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
-import carpetclient.gui.DebugWindow;
 import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.PostRenderListener;
 import com.mumfrey.liteloader.Tickable;
@@ -27,7 +26,6 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
     @Override
     public void init(File configPath) {
-        DebugWindow.debug = new DebugWindow();
         Hotkeys.init();
     }
 

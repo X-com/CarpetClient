@@ -1,6 +1,6 @@
 package carpetclient;
 
-import carpetclient.gui.DebugWindow;
+import carpetclient.gui.GuiChunkGrid;
 import com.mumfrey.liteloader.core.LiteLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -69,9 +69,7 @@ public class Hotkeys {
 
             CarpetPluginChannel.packatSender(sender);
         } else if (chunkDebug.isPressed()) {
-            Config.chunkDebug = !Config.chunkDebug;
-
-            DebugWindow.debug.setVis(Config.chunkDebug);
+            minecraft.displayGuiScreen(new GuiChunkGrid());
         }
     }
     

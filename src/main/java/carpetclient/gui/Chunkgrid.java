@@ -1,9 +1,12 @@
 package carpetclient.gui;
 
+import net.minecraft.client.gui.Gui;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
-public class Chunkgrid extends JPanel {
+public class Chunkgrid {
 
     int gridX = 100;
     int gridZ = 100;
@@ -13,33 +16,34 @@ public class Chunkgrid extends JPanel {
     int activex = -1;
     int activey = -1;
 
-    Color[] colors = new Color[1000000];
+    int[] colors = new int[1000000];
 
     public Chunkgrid() {
     }
 
-    @Override
-    public void paintComponent(Graphics g) {
-        gridZ = getHeight() / scale;
-        gridX = getWidth() / scale;
+    public void draw(int thisX, int thisY, int width, int height) {
+        gridZ = height / scale;
+        gridX = width / scale;
 
-        int gridH = getHeight() / gridZ;
-        int gridW = getWidth() / gridX;
+        int gridH = height / gridZ;
+        int gridW = width / gridX;
 
         grid = Math.min(gridH, gridW);
         int frame = 1;
 
-        g.clearRect(0, 0, getWidth(), getHeight());
-        g.setColor(Color.BLACK);
-        g.fillRect(activex * grid, activey * grid, grid, grid);
+        Gui.drawRect(thisX, thisY, thisX + width - 1, thisY + height - 1, 0xffffffff);
+        Gui.drawRect(thisX + activex * grid, thisY + activey * grid, thisX + activex * grid + grid - 1, thisY + activey * grid + grid - 1, 0xff000000);
 
         for (int z = 0; z < gridZ; ++z) {
             for (int x = 0; x < gridX; ++x) {
                 int rx = x * grid;
                 int ry = z * grid;
                 int i = x + gridX * z;
-                g.setColor(colors[i]);
-                g.fillRect(rx + frame, ry + frame, grid - 2 * frame, grid - 2 * frame);
+                Gui.drawRect(thisX + rx + frame,
+                        thisY + ry + frame,
+                        thisX + rx + frame + grid - 2 * frame - 1,
+                        thisY + ry + frame + grid - 2 * frame - 1,
+                        colors[i]);
             }
         }
     }
@@ -61,13 +65,13 @@ public class Chunkgrid extends JPanel {
         activey = y;
     }
 
-    public void setGrid(int sx, int sy, Color[] colors) {
+    public void setGrid(int sx, int sy, int[] colors) {
         this.colors = colors;
         this.gridX = sx;
         this.gridZ = sy;
     }
 
-    public void setGridColor(int x, int z, Color color) {
+    public void setGridColor(int x, int z, int color) {
         colors[x + gridX * z] = color;
     }
 
@@ -79,20 +83,18 @@ public class Chunkgrid extends JPanel {
         return gridZ;
     }
 
-    public void setScale(int value) {
+    public void setScale(int width, int height, int value) {
         scale += value;
         if (scale < 5) {
             scale = 5;
         } else if (scale > 50) {
             scale = 50;
         }
-        gridZ = getHeight() / scale;
-        gridX = getWidth() / scale;
+        gridZ = height / scale;
+        gridX = width / scale;
     }
 
     public void clearColors() {
-        for (int i = 0; i < 1000000; i++) {
-            colors[i] = Color.BLACK;
-        }
+        Arrays.fill(colors, 0xff000000);
     }
 }

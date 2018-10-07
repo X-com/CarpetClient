@@ -18,7 +18,7 @@ import java.util.SortedMap;
 import static carpetclient.coders.zerox53ee71ebe11e.Chunkdata.Event.*;
 
 public class Controller {
-    DebugWindow debug;
+    GuiChunkGrid debug;
     boolean start = false;
     private boolean live = false;
     private int lastGametick;
@@ -26,7 +26,7 @@ public class Controller {
     private int viewZ;
     private Chunkdata.MapView chunkData;
 
-    public Controller(DebugWindow d) {
+    public Controller(GuiChunkGrid d) {
         debug = d;
         lastGametick = 0;
         chunkData = ZeroXstuff.data.getChunkData();
@@ -34,8 +34,6 @@ public class Controller {
 
     public boolean startStop() {
         start = !start;
-
-        debug.disableSaveLoadButtons(start);
 
         live = true;
         if (start) {
@@ -45,7 +43,7 @@ public class Controller {
         PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
         sender.writeInt(CarpetPluginChannel.CHUNK_LOGGER);
         sender.writeBoolean(start); // this is the bit to turn on or off
-        sender.writeBoolean(debug.getStackTrace()); // this is the bit to send stacktraces
+        sender.writeBoolean(debug.areStackTracesEnabled()); // this is the bit to send stacktraces
 
         CarpetPluginChannel.packatSender(sender);
 
@@ -96,8 +94,8 @@ public class Controller {
         viewX = pos.getX() >> 4;
         viewZ = pos.getZ() >> 4;
 
-        debug.setXTest(Integer.toString(viewX));
-        debug.setZText(Integer.toString(viewZ));
+        debug.setXText(viewX);
+        debug.setZText(viewZ);
 
         //TODO: fix dimention swap for player home
 
@@ -139,7 +137,7 @@ public class Controller {
     }
 
     private void setMapViewData() {
-        Chunkgrid canvas = debug.getCanvas();
+        Chunkgrid canvas = debug.getChunkGrid();
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
 
@@ -148,14 +146,14 @@ public class Controller {
         int minZ = viewZ - sizeZ / 2;
         int maxZ = viewZ + sizeZ / 2;
 
-        int dimention = debug.getComboBoxValue();
+        int dimention = debug.getSelectedDimension();
 
         chunkData.seekSpace(dimention, minX, maxX, minZ, maxZ);
     }
 
     void setTick(int gametick) {
-        int dimention = debug.getComboBoxValue();
-        Chunkgrid canvas = debug.getCanvas();
+        int dimention = debug.getSelectedDimension();
+        Chunkgrid canvas = debug.getChunkGrid();
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
 
@@ -170,7 +168,7 @@ public class Controller {
 
         SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list;
 
-        if (debug.getStackTrace()) { // temporary hackfix to display 2 data types
+        if (debug.areStackTracesEnabled()) { // temporary hackfix to display 2 data types
             list = chunkData.getDisplayArea();
         } else {
             list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
@@ -188,10 +186,7 @@ public class Controller {
 
         lastGametick = gametick;
 
-        debug.setTimeTextField(Integer.toString(gametick));
-
-        canvas.invalidate();
-        canvas.repaint();
+        debug.setTime(gametick);
     }
 
     private int getOffsetX(int x, Chunkgrid canvas) {
@@ -203,8 +198,8 @@ public class Controller {
     }
 
     public void selectchunk(int x, int y) {
-        Chunkgrid canvas = debug.getCanvas();
-        int dimention = debug.getComboBoxValue();
+        Chunkgrid canvas = debug.getChunkGrid();
+        int dimention = debug.getSelectedDimension();
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
 
@@ -232,17 +227,17 @@ public class Controller {
     }
 
     // retard color system
-    final Color cunloaded = new Color(200, 200, 200);
-    final Color cplayerloaded = new Color(50, 50, 200);
-    final Color cloaded = new Color(50, 200, 50);
-    final Color cunloadqueued = new Color(200, 200, 50);
-    final Color cunloadqueueing = new Color(255, 255, 0);
-    final Color cunloading = new Color(255, 0, 0);
-    final Color cunloadingcanceled = new Color(0, 0, 255);
-    final Color cloading = new Color(0, 255, 0);
+    final int cunloaded = 0xffc8c8c8;
+    final int cplayerloaded = 0xff3232c8;
+    final int cloaded = 0xff32c832;
+    final int cunloadqueued = 0xffc8c832;
+    final int cunloadqueueing = 0xffffff00;
+    final int cunloading = 0xffff0000;
+    final int cunloadingcanceled = 0xff0000ff;
+    final int cloading = 0xff00ff00;
 
-    Color getColor(Chunkdata.Event event) {
-        Color color = new Color(255, 255, 255);
+    int getColor(Chunkdata.Event event) {
+        int color = 0xffffff;
         switch (event) {
             case MISSED_EVENT_ERROR:
                 color = cunloaded;
@@ -283,8 +278,8 @@ public class Controller {
     }
 
     public void scroll(int scrollAmount) {
-        Chunkgrid canvas = debug.getCanvas();
-        canvas.setScale(scrollAmount);
+        Chunkgrid canvas = debug.getChunkGrid();
+        canvas.setScale(debug.width, debug.height, scrollAmount);
         setTick(lastGametick);
     }
 }
