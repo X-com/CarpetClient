@@ -83,8 +83,29 @@ public class ChunkGrid {
     public int getGridColor(int x, int z) {
         Integer col = colors.get(new Point(x, z));
         if (col == null) return 0xff000000;
-        if ((x + z) % 2 == 0) col += 0x080808;
+        if ((x + z) % 2 == 0) return brighten(col);
         return col;
+    }
+
+    private static int brighten(int col) {
+        int alpha = (col & 0xff000000) >>> 24;
+        int red = (col & 0xff0000) >> 16;
+        int green = (col & 0xff00) >> 8;
+        int blue = col & 0xff;
+
+        // redn't green't and bluen't are technical terms
+        int rednt = 255 - red, greent = 255 - green, bluent = 255 - blue;
+        rednt = (int) (rednt * 0.9);
+        greent = (int) (greent * 0.9);
+        bluent = (int) (bluent * 0.9);
+        red = 255 - rednt;
+        green = 255 - greent;
+        blue = 255 - bluent;
+
+        return (alpha << 24)
+                | (red << 16)
+                | (green << 8)
+                | (blue);
     }
 
     public int sizeX() {
