@@ -336,6 +336,8 @@ public class Chunkdata implements Serializable {
                 @Override
                 public EventView next() {
                     if (hasNext()) {
+                        Entry<ChunkLogCoords, ChunkLogEvent> n = this.n;
+                        this.n = null;
                         return new EventView(n.getKey().time.eventNumber, n.getValue());
                     } else {
                         throw new NoSuchElementException();
@@ -496,7 +498,7 @@ public class Chunkdata implements Serializable {
         public Iterator<ChunkView> iterator(){
             return new Iterator<ChunkView>(){
                 SortedMap<ChunkLogCoords,ChunkLogEvent> rest = currentMap;
-                ChunkLogCoords max = new ChunkLogCoords(0,0, dimension,0,0);
+                ChunkLogCoords max = new ChunkLogCoords(0,0, dimension,timeMin);
 
                 @Override
                 public boolean hasNext(){
