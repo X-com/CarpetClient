@@ -1,9 +1,14 @@
 package carpetclient.coders.zerox53ee71ebe11e;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.IOException;
 
-public class Chunkdata {
+public class Chunkdata implements Serializable {
 
     public static enum Event {
         MISSED_EVENT_ERROR,
@@ -189,14 +194,12 @@ public class Chunkdata {
     };
 
     static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(0, 0);
-
     static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
-    ArrayList<String> allStackTraces = new ArrayList();
 
+    ArrayList<String> allStackTraces = new ArrayList();
     public SortedLogs playerLogs = new SortedLogs();
     public SortedLogs chunkLogs = new SortedLogs();
     HashMap<ChunkLogChunkCoords, ChunkLogChunkCoords> allChunks = new HashMap();
-
     HashMap<ChunkLogEvent, ChunkLogEvent> allEvents = new HashMap();
 
     public class SortedLogs {
@@ -499,5 +502,51 @@ public class Chunkdata {
             return "No stack trace found by that stack trace id: " + stackTraceId;
         }
         return allStackTraces.get(stackTraceId);
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out)
+            throws IOException {
+        int stcount = allStackTraces.size();
+        out.writeInt(stcount);
+        for(String s: allStackTraces){
+            out.writeObject(s);
+        }
+        int eventCount = playerLogs.logsGroupedByTime.size() + chunkLogs.logsGroupedByTime.size();
+        Map<ChunkLogCoords,ChunkLogEvent> maps[] = new Map[]{playerLogs.logsGroupedByTime, chunkLogs.logsGroupedByChunk};
+        for(Map<ChunkLogCoords,ChunkLogEvent> map : maps) {
+            for (Entry<ChunkLogCoords, ChunkLogEvent> entry : playerLogs.logsGroupedByTime.entrySet()) {
+                ChunkLogCoords coords = entry.getKey();
+                ChunkLogEvent event = entry.getValue();
+                out.writeInt(coords.space.x);
+                out.writeInt(coords.space.z);
+                out.writeInt(coords.space.d);
+                out.writeInt(coords.time.gametick);
+                out.writeInt(coords.time.eventNumber);
+                out.writeInt(event.event.ordinal());
+                out.writeInt(event.stackTraceId);
+            }
+        }
+    }
+    private void readObject(java.io.ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
+        clear();
+        int stcount = in.readInt();
+        for(int i = 0; i<stcount; ++i){
+            this.addStacktrace((String) in.readObject());
+        }
+        int eventCount = in.readInt();
+        for(int i = 0;i<eventCount;++i){
+            int x = in.readInt();
+            int z = in.readInt();
+            int d = in.readInt();
+            int tick = in.readInt();
+            int evnum = in.readInt();
+            int event = in.readInt();
+            int traceid = in.readInt();
+            this.addData(tick,evnum,x,z,d,event,traceid);
+        }
+    }
+    private void readObjectNoData()
+            throws ObjectStreamException{
     }
 }
