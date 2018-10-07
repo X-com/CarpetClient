@@ -207,8 +207,8 @@ public class Chunkdata implements Serializable {
         }
     };
 
-    static final ChunkLogChunkCoords spaceMin = new ChunkLogChunkCoords(Integer.MIN_VALUE,Integer.MIN_VALUE,0);
-    static final ChunkLogChunkCoords spaceMax = new ChunkLogChunkCoords(Integer.MAX_VALUE,Integer.MAX_VALUE,0);
+    static final ChunkLogChunkCoords spaceMin = new ChunkLogChunkCoords(Integer.MIN_VALUE,Integer.MIN_VALUE,Integer.MIN_VALUE);
+    static final ChunkLogChunkCoords spaceMax = new ChunkLogChunkCoords(Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE);
     static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(0, 0);
     static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
@@ -620,7 +620,7 @@ public class Chunkdata implements Serializable {
         ChunkLogCoords next2 = this.chunkLogs.logsGroupedByTime.ceilingKey(min);
         int tick1 = next1 != null ? next1.time.gametick : getLastGametick();
         int tick2 = next2 != null ? next2.time.gametick : getLastGametick();
-        int newtick = Integer.max(tick1,tick2);
+        int newtick = Integer.min(tick1,tick2);
         return newtick;
     }
 
