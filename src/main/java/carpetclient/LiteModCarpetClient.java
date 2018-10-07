@@ -5,6 +5,7 @@ import java.util.List;
 
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
+import carpetclient.gui.GuiChunkGrid;
 import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.PostRenderListener;
 import com.mumfrey.liteloader.Tickable;
@@ -26,6 +27,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
     @Override
     public void init(File configPath) {
+        GuiChunkGrid.instance = new GuiChunkGrid();
         Hotkeys.init();
     }
 
@@ -50,6 +52,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
             CarpetRules.resetToDefaults();
             VillageMarker.clearLists(0);
             ShowBoundingBoxes.clear();
+            GuiChunkGrid.instance = new GuiChunkGrid();
         }
     }
 

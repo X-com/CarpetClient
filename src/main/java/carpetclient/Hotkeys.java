@@ -69,7 +69,7 @@ public class Hotkeys {
 
             CarpetPluginChannel.packatSender(sender);
         } else if (chunkDebug.isPressed()) {
-            minecraft.displayGuiScreen(new GuiChunkGrid());
+            minecraft.displayGuiScreen(GuiChunkGrid.instance);
         }
     }
     

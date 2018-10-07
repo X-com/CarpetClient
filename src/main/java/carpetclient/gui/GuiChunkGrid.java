@@ -14,6 +14,8 @@ import java.io.IOException;
 
 public class GuiChunkGrid extends GuiScreen {
 
+    public static GuiChunkGrid instance;
+
     private Controller controller;
     private Chunkgrid chunkgrid = new Chunkgrid();
 
