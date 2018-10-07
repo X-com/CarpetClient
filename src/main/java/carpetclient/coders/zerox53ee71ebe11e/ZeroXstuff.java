@@ -79,9 +79,7 @@ public class ZeroXstuff {
             data.addData(time, index, x, z, dimention, event, stacktrace);
         }
 
-        if (Minecraft.getMinecraft().currentScreen instanceof GuiChunkGrid) {
-            ((GuiChunkGrid) Minecraft.getMinecraft().currentScreen).liveUpdate(time);
-        }
+        GuiChunkGrid.instance.liveUpdate(time);
     }
     
     /////////// temp stuff ///////////////

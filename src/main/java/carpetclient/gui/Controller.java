@@ -1,6 +1,5 @@
 package carpetclient.gui;
 
-import carpetclient.coders.zerox53ee71ebe11e.ChunkLogData;
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 import carpetclient.coders.zerox53ee71ebe11e.ZeroXstuff;
 import carpetclient.pluginchannel.CarpetPluginChannel;
@@ -9,13 +8,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 
-import java.awt.Color;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.util.Map;
 import java.util.SortedMap;
-
-import static carpetclient.coders.zerox53ee71ebe11e.Chunkdata.Event.*;
 
 public class Controller {
     GuiChunkGrid debug;
@@ -137,7 +133,7 @@ public class Controller {
     }
 
     private void setMapViewData() {
-        Chunkgrid canvas = debug.getChunkGrid();
+        ChunkGrid canvas = debug.getChunkGrid();
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
 
@@ -153,7 +149,7 @@ public class Controller {
 
     void setTick(int gametick) {
         int dimention = debug.getSelectedDimension();
-        Chunkgrid canvas = debug.getChunkGrid();
+        ChunkGrid canvas = debug.getChunkGrid();
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
 
@@ -189,16 +185,16 @@ public class Controller {
         debug.setTime(gametick);
     }
 
-    private int getOffsetX(int x, Chunkgrid canvas) {
+    private int getOffsetX(int x, ChunkGrid canvas) {
         return x + viewX - canvas.sizeX() / 2;
     }
 
-    private int getOffsetZ(int z, Chunkgrid canvas) {
+    private int getOffsetZ(int z, ChunkGrid canvas) {
         return z + viewZ - canvas.sizeZ() / 2;
     }
 
     public void selectchunk(int x, int y) {
-        Chunkgrid canvas = debug.getChunkGrid();
+        ChunkGrid canvas = debug.getChunkGrid();
         int dimention = debug.getSelectedDimension();
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
@@ -278,7 +274,7 @@ public class Controller {
     }
 
     public void scroll(int scrollAmount) {
-        Chunkgrid canvas = debug.getChunkGrid();
+        ChunkGrid canvas = debug.getChunkGrid();
         canvas.setScale(debug.width, debug.height, scrollAmount);
         setTick(lastGametick);
     }

@@ -17,7 +17,7 @@ public class GuiChunkGrid extends GuiScreen {
     public static GuiChunkGrid instance;
 
     private Controller controller;
-    private Chunkgrid chunkgrid = new Chunkgrid();
+    private ChunkGrid chunkgrid = new ChunkGrid();
 
     private GuiButton startStopButton;
     private GuiCheckbox stackTracesCheckbox;
@@ -109,13 +109,14 @@ public class GuiChunkGrid extends GuiScreen {
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
         int scroll = Mouse.getEventDWheel();
-        controller.scroll(scroll);
+        controller.scroll(scroll / 50);
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        controller.selectchunk(mouseX, mouseY - HEADER_HEIGHT);
+        if (mouseY >= HEADER_HEIGHT && mouseY < height - FOOTER_HEIGHT)
+            controller.selectchunk(mouseX, mouseY - HEADER_HEIGHT);
     }
 
     @Override
@@ -204,7 +205,7 @@ public class GuiChunkGrid extends GuiScreen {
         return stackTracesCheckbox.checked;
     }
 
-    public Chunkgrid getChunkGrid() {
+    public ChunkGrid getChunkGrid() {
         return chunkgrid;
     }
 
