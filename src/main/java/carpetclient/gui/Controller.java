@@ -40,7 +40,8 @@ public class Controller {
         PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
         sender.writeInt(CarpetPluginChannel.CHUNK_LOGGER);
         sender.writeBoolean(start); // this is the bit to turn on or off
-        sender.writeBoolean(debug.areStackTracesEnabled()); // this is the bit to send stacktraces
+//        sender.writeBoolean(debug.areStackTracesEnabled()); // this is the bit to send stacktraces
+        sender.writeBoolean(true);
 
         CarpetPluginChannel.packatSender(sender);
 
@@ -62,13 +63,15 @@ public class Controller {
                 e.printStackTrace();
             }
         }
+
+        setTick(ZeroXstuff.data.getFirstGametick());
     }
 
     public void save() {
         JFrame frame = new JFrame();
         JFileChooser fc = new JFileChooser();
         fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        int rval = fc.showOpenDialog(frame);
+        int rval = fc.showSaveDialog(frame);
         if (rval == JFileChooser.APPROVE_OPTION) {
             String path = fc.getSelectedFile().getPath();
             try {
