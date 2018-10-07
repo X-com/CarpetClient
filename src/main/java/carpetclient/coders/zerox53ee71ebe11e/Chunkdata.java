@@ -83,7 +83,7 @@ public class Chunkdata {
         public int compareTo(ChunkLogTimeCoords other) {
             if (this.gametick != other.gametick) {
                 return this.gametick > other.gametick ? 1 : -1;
-            } else if (this.eventNumber > other.eventNumber) {
+            } else if (this.eventNumber != other.eventNumber) {
                 return this.eventNumber > other.eventNumber ? 1 : -1;
             } else {
                 return 0;
@@ -446,7 +446,7 @@ public class Chunkdata {
             int minx, int maxx, int minz, int maxz) {
         SortedMap<ChunkLogCoords, ChunkLogEvent> map1 = playerLogs.getLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz);
         SortedMap<ChunkLogCoords, ChunkLogEvent> map2 = chunkLogs.getLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz);
-        TreeMap map = new TreeMap(compareGroupChunks);
+        TreeMap<ChunkLogCoords, ChunkLogEvent> map = new TreeMap(compareGroupChunks);
         map.putAll(map1);
         map.putAll(map2);
         return map;
