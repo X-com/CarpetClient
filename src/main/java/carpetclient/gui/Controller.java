@@ -177,6 +177,7 @@ public class Controller {
     }
 
     void setTick(int gametick) {
+        System.out.println("gametick set " + gametick);
         int dimention = debug.getSelectedDimension();
         ChunkGrid canvas = debug.getChunkGrid();
         int sizeX = canvas.sizeX();
@@ -246,7 +247,10 @@ public class Controller {
                 continue;
             }
             if (chunk.space.x == (cx + minX) && chunk.space.z == (cz + minZ)) {
-                System.out.println("Event: " + event.event.toString() + "\nStackTrace:\n" + ZeroXstuff.data.getStackTraceString(event.stackTraceId));
+                String s = ZeroXstuff.data.getStackTraceString(event.stackTraceId);
+                System.out.println("Event: " + event.event.toString());
+                if (s != "")
+                    System.out.println("StackTrace:\n" + ZeroXstuff.data.getStackTraceString(event.stackTraceId));
             }
         }
     }

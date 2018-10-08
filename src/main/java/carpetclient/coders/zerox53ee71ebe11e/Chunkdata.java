@@ -175,8 +175,8 @@ public class Chunkdata implements Serializable {
         }
 
         @Override
-        public String toString(){
-            return String.format("gametick: %d order: %d x: %d z: %d d: %d", time.gametick, time.eventNumber, space.x,space.z,space.d);
+        public String toString() {
+            return String.format("gametick: %d order: %d x: %d z: %d d: %d", time.gametick, time.eventNumber, space.x, space.z, space.d);
         }
 
     }
@@ -207,8 +207,8 @@ public class Chunkdata implements Serializable {
         }
     };
 
-    static final ChunkLogChunkCoords spaceMin = new ChunkLogChunkCoords(Integer.MIN_VALUE,Integer.MIN_VALUE,Integer.MIN_VALUE);
-    static final ChunkLogChunkCoords spaceMax = new ChunkLogChunkCoords(Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE);
+    static final ChunkLogChunkCoords spaceMin = new ChunkLogChunkCoords(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+    static final ChunkLogChunkCoords spaceMax = new ChunkLogChunkCoords(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
     static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(0, 0);
     static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
@@ -283,24 +283,23 @@ public class Chunkdata implements Serializable {
         int order;
         ChunkLogEvent event;
 
-        EventView(int order, ChunkLogEvent event){
+        EventView(int order, ChunkLogEvent event) {
             this.order = order;
             this.event = event;
         }
 
-        int getOrder(){
+        int getOrder() {
             return this.order;
         }
 
-        public Event getType(){
+        public Event getType() {
             return event.event;
         }
 
-        public String getStacktrace(){
-            if(this.event.stackTraceId < allStackTraces.size()){
+        public String getStacktrace() {
+            if (this.event.stackTraceId < allStackTraces.size()) {
                 return allStackTraces.get(this.event.stackTraceId);
-            }
-            else{
+            } else {
                 return null;
             }
         }
@@ -495,28 +494,27 @@ public class Chunkdata implements Serializable {
         }
 
         @Override
-        public Iterator<ChunkView> iterator(){
-            return new Iterator<ChunkView>(){
-                SortedMap<ChunkLogCoords,ChunkLogEvent> rest = currentMap;
-                ChunkLogCoords max = new ChunkLogCoords(0,0, dimension,timeMin);
+        public Iterator<ChunkView> iterator() {
+            return new Iterator<ChunkView>() {
+                SortedMap<ChunkLogCoords, ChunkLogEvent> rest = currentMap;
+                ChunkLogCoords max = new ChunkLogCoords(0, 0, dimension, timeMin);
 
                 @Override
-                public boolean hasNext(){
+                public boolean hasNext() {
                     return !rest.isEmpty();
                 }
 
                 @Override
-                public ChunkView next(){
-                    if(!hasNext())
-                    {
+                public ChunkView next() {
+                    if (!hasNext()) {
                         throw new NoSuchElementException();
                     }
                     ChunkLogCoords nextChunk = rest.firstKey();
-                    max.space.x = nextChunk.space.x+1;
+                    max.space.x = nextChunk.space.x + 1;
                     max.space.z = nextChunk.space.z;
-                    SortedMap<ChunkLogCoords,ChunkLogEvent> mapChunk = rest.headMap(max);
+                    SortedMap<ChunkLogCoords, ChunkLogEvent> mapChunk = rest.headMap(max);
                     rest = rest.tailMap(max);
-                    return new ChunkView(mapChunk,gametick);
+                    return new ChunkView(mapChunk, gametick);
                 }
             };
         }
@@ -622,7 +620,7 @@ public class Chunkdata implements Serializable {
         ChunkLogCoords next2 = this.chunkLogs.logsGroupedByTime.ceilingKey(min);
         int tick1 = next1 != null ? next1.time.gametick : getLastGametick();
         int tick2 = next2 != null ? next2.time.gametick : getLastGametick();
-        int newtick = Integer.min(tick1,tick2);
+        int newtick = Integer.min(tick1, tick2);
         return newtick;
     }
 
@@ -632,25 +630,25 @@ public class Chunkdata implements Serializable {
         ChunkLogCoords next2 = this.chunkLogs.logsGroupedByTime.lowerKey(min);
         int tick1 = next1 != null ? next1.time.gametick : getFirstGametick();
         int tick2 = next2 != null ? next2.time.gametick : getFirstGametick();
-        int newtick = Integer.max(tick1,tick2);
+        int newtick = Integer.max(tick1, tick2);
         return newtick;
     }
 
-    public int getPreviousGametickForChunk(int gametick, int x, int z, int d){
+    public int getPreviousGametickForChunk(int gametick, int x, int z, int d) {
         SortedMap<ChunkLogCoords, ChunkLogEvent> map = getAllLogsForChunk(new ChunkLogChunkCoords(x, z, d));
-        ChunkLogCoords coords = new ChunkLogCoords(x,z,d,gametick,0);
+        ChunkLogCoords coords = new ChunkLogCoords(x, z, d, gametick, 0);
         SortedMap<ChunkLogCoords, ChunkLogEvent> head = map.headMap(coords);
-        if(head.isEmpty()){
+        if (head.isEmpty()) {
             return gametick;
         }
         return head.lastKey().time.gametick;
     }
 
-    public int getNextGametickForChunk(int gametick, int x, int z, int d){
+    public int getNextGametickForChunk(int gametick, int x, int z, int d) {
         SortedMap<ChunkLogCoords, ChunkLogEvent> map = getAllLogsForChunk(new ChunkLogChunkCoords(x, z, d));
-        ChunkLogCoords coords = new ChunkLogCoords(x,z,d,gametick+1,0);
+        ChunkLogCoords coords = new ChunkLogCoords(x, z, d, gametick + 1, 0);
         SortedMap<ChunkLogCoords, ChunkLogEvent> tail = map.tailMap(coords);
-        if(tail.isEmpty()){
+        if (tail.isEmpty()) {
             return gametick;
         }
         return tail.firstKey().time.gametick;
@@ -675,13 +673,14 @@ public class Chunkdata implements Serializable {
             throws IOException {
         int stcount = allStackTraces.size();
         out.writeInt(stcount);
-        for(String s: allStackTraces){
+        for (String s : allStackTraces) {
             out.writeObject(s);
         }
         int eventCount = playerLogs.logsGroupedByTime.size() + chunkLogs.logsGroupedByTime.size();
-        Map<ChunkLogCoords,ChunkLogEvent> maps[] = new Map[]{playerLogs.logsGroupedByTime, chunkLogs.logsGroupedByChunk};
-        for(Map<ChunkLogCoords,ChunkLogEvent> map : maps) {
-            for (Entry<ChunkLogCoords, ChunkLogEvent> entry : playerLogs.logsGroupedByTime.entrySet()) {
+        out.writeInt(eventCount);
+        Map<ChunkLogCoords, ChunkLogEvent> maps[] = new Map[]{playerLogs.logsGroupedByTime, chunkLogs.logsGroupedByChunk};
+        for (Map<ChunkLogCoords, ChunkLogEvent> map : maps) {
+            for (Entry<ChunkLogCoords, ChunkLogEvent> entry : map.entrySet()) {
                 ChunkLogCoords coords = entry.getKey();
                 ChunkLogEvent event = entry.getValue();
                 out.writeInt(coords.space.x);
@@ -694,15 +693,16 @@ public class Chunkdata implements Serializable {
             }
         }
     }
+
     public void readObject(java.io.ObjectInputStream in)
             throws IOException, ClassNotFoundException {
         clear();
         int stcount = in.readInt();
-        for(int i = 0; i<stcount; ++i){
+        for (int i = 0; i < stcount; ++i) {
             this.addStacktrace((String) in.readObject());
         }
         int eventCount = in.readInt();
-        for(int i = 0;i<eventCount;++i){
+        for (int i = 0; i < eventCount; ++i) {
             int x = in.readInt();
             int z = in.readInt();
             int d = in.readInt();
@@ -710,10 +710,11 @@ public class Chunkdata implements Serializable {
             int evnum = in.readInt();
             int event = in.readInt();
             int traceid = in.readInt();
-            this.addData(tick,evnum,x,z,d,event,traceid);
+            this.addData(tick, evnum, x, z, d, event, traceid);
         }
     }
+
     private void readObjectNoData()
-            throws ObjectStreamException{
+            throws ObjectStreamException {
     }
 }

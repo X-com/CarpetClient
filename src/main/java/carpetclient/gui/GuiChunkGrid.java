@@ -173,7 +173,7 @@ public class GuiChunkGrid extends GuiScreen {
         // Text
         drawCenteredString(fontRenderer, "Chunk Debug Map", width / 2, 0, 0xffffff);
 
-        drawCenteredString(fontRenderer, "" + time, getFooterX(2) + getFooterColWidth() / 2, getFooterY(1) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
+        drawCenteredString(fontRenderer, "GT: " + time, getFooterX(2) + getFooterColWidth() / 2, getFooterY(1) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
 
         drawCenteredString(fontRenderer, "X: " + xText, getFooterX(1) + getFooterColWidth() / 2, getFooterY(2) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
         drawCenteredString(fontRenderer, "Z: " + zText, getFooterX(2) + getFooterColWidth() / 2, getFooterY(2) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
