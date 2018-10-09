@@ -189,19 +189,17 @@ public class Controller {
 
         int dimention = debug.getSelectedDimension();
 
-        chunkData.seekSpace(dimention, minX, maxX, minZ, maxZ);
+        chunkData.seekSpace(dimention, minX, maxX + 2, minZ, maxZ + 2);
     }
 
     void setTick(int gametick) {
         int dimention = debug.getSelectedDimension();
         ChunkGrid canvas = debug.getChunkGrid();
-        int sizeX = canvas.sizeX();
-        int sizeZ = canvas.sizeZ();
-
-        int minX = view.x - sizeX / 2;
-        int maxX = view.x + sizeX / 2;
-        int minZ = view.y - sizeZ / 2;
-        int maxZ = view.y + sizeZ / 2;
+//        int sizeX = canvas.sizeX();
+//        int sizeZ = canvas.sizeZ();
+        
+        int minX = view.x - canvas.sizeX() / 2;
+        int minZ = view.y - canvas.sizeZ() / 2;
 
         canvas.clearColors();
 
@@ -209,11 +207,11 @@ public class Controller {
 
         SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list;
 
-        if (debug.areStackTracesEnabled()) { // temporary hackfix to display 2 data types
+//        if (debug.areStackTracesEnabled()) { // temporary hackfix to display 2 data types
             list = chunkData.getDisplayArea();
-        } else {
-            list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
-        }
+//        } else {
+//            list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
+//        }
         for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
             Chunkdata.ChunkLogCoords chunk = entry.getKey();
             if (chunk == null) continue;

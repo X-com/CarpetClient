@@ -29,8 +29,8 @@ public class ChunkGrid {
 
 //        drawRect(thisX, thisY, thisX + width - 1, thisY + height - 1, 0xff808080);
 
-        for (int z = 0; z < scaledHeight; ++z) {
-            for (int x = 0; x < scaledWidth; ++x) {
+        for (int z = 0; z <= scaledHeight; ++z) {
+            for (int x = 0; x <= scaledWidth; ++x) {
                 int rx = x * cellSize;
                 int ry = z * cellSize;
                 Gui.drawRect(thisX + rx,
