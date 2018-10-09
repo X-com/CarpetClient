@@ -28,6 +28,8 @@ public class GuiChunkGrid extends GuiScreen {
     private GuiCheckbox stackTracesCheckbox;
     private GuiButton loadButton;
     private GuiButton saveButton;
+    private GuiButton backButton;
+    private GuiButton forwardButton;
     private GuiButton currentButton;
 
     private GuiCheckbox minimapVisibleCheckbox;
@@ -63,8 +65,8 @@ public class GuiChunkGrid extends GuiScreen {
         addButton(saveButton = new GuiButton(3, getFooterX(3), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Save"));
         loadButton.enabled = saveButton.enabled = !controller.start;
 
-        addButton(new GuiButton(4, getFooterX(0), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Back"));
-        addButton(new GuiButton(5, getFooterX(1), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Forward"));
+        addButton(backButton = new GuiButton(4, getFooterX(0), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Back"));
+        addButton(forwardButton = new GuiButton(5, getFooterX(1), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Forward"));
 
         addButton(currentButton = new GuiButton(6, getFooterX(3), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Current"));
 
@@ -292,6 +294,14 @@ public class GuiChunkGrid extends GuiScreen {
 
     public void setZText(int zText) {
         this.zText = zText;
+    }
+
+    public void setBackButtonText(String text) {
+        this.backButton.displayString = text;
+    }
+
+    public void setForwardButtonText(String text) {
+        this.forwardButton.displayString = text;
     }
 
     public void liveUpdate(int time) {

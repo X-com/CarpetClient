@@ -261,9 +261,13 @@ public class Controller {
 
             if (selectionBox != null && selectionBox.x == cx && selectionBox.y == cz) {
                 selectionBox = null;
+                debug.setBackButtonText("Back");
+                debug.setForwardButtonText("Forward");
             } else {
                 selectionBox = new Point(cx, cz);
                 selectionDimention = debug.getSelectedDimension();
+                debug.setBackButtonText("Back(chunk)");
+                debug.setForwardButtonText("Forward(chunk)");
             }
 
             setTick(lastGametick);
@@ -278,6 +282,8 @@ public class Controller {
             int dx = x - mouseDown.x;
             int dy = y - mouseDown.y;
             view.setLocation(dragView.x - dx, dragView.y - dy);
+            debug.setXText(view.x);
+            debug.setZText(view.y);
             setTick(lastGametick);
         }
     }
