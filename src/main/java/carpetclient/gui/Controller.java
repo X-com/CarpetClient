@@ -9,6 +9,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.Map;
@@ -19,9 +20,19 @@ public class Controller {
     boolean start = false;
     private boolean live = false;
     private int lastGametick;
-    private int viewX;
-    private int viewZ;
+    private Point view = new Point();
+    private Point dragView = new Point();
+    private Point selectionBox;
+    private int selectionDimention;
+
+    //    private int viewZ;
+//    private int viewX;
+
     private Chunkdata.MapView chunkData;
+    private boolean leftButtonDown;
+    private Point mouseDown = new Point();
+    private boolean panning = false;
+
 
     public Controller(GuiChunkGrid d) {
         debug = d;
@@ -84,12 +95,20 @@ public class Controller {
 
     public void back() {
         live = false;
-        setTick(ZeroXstuff.data.getPrevGametick(lastGametick));
+        if (selectionBox != null) {
+            setTick(ZeroXstuff.data.getPreviousGametickForChunk(lastGametick, selectionBox.x, selectionBox.y, selectionDimention));
+        } else {
+            setTick(ZeroXstuff.data.getPrevGametick(lastGametick));
+        }
     }
 
     public void forward() {
         live = false;
-        setTick(ZeroXstuff.data.getNextGametick(lastGametick));
+        if (selectionBox != null) {
+            setTick(ZeroXstuff.data.getNextGametickForChunk(lastGametick, selectionBox.x, selectionBox.y, selectionDimention));
+        } else {
+            setTick(ZeroXstuff.data.getNextGametick(lastGametick));
+        }
     }
 
     public void current() {
@@ -106,11 +125,11 @@ public class Controller {
 
     public void home() {
         BlockPos pos = Minecraft.getMinecraft().player.getPosition();
-        viewX = pos.getX() >> 4;
-        viewZ = pos.getZ() >> 4;
+        view.x = pos.getX() >> 4;
+        view.y = pos.getZ() >> 4;
 
-        debug.setXText(viewX);
-        debug.setZText(viewZ);
+        debug.setXText(view.x);
+        debug.setZText(view.y);
 
         changeDimentionTo(Minecraft.getMinecraft().player.dimension);
 
@@ -130,16 +149,16 @@ public class Controller {
 
     public void setX(KeyEvent e, JTextArea textX) {
         if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
-        viewX = integerInputs(e, textX, viewX);
-        textX.setText(Integer.toString(viewX));
+        view.x = integerInputs(e, textX, view.x);
+        textX.setText(Integer.toString(view.x));
         setMapViewData();
         setTick(lastGametick);
     }
 
     public void setZ(KeyEvent e, JTextArea textZ) {
         if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
-        viewZ = integerInputs(e, textZ, viewZ);
-        textZ.setText(Integer.toString(viewZ));
+        view.y = integerInputs(e, textZ, view.y);
+        textZ.setText(Integer.toString(view.y));
         setMapViewData();
         setTick(lastGametick);
     }
@@ -166,10 +185,10 @@ public class Controller {
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
 
-        int minX = viewX - sizeX / 2;
-        int maxX = viewX + sizeX / 2;
-        int minZ = viewZ - sizeZ / 2;
-        int maxZ = viewZ + sizeZ / 2;
+        int minX = view.x - sizeX / 2;
+        int maxX = view.x + sizeX / 2;
+        int minZ = view.y - sizeZ / 2;
+        int maxZ = view.y + sizeZ / 2;
 
         int dimention = debug.getSelectedDimension();
 
@@ -177,16 +196,16 @@ public class Controller {
     }
 
     void setTick(int gametick) {
-        System.out.println("gametick set " + gametick);
+//        System.out.println("gametick set " + gametick);
         int dimention = debug.getSelectedDimension();
         ChunkGrid canvas = debug.getChunkGrid();
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
 
-        int minX = viewX - sizeX / 2;
-        int maxX = viewX + sizeX / 2;
-        int minZ = viewZ - sizeZ / 2;
-        int maxZ = viewZ + sizeZ / 2;
+        int minX = view.x - sizeX / 2;
+        int maxX = view.x + sizeX / 2;
+        int minZ = view.y - sizeZ / 2;
+        int maxZ = view.y + sizeZ / 2;
 
         canvas.clearColors();
 
@@ -210,20 +229,25 @@ public class Controller {
             canvas.setGridColor(chunk.space.x - minX, chunk.space.z - minZ, getColor(event.event));
         }
 
+        if (selectionBox != null && selectionDimention == dimention) {
+            debug.getChunkGrid().setSelectionBox(selectionBox.x - minX, selectionBox.y - minZ);
+        } else {
+            debug.getChunkGrid().setSelectionBox(Integer.MAX_VALUE, 0);
+        }
         lastGametick = gametick;
 
         debug.setTime(gametick);
     }
 
     private int getOffsetX(int x, ChunkGrid canvas) {
-        return x + viewX - canvas.sizeX() / 2;
+        return x + view.x - canvas.sizeX() / 2;
     }
 
     private int getOffsetZ(int z, ChunkGrid canvas) {
-        return z + viewZ - canvas.sizeZ() / 2;
+        return z + view.y - canvas.sizeZ() / 2;
     }
 
-    public void selectchunk(int x, int y) {
+    public void buttonDown(int x, int y, int button) {
         ChunkGrid canvas = debug.getChunkGrid();
         int dimention = debug.getSelectedDimension();
         int sizeX = canvas.sizeX();
@@ -232,26 +256,62 @@ public class Controller {
         int cx = canvas.getGridX(x);
         int cz = canvas.getGridY(y);
 
-        int minX = viewX - sizeX / 2;
-        int maxX = viewX + sizeX / 2;
-        int minZ = viewZ - sizeZ / 2;
-        int maxZ = viewZ + sizeZ / 2;
+        int minX = view.x - sizeX / 2;
+        int maxX = view.x + sizeX / 2;
+        int minZ = view.y - sizeZ / 2;
+        int maxZ = view.y + sizeZ / 2;
 
-        System.out.println("Selected: " + cx + " " + cz + " " + (cx + minX) + " " + (cz + minZ));
-        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(lastGametick, dimention, minX, maxX, minZ, maxZ);
-        for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
-            Chunkdata.ChunkLogCoords chunk = entry.getKey();
-            if (chunk == null) continue;
-            Chunkdata.ChunkLogEvent event = list.get(chunk);
-            if (event == null) {
-                continue;
+//        System.out.println("Selected: " + cx + " " + cz + " " + (cx + minX) + " " + (cz + minZ) + " " + button);
+        if (button == 0) {
+            leftButtonDown = true;
+            mouseDown.setLocation(x, y);
+            dragView.setLocation(view);
+        } else if (button == 1) {
+            SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(lastGametick, dimention, minX, maxX, minZ, maxZ);
+            for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
+                Chunkdata.ChunkLogCoords chunk = entry.getKey();
+                if (chunk == null) continue;
+                Chunkdata.ChunkLogEvent event = list.get(chunk);
+                if (event == null) {
+                    continue;
+                }
+                if (chunk.space.x == (cx + minX) && chunk.space.z == (cz + minZ)) {
+                    System.out.println("Event: " + event.event.toString());
+                    String s = ZeroXstuff.data.getStackTraceString(event.stackTraceId);
+                    if (s.length() != 0)
+                        System.out.println("StackTrace:\n" + ZeroXstuff.data.getStackTraceString(event.stackTraceId));
+                }
             }
-            if (chunk.space.x == (cx + minX) && chunk.space.z == (cz + minZ)) {
-                String s = ZeroXstuff.data.getStackTraceString(event.stackTraceId);
-                System.out.println("Event: " + event.event.toString());
-                if (s != "")
-                    System.out.println("StackTrace:\n" + ZeroXstuff.data.getStackTraceString(event.stackTraceId));
+        }
+    }
+
+    public void buttonUp(int x, int y, int mouseButton) {
+        if (mouseButton == 0 && !panning) {
+            int cx = debug.getChunkGrid().getGridX(x) + view.x - debug.getChunkGrid().sizeX() / 2;
+            int cz = debug.getChunkGrid().getGridY(y) + view.y - debug.getChunkGrid().sizeZ() / 2;
+
+            if (selectionBox != null && selectionBox.x == cx && selectionBox.y == cz) {
+                selectionBox = null;
+            } else {
+                selectionBox = new Point(cx, cz);
+                selectionDimention = debug.getSelectedDimension();
             }
+
+//            System.out.println("square selected " + mouseDown.distance(x, y) + " " + cx + " " + cz + " " + selectionBox);
+            setTick(lastGametick);
+        }
+        panning = false;
+    }
+
+    public void mouseDrag(int x, int y, int button) {
+        if (!panning && mouseDown.distance(x, y) > 5) {
+            panning = true;
+        } else if (button == 0 && panning) {
+            int dx = x - mouseDown.x;
+            int dy = y - mouseDown.y;
+            view.setLocation(dragView.x - dx, dragView.y - dy);
+            setMapViewData();
+            setTick(lastGametick);
         }
     }
 
@@ -309,6 +369,7 @@ public class Controller {
     public void scroll(int scrollAmount) {
         ChunkGrid canvas = debug.getChunkGrid();
         canvas.setScale(debug.width, debug.height, scrollAmount);
+        setMapViewData();
         setTick(lastGametick);
     }
 }

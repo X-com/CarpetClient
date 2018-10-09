@@ -1,12 +1,8 @@
 package carpetclient.gui;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import org.lwjgl.util.Point;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,8 +13,7 @@ public class ChunkGrid {
     private int cellSize = 0;
     private int scale = 10;
 
-    private int selectionX = -1;
-    private int selectionY = -1;
+    Point selection = new Point(Integer.MAX_VALUE, 0);
 
     private Map<Point, Integer> colors = new HashMap<>();
 
@@ -33,11 +28,6 @@ public class ChunkGrid {
 //        double frame = 0;
 
 //        drawRect(thisX, thisY, thisX + width - 1, thisY + height - 1, 0xff808080);
-//        drawRect(thisX + selectionX * cellSize,
-//                thisY + selectionY * cellSize,
-//                thisX + selectionX * cellSize + cellSize - 1,
-//                thisY + selectionY * cellSize + cellSize - 1,
-//                0xff000000);
 
         for (int z = 0; z < scaledHeight; ++z) {
             for (int x = 0; x < scaledWidth; ++x) {
@@ -49,6 +39,16 @@ public class ChunkGrid {
                         thisY + ry + cellSize,
                         getGridColor(x, z));
             }
+        }
+
+        if (selection.x != Integer.MAX_VALUE) {
+            int rx = selection.x * cellSize;
+            int ry = selection.y * cellSize;
+            Gui.drawRect(thisX + rx,
+                    thisY + ry,
+                    thisX + rx + cellSize,
+                    thisY + ry + cellSize,
+                    0xff646245);
         }
     }
 
@@ -62,11 +62,6 @@ public class ChunkGrid {
         if (cellSize == 0)
             return 0;
         return pixelY / cellSize;
-    }
-
-    public void showSelection(int x, int y) {
-        selectionX = x;
-        selectionY = y;
     }
 
     public void setGrid(int scaledWidth, int scaledHeight, Map<Point, Integer> colors) {
@@ -129,5 +124,9 @@ public class ChunkGrid {
 
     public void clearColors() {
         colors.clear();
+    }
+
+    public void setSelectionBox(int x, int y) {
+        selection.setLocation(x, y);
     }
 }

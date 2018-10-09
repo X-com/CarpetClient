@@ -119,7 +119,21 @@ public class GuiChunkGrid extends GuiScreen {
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if (mouseY >= HEADER_HEIGHT && mouseY < height - FOOTER_HEIGHT)
-            controller.selectchunk(mouseX, mouseY - HEADER_HEIGHT);
+            controller.buttonDown(mouseX, mouseY - HEADER_HEIGHT, mouseButton);
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
+        super.mouseReleased(mouseX, mouseY, mouseButton);
+        if (mouseY >= HEADER_HEIGHT && mouseY < height - FOOTER_HEIGHT)
+            controller.buttonUp(mouseX, mouseY - HEADER_HEIGHT, mouseButton);
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+        super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+        if (mouseY >= HEADER_HEIGHT && mouseY < height - FOOTER_HEIGHT)
+            controller.mouseDrag(mouseX, mouseY - HEADER_HEIGHT, clickedMouseButton);
     }
 
     @Override
