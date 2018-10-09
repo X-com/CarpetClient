@@ -8,8 +8,8 @@ import java.util.Map;
 
 public class ChunkGrid {
 
-    private int scaledWidth = 100;
-    private int scaledHeight = 100;
+    private int screenWidth = 100;
+    private int screenHeight = 100;
     private int cellSize = 0;
     private int scale = 10;
 
@@ -18,19 +18,19 @@ public class ChunkGrid {
     private Map<Point, Integer> colors = new HashMap<>();
 
     public void draw(int thisX, int thisY, int width, int height) {
-        scaledHeight = height / scale;
-        scaledWidth = width / scale;
+        screenHeight = height / scale;
+        screenWidth = width / scale;
 
-        int cellHeight = height / scaledHeight;
-        int cellWidth = width / scaledWidth;
+        int cellHeight = height / screenHeight;
+        int cellWidth = width / screenWidth;
 
         cellSize = Math.min(cellHeight, cellWidth);
 //        double frame = 0;
 
 //        drawRect(thisX, thisY, thisX + width - 1, thisY + height - 1, 0xff808080);
 
-        for (int z = 0; z <= scaledHeight; ++z) {
-            for (int x = 0; x <= scaledWidth; ++x) {
+        for (int z = 0; z <= screenHeight; ++z) {
+            for (int x = 0; x <= screenWidth; ++x) {
                 int rx = x * cellSize;
                 int ry = z * cellSize;
                 Gui.drawRect(thisX + rx,
@@ -62,13 +62,6 @@ public class ChunkGrid {
         if (cellSize == 0)
             return 0;
         return pixelY / cellSize;
-    }
-
-    public void setGrid(int scaledWidth, int scaledHeight, Map<Point, Integer> colors) {
-        this.colors.clear();
-        this.colors.putAll(colors);
-        this.scaledWidth = scaledWidth;
-        this.scaledHeight = scaledHeight;
     }
 
     public void setGridColor(int x, int z, int color) {
@@ -104,11 +97,11 @@ public class ChunkGrid {
     }
 
     public int sizeX() {
-        return scaledWidth;
+        return screenWidth;
     }
 
     public int sizeZ() {
-        return scaledHeight;
+        return screenHeight;
     }
 
     public void setScale(int width, int height, int value) {
@@ -118,8 +111,8 @@ public class ChunkGrid {
         } else if (scale > 50) {
             scale = 50;
         }
-        scaledHeight = height / scale;
-        scaledWidth = width / scale;
+        screenHeight = height / scale;
+        screenWidth = width / scale;
     }
 
     public void clearColors() {
@@ -128,5 +121,13 @@ public class ChunkGrid {
 
     public void setSelectionBox(int x, int y) {
         selection.setLocation(x, y);
+    }
+
+    public int height() {
+        return screenHeight;
+    }
+
+    public int width() {
+        return screenWidth;
     }
 }

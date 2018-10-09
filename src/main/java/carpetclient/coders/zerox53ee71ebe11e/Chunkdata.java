@@ -268,25 +268,24 @@ public class Chunkdata implements Serializable {
                 int dimension,
                 int minx, int maxx, int minz, int maxz) {
             TreeMap<ChunkLogCoords, ChunkLogEvent> logs = new TreeMap(compareGroupChunks);
-            logs.putAll(getPreviousLogsForDisplayArea(gametick,dimension,minx,maxx,minz,maxz));
-            logs.putAll(getCurrentLogsForDisplayArea(gametick,dimension,minx,maxx,minz,maxz));
+            logs.putAll(getPreviousLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz));
+            logs.putAll(getCurrentLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz));
             return logs;
         }
 
-        void checkChunkRange(ChunkLogCoords c, int xmin, int xmax, int zmin, int zmax, int dim, int tmin, int tmax){
+        void checkChunkRange(ChunkLogCoords c, int xmin, int xmax, int zmin, int zmax, int dim, int tmin, int tmax) {
             boolean xok = (c.space.x >= xmin) && (c.space.x < xmax);
             boolean zok = (c.space.z >= zmin) && (c.space.z < zmax);
             boolean dok = (c.space.d == dim);
             boolean tok = (c.time.gametick >= tmin) && (c.time.gametick < tmax);
-            if(xok && zok && dok && tok){
+            if (xok && zok && dok && tok) {
                 return;
-            }
-            else{
+            } else {
                 String bad = new String();
-                if(!xok) bad += String.format("x = %d, should be in range [%d, %d] ", c.space.x,xmin,xmax-1);
-                if(!zok) bad += String.format("z = %d, should be in range [%d, %d] ", c.space.z,zmin,zmax-1);
-                if(!dok) bad += String.format("d = %d, should be %d ", c.space.d,dim);
-                if(!tok) bad += String.format("t = %d, should be in range [%d, %d] ", c.time.gametick,tmin,tmax-1);
+                if (!xok) bad += String.format("x = %d, should be in range [%d, %d] ", c.space.x, xmin, xmax - 1);
+                if (!zok) bad += String.format("z = %d, should be in range [%d, %d] ", c.space.z, zmin, zmax - 1);
+                if (!dok) bad += String.format("d = %d, should be %d ", c.space.d, dim);
+                if (!tok) bad += String.format("t = %d, should be in range [%d, %d] ", c.time.gametick, tmin, tmax - 1);
                 throw new IllegalStateException(bad);
             }
         }
@@ -298,12 +297,12 @@ public class Chunkdata implements Serializable {
             TreeMap<ChunkLogCoords, ChunkLogEvent> currentEvents = new TreeMap(compareGroupChunks);
             SortedMap<ChunkLogCoords, ChunkLogEvent> currentAreaEvents = new TreeMap(compareGroupChunks);
             currentAreaEvents.putAll(getLogsForGametick(gametick));
-            for(int z = minz; z < maxz; ++z) {
-                ChunkLogCoords chunkMin = new ChunkLogCoords(minx,z, dimension, timeMin);
-                ChunkLogCoords chunkMax = new ChunkLogCoords(maxx,z, dimension, timeMin);
-                SortedMap<ChunkLogCoords, ChunkLogEvent> chunks = currentEvents.subMap(chunkMin,chunkMax);
-                for(ChunkLogCoords coords: chunks.keySet()){
-                    checkChunkRange(coords,minx,maxx,minz,maxz,dimension,gametick,gametick+1);
+            for (int z = minz; z < maxz; ++z) {
+                ChunkLogCoords chunkMin = new ChunkLogCoords(minx, z, dimension, timeMin);
+                ChunkLogCoords chunkMax = new ChunkLogCoords(maxx, z, dimension, timeMin);
+                SortedMap<ChunkLogCoords, ChunkLogEvent> chunks = currentEvents.subMap(chunkMin, chunkMax);
+                for (ChunkLogCoords coords : chunks.keySet()) {
+                    checkChunkRange(coords, minx, maxx, minz, maxz, dimension, gametick, gametick + 1);
                 }
                 currentAreaEvents.putAll(chunks);
             }
@@ -320,20 +319,20 @@ public class Chunkdata implements Serializable {
                 ChunkLogCoords minSpace = new ChunkLogCoords(minx, z, dimension, timeMin);
                 ChunkLogCoords maxSpace = new ChunkLogCoords(maxx, z, dimension, timeMin);
                 SortedMap<ChunkLogCoords, ChunkLogEvent> rest = this.logsGroupedByChunk.tailMap(minSpace);
-                while(!rest.isEmpty()){
+                while (!rest.isEmpty()) {
                     ChunkLogCoords first = rest.firstKey();
-                    if(compareGroupChunks.compare(first,maxSpace) >= 0) {
+                    if (compareGroupChunks.compare(first, maxSpace) >= 0) {
                         break;
                     }
-                    ChunkLogCoords chunkMaxTime = new ChunkLogCoords(first.space.x,z,dimension,gametick,0);
+                    ChunkLogCoords chunkMaxTime = new ChunkLogCoords(first.space.x, z, dimension, gametick, 0);
                     SortedMap<ChunkLogCoords, ChunkLogEvent> uptoGametick = rest.headMap(chunkMaxTime);
-                    if(!uptoGametick.isEmpty()){
+                    if (!uptoGametick.isEmpty()) {
                         ChunkLogCoords key = uptoGametick.firstKey();
                         ChunkLogEvent event = uptoGametick.get(key);
-                        checkChunkRange(key,minx,maxx,minz,maxz,dimension, Integer.MIN_VALUE,gametick);
-                        previousEvents.put(key,event);
+                        checkChunkRange(key, minx, maxx, minz, maxz, dimension, Integer.MIN_VALUE, gametick);
+                        previousEvents.put(key, event);
                     }
-                    ChunkLogCoords nextChunk = new ChunkLogCoords(first.space.x+1,z,dimension,0,0);
+                    ChunkLogCoords nextChunk = new ChunkLogCoords(first.space.x + 1, z, dimension, 0, 0);
                     rest = rest.tailMap(nextChunk);
                 }
             }
@@ -461,26 +460,24 @@ public class Chunkdata implements Serializable {
 
         // Color of the initial state at the start of the gametick is return in index 0
         // All other entries are the colors for the events that happen this gametick
-        public int[] getColors(){
+        public int[] getColors() {
             int countofevents = 0;
             int currentTickColor = 0;
-            for(Entry<ChunkLogCoords,ChunkLogEvent> entry : this.events.entrySet()) {
+            for (Entry<ChunkLogCoords, ChunkLogEvent> entry : this.events.entrySet()) {
                 ChunkLogCoords coords = entry.getKey();
                 ChunkLogEvent event = entry.getValue();
-                if(coords.time.gametick < gametick) {
+                if (coords.time.gametick < gametick) {
                     currentTickColor = event.event.getColor();
-                }
-                else if(coords.time.gametick == gametick){
+                } else if (coords.time.gametick == gametick) {
                     countofevents++;
-                }
-                else{
+                } else {
                     throw new IllegalStateException("Found an event for a future gametick");
                 }
             }
-            int [] colors = new int[countofevents+1];
+            int[] colors = new int[countofevents + 1];
             int i = 1;
             colors[0] = currentTickColor;
-            for(Entry<ChunkLogCoords,ChunkLogEvent> entry : this.events.entrySet()) {
+            for (Entry<ChunkLogCoords, ChunkLogEvent> entry : this.events.entrySet()) {
                 ChunkLogCoords coords = entry.getKey();
                 ChunkLogEvent event = entry.getValue();
                 if (coords.time.gametick == gametick) {
@@ -615,7 +612,7 @@ public class Chunkdata implements Serializable {
                         throw new NoSuchElementException();
                     }
                     ChunkLogCoords nextChunk = rest.firstKey();
-                    ChunkLogCoords max = new ChunkLogCoords(nextChunk.space.x+1, nextChunk.space.z, dimension, timeMin);
+                    ChunkLogCoords max = new ChunkLogCoords(nextChunk.space.x + 1, nextChunk.space.z, dimension, timeMin);
                     SortedMap<ChunkLogCoords, ChunkLogEvent> mapChunk = rest.headMap(max);
                     rest = rest.tailMap(max);
                     return new ChunkView(mapChunk, gametick);
@@ -624,9 +621,9 @@ public class Chunkdata implements Serializable {
         }
 
         public ChunkView pickChunk(int x, int z) {
-            ChunkLogCoords min = new ChunkLogCoords(x,z,dimension,timeMin);
-            ChunkLogCoords max = new ChunkLogCoords(x,z,dimension,timeMax);
-            return new ChunkView(this.currentMap.subMap(min,true,max,true),gametick);
+            ChunkLogCoords min = new ChunkLogCoords(x, z, dimension, timeMin);
+            ChunkLogCoords max = new ChunkLogCoords(x, z, dimension, timeMax);
+            return new ChunkView(this.currentMap.subMap(min, true, max, true), gametick);
         }
 
         public SortedMap<ChunkLogCoords, ChunkLogEvent> getDisplayArea() {
@@ -817,6 +814,7 @@ public class Chunkdata implements Serializable {
         }
         int eventCount = in.readInt();
         for (int i = 0; i < eventCount; ++i) {
+            System.out.println(eventCount + " load i " + i);
             int x = in.readInt();
             int z = in.readInt();
             int d = in.readInt();
