@@ -25,9 +25,6 @@ public class Controller {
     private Point selectionBox;
     private int selectionDimention;
 
-    //    private int viewZ;
-//    private int viewX;
-
     private Chunkdata.MapView chunkData;
     private boolean leftButtonDown;
     private Point mouseDown = new Point();
@@ -196,7 +193,6 @@ public class Controller {
     }
 
     void setTick(int gametick) {
-//        System.out.println("gametick set " + gametick);
         int dimention = debug.getSelectedDimension();
         ChunkGrid canvas = debug.getChunkGrid();
         int sizeX = canvas.sizeX();
@@ -239,14 +235,6 @@ public class Controller {
         debug.setTime(gametick);
     }
 
-    private int getOffsetX(int x, ChunkGrid canvas) {
-        return x + view.x - canvas.sizeX() / 2;
-    }
-
-    private int getOffsetZ(int z, ChunkGrid canvas) {
-        return z + view.y - canvas.sizeZ() / 2;
-    }
-
     public void buttonDown(int x, int y, int button) {
         ChunkGrid canvas = debug.getChunkGrid();
         int dimention = debug.getSelectedDimension();
@@ -261,7 +249,6 @@ public class Controller {
         int minZ = view.y - sizeZ / 2;
         int maxZ = view.y + sizeZ / 2;
 
-//        System.out.println("Selected: " + cx + " " + cz + " " + (cx + minX) + " " + (cz + minZ) + " " + button);
         if (button == 0) {
             leftButtonDown = true;
             mouseDown.setLocation(x, y);
@@ -297,7 +284,6 @@ public class Controller {
                 selectionDimention = debug.getSelectedDimension();
             }
 
-//            System.out.println("square selected " + mouseDown.distance(x, y) + " " + cx + " " + cz + " " + selectionBox);
             setTick(lastGametick);
         }
         panning = false;
