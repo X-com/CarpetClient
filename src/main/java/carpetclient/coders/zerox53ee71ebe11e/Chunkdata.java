@@ -251,7 +251,7 @@ public class Chunkdata implements Serializable {
         TreeMap<ChunkLogCoords, ChunkLogEvent> logsGroupedByChunk = new TreeMap(compareGroupChunks);
 
         public SortedMap<ChunkLogCoords, ChunkLogEvent> getLogsForGametick(int gametick) {
-            ChunkLogCoords low = new ChunkLogCoords(spaceMin, gametick, 0);
+            ChunkLogCoords low = new ChunkLogCoords(spaceMin, gametick, Integer.MIN_VALUE);
             ChunkLogCoords high = new ChunkLogCoords(spaceMax, gametick, Integer.MAX_VALUE);
             return logsGroupedByTime.subMap(low, true, high, true);
         }
@@ -325,8 +325,6 @@ public class Chunkdata implements Serializable {
                         break;
                     }
                     ChunkLogCoords chunkMaxTime = new ChunkLogCoords(first.space.x, z, dimension, gametick, 0);
-                    System.err.println("foo1: " + first);
-                    System.err.println("foo2: " + chunkMaxTime);
                     SortedMap<ChunkLogCoords, ChunkLogEvent> uptoGametick = rest.headMap(chunkMaxTime);
                     if (!uptoGametick.isEmpty()) {
                         ChunkLogCoords key = uptoGametick.firstKey();
@@ -334,7 +332,7 @@ public class Chunkdata implements Serializable {
                         checkChunkRange(key, minx, maxx, minz, maxz, dimension, Integer.MIN_VALUE, gametick);
                         previousEvents.put(key, event);
                     }
-                    ChunkLogCoords nextChunk = new ChunkLogCoords(first.space.x + 1, z, dimension, 0, 0);
+                    ChunkLogCoords nextChunk = new ChunkLogCoords(first.space.x + 1, z, dimension, timeMin);
                     rest = rest.tailMap(nextChunk);
                 }
             }
