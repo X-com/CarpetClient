@@ -821,7 +821,6 @@ public class Chunkdata implements Serializable {
         }
         int eventCount = in.readInt();
         for (int i = 0; i < eventCount; ++i) {
-            System.out.println(eventCount + " load i " + i);
             int x = in.readInt();
             int z = in.readInt();
             int d = in.readInt();

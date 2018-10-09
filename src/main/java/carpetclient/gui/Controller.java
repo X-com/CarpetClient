@@ -64,7 +64,11 @@ public class Controller {
         if (rval == JFileChooser.APPROVE_OPTION) {
             String path = fc.getSelectedFile().getPath();
             try {
-                ZeroXstuff.data.readObject(new ObjectInputStream(new FileInputStream(path)));
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
+                ZeroXstuff.data.readObject(in);
+                view.x = in.readInt();
+                view.y = in.readInt();
+                in.close();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
@@ -83,7 +87,11 @@ public class Controller {
         if (rval == JFileChooser.APPROVE_OPTION) {
             String path = fc.getSelectedFile().getPath();
             try {
-                ZeroXstuff.data.writeObject(new ObjectOutputStream(new FileOutputStream(path)));
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
+                ZeroXstuff.data.writeObject(out);
+                out.writeInt(view.x);
+                out.writeInt(view.y);
+                out.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
