@@ -4,8 +4,6 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
 import java.io.IOException;
 
 public class Chunkdata implements Serializable {
@@ -42,6 +40,24 @@ public class Chunkdata implements Serializable {
                 default:
                     return false;
             }
+        }
+
+        static final int eventColors[] = {
+                0xffff0000,//MISSED_EVENT_ERROR
+                0xffaa0000,//UNLOADING
+                0xff00aa00,//LOADING
+                0xff00aaaa,//PLAYER_ENTERS
+                0xffaa00aa,//PLAYER_LEAVES
+                0xffaaaa00,//QUEUE_UNLOAD
+                0xff66aa00,//CANCEL_UNLOAD
+                0xff33aa00,//UNQUEUE_UNLOAD
+                0xff00aa66,//GENERATING
+                0xff00aa33,//POPULATING
+                0xff00aa11//GENERATING_STRUCTURES
+        };
+
+        public int getColor() {
+            return eventColors[this.ordinal()];
         }
     }
 
@@ -441,6 +457,37 @@ public class Chunkdata implements Serializable {
                 }
             }
             return loaded;
+        }
+
+        // Color of the initial state at the start of the gametick is return in index 0
+        // All other entries are the colors for the events that happen this gametick
+        public int[] getColors(){
+            int countofevents = 0;
+            int currentTickColor = 0;
+            for(Entry<ChunkLogCoords,ChunkLogEvent> entry : this.events.entrySet()) {
+                ChunkLogCoords coords = entry.getKey();
+                ChunkLogEvent event = entry.getValue();
+                if(coords.time.gametick < gametick) {
+                    currentTickColor = event.event.getColor();
+                }
+                else if(coords.time.gametick == gametick){
+                    countofevents++;
+                }
+                else{
+                    throw new IllegalStateException("Found an event for a future gametick");
+                }
+            }
+            int [] colors = new int[countofevents+1];
+            int i = 1;
+            colors[0] = currentTickColor;
+            for(Entry<ChunkLogCoords,ChunkLogEvent> entry : this.events.entrySet()) {
+                ChunkLogCoords coords = entry.getKey();
+                ChunkLogEvent event = entry.getValue();
+                if (coords.time.gametick == gametick) {
+                    colors[i++] = event.event.getColor();
+                }
+            }
+            return colors;
         }
     }
 
