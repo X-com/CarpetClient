@@ -519,6 +519,12 @@ public class Chunkdata implements Serializable {
             };
         }
 
+        public ChunkView pickChunk(int x, int z) {
+            ChunkLogCoords min = new ChunkLogCoords(x,z,dimension,timeMin);
+            ChunkLogCoords max = new ChunkLogCoords(x,z,dimension,timeMax);
+            return new ChunkView(this.currentMap.subMap(min,true,max,true),gametick);
+        }
+
         public SortedMap<ChunkLogCoords, ChunkLogEvent> getDisplayArea() {
             return currentMap;
         }
