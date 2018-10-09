@@ -7,10 +7,15 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexBuffer;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import sun.security.provider.certpath.Vertex;
 
 import java.io.IOException;
+import java.nio.Buffer;
 
 public class GuiChunkGrid extends GuiScreen {
 
@@ -24,6 +29,8 @@ public class GuiChunkGrid extends GuiScreen {
     private GuiButton loadButton;
     private GuiButton saveButton;
     private GuiButton currentButton;
+
+    private GuiCheckbox minimapVisibleCheckbox;
 
     private int time;
     private int xText;
@@ -62,7 +69,14 @@ public class GuiChunkGrid extends GuiScreen {
         addButton(currentButton = new GuiButton(6, getFooterX(3), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Current"));
 
         addButton(new GuiButton(7, getFooterX(0), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Home"));
-        addButton(dimensionButton = new GuiButton(8, getFooterX(3), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, DIMENSION_NAMES[selectedDimension]));
+        addButton(dimensionButton = new GuiButton(8, getFooterX(1), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, DIMENSION_NAMES[selectedDimension]));
+
+        boolean minimapVisible = isMinimapVisible();
+        minimapVisibleCheckbox = new GuiCheckbox(9, getFooterX(3), getFooterY(2), "Show Minimap");
+        minimapVisibleCheckbox.x += (getFooterColWidth() - minimapVisibleCheckbox.getButtonWidth()) / 2;
+        minimapVisibleCheckbox.y += (FOOTER_ROW_HEIGHT - 8) / 2; // Hardcoded constant, no getter :(
+        minimapVisibleCheckbox.checked = minimapVisible;
+        addButton(minimapVisibleCheckbox);
     }
 
     @Override
@@ -104,6 +118,9 @@ public class GuiChunkGrid extends GuiScreen {
                 selectedDimension = (selectedDimension + 1) % DIMENSION_NAMES.length;
                 dimensionButton.displayString = DIMENSION_NAMES[selectedDimension];
                 controller.comboBoxAction();
+                break;
+            case 9:
+                setMinimapVisible(!isMinimapVisible());
                 break;
         }
     }
@@ -189,10 +206,41 @@ public class GuiChunkGrid extends GuiScreen {
 
         drawCenteredString(fontRenderer, "GT: " + time, getFooterX(2) + getFooterColWidth() / 2, getFooterY(1) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
 
-        drawCenteredString(fontRenderer, "X: " + xText, getFooterX(1) + getFooterColWidth() / 2, getFooterY(2) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
-        drawCenteredString(fontRenderer, "Z: " + zText, getFooterX(2) + getFooterColWidth() / 2, getFooterY(2) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
+        String posText = "X: " + xText + ", Z: " + zText;
+        drawCenteredString(fontRenderer, posText, getFooterX(2) + getFooterColWidth() / 2, getFooterY(2) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    // Minimap
+
+
+    public void renderMinimap(int screenWidth, int screenHeight) {
+        int minimapX = (int) (screenWidth * MINIMAP_X);
+        int minimapY = (int) (screenHeight * MINIMAP_Y);
+        int minimapWidth = (int) (screenWidth * MINIMAP_WIDTH);
+        int minimapHeight = (int) (screenHeight * MINIMAP_HEIGHT);
+
+        // Minimap frame
+        GlStateManager.disableTexture2D();
+        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+
+        final int COL_DARK = 0x30;
+        final int COL_LIGHT = 0xc0;
+        Tessellator tess = Tessellator.getInstance();
+        BufferBuilder buf = tess.getBuffer();
+        buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        buf.pos(minimapX - 5, minimapY - 5, 0).color(COL_DARK, COL_DARK, COL_DARK, 0xff).endVertex();
+        buf.pos(minimapX - 5, minimapY + minimapHeight + 5, 0).color(COL_LIGHT, COL_LIGHT, COL_LIGHT, 0xff).endVertex();
+        buf.pos(minimapX + minimapWidth + 5, minimapY + minimapHeight + 5, 0).color(COL_DARK, COL_DARK, COL_DARK, 0xff).endVertex();
+        buf.pos(minimapX + minimapWidth + 5, minimapY - 5, 0).color(COL_LIGHT, COL_LIGHT, COL_LIGHT, 0xff).endVertex();
+        tess.draw();
+
+        GlStateManager.shadeModel(GL11.GL_FLAT);
+        GlStateManager.enableTexture2D();
+
+        // Actual minimap content
+        chunkgrid.draw(minimapX, minimapY, minimapWidth, minimapHeight);
     }
 
     // Footer is a grid, makes stuff easier
@@ -203,6 +251,10 @@ public class GuiChunkGrid extends GuiScreen {
     private static final int FOOTER_HEIGHT = FOOTER_ROW_HEIGHT * FOOTER_ROW_COUNT + FOOTER_ROW_PADDING * (FOOTER_ROW_COUNT + 1);
     private static final int FOOTER_COL_PADDING = 5;
     private static final int FOOTER_COL_COUNT = 4;
+    private static final float MINIMAP_X = 0.7f;
+    private static final float MINIMAP_Y = 0.05f;
+    private static final float MINIMAP_WIDTH = 0.25f;
+    private static final float MINIMAP_HEIGHT = 0.45f;
 
     private int getFooterColWidth() {
         return (width - FOOTER_ROW_PADDING * (FOOTER_COL_COUNT + 1)) / FOOTER_COL_COUNT;
@@ -249,5 +301,13 @@ public class GuiChunkGrid extends GuiScreen {
     public void setSelectedDimension(int dimension) {
         selectedDimension = dimension;
         dimensionButton.displayString = DIMENSION_NAMES[selectedDimension];
+    }
+
+    public boolean isMinimapVisible() {
+        return minimapVisibleCheckbox != null && minimapVisibleCheckbox.checked;
+    }
+
+    public void setMinimapVisible(boolean minimapVisible) {
+        this.minimapVisibleCheckbox.checked = minimapVisible;
     }
 }

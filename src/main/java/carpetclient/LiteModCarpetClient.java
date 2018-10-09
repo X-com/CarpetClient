@@ -6,16 +6,13 @@ import java.util.List;
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.gui.GuiChunkGrid;
-import com.mumfrey.liteloader.LiteMod;
-import com.mumfrey.liteloader.PostRenderListener;
-import com.mumfrey.liteloader.Tickable;
-import com.mumfrey.liteloader.PluginChannelListener;
+import com.mumfrey.liteloader.*;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.rules.CarpetRules;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 
-public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener {
+public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener, HUDRenderListener {
 
     private boolean gameRunnin = false;
     private boolean loggedOut = false;
@@ -78,5 +75,17 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
     @Override
     public void onPostRender(float partialTicks) {
 
+    }
+
+    @Override
+    public void onPreRenderHUD(int screenWidth, int screenHeight) {
+
+    }
+
+    @Override
+    public void onPostRenderHUD(int screenWidth, int screenHeight) {
+        if (GuiChunkGrid.instance.isMinimapVisible()) {
+            GuiChunkGrid.instance.renderMinimap(screenWidth, screenHeight);
+        }
     }
 }
