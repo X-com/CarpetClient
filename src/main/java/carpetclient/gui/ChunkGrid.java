@@ -8,8 +8,10 @@ import java.util.Map;
 
 public class ChunkGrid {
 
-    private int screenWidth = 100;
-    private int screenHeight = 100;
+    private int screenWidth = 0;
+    private int screenHeight = 0;
+    private int gridWidth = 100;
+    private int gridHeight = 100;
     private int cellSize = 0;
     private int scale = 10;
 
@@ -18,19 +20,21 @@ public class ChunkGrid {
     private Map<Point, Integer> colors = new HashMap<>();
 
     public void draw(int thisX, int thisY, int width, int height) {
-        screenHeight = height / scale;
-        screenWidth = width / scale;
+        screenWidth = width;
+        screenHeight = height;
+        gridHeight = height / scale;
+        gridWidth = width / scale;
 
-        int cellHeight = height / screenHeight;
-        int cellWidth = width / screenWidth;
+        int cellHeight = height / gridHeight;
+        int cellWidth = width / gridWidth;
 
         cellSize = Math.min(cellHeight, cellWidth);
 //        double frame = 0;
 
 //        drawRect(thisX, thisY, thisX + width - 1, thisY + height - 1, 0xff808080);
 
-        for (int z = 0; z <= screenHeight; ++z) {
-            for (int x = 0; x <= screenWidth; ++x) {
+        for (int z = 0; z <= gridHeight; ++z) {
+            for (int x = 0; x <= gridWidth; ++x) {
                 int rx = x * cellSize;
                 int ry = z * cellSize;
                 Gui.drawRect(thisX + rx,
@@ -97,11 +101,11 @@ public class ChunkGrid {
     }
 
     public int sizeX() {
-        return screenWidth;
+        return gridWidth;
     }
 
     public int sizeZ() {
-        return screenHeight;
+        return gridHeight;
     }
 
     public void setScale(int width, int height, int value) {
@@ -111,8 +115,8 @@ public class ChunkGrid {
         } else if (scale > 50) {
             scale = 50;
         }
-        screenHeight = height / scale;
-        screenWidth = width / scale;
+        gridHeight = height / scale;
+        gridWidth = width / scale;
     }
 
     public void clearColors() {

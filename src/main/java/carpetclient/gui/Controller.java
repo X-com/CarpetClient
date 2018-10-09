@@ -26,7 +26,6 @@ public class Controller {
     private int selectionDimention;
 
     private Chunkdata.MapView chunkData;
-    private boolean leftButtonDown;
     private Point mouseDown = new Point();
     private boolean panning = false;
 
@@ -186,7 +185,6 @@ public class Controller {
         int minZ = view.y - sizeZ / 2;
         int maxZ = view.y + sizeZ / 2;
 
-
         chunkData.seekSpace(dimention, minX, maxX + 2, minZ, maxZ + 2);
         chunkData.seekTime(gametick);
 
@@ -227,7 +225,6 @@ public class Controller {
         int maxZ = view.y + sizeZ / 2;
 
         if (button == 0) {
-            leftButtonDown = true;
             mouseDown.setLocation(x, y);
             dragView.setLocation(view);
         } else if (button == 1) {
