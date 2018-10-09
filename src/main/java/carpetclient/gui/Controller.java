@@ -64,7 +64,7 @@ public class Controller {
         if (rval == JFileChooser.APPROVE_OPTION) {
             String path = fc.getSelectedFile().getPath();
             try {
-                ObjectInputStream in = new ObjectInputStream(new FileInputStream(path);
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
                 ZeroXstuff.data.readObject(in);
                 view.x = in.readInt();
                 view.y = in.readInt();
