@@ -236,7 +236,7 @@ public class Chunkdata implements Serializable {
 
     static final ChunkLogChunkCoords spaceMin = new ChunkLogChunkCoords(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
     static final ChunkLogChunkCoords spaceMax = new ChunkLogChunkCoords(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(0, 0);
+    static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(Integer.MIN_VALUE , Integer.MIN_VALUE);
     static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
     ArrayList<String> allStackTraces = new ArrayList();
@@ -325,6 +325,8 @@ public class Chunkdata implements Serializable {
                         break;
                     }
                     ChunkLogCoords chunkMaxTime = new ChunkLogCoords(first.space.x, z, dimension, gametick, 0);
+                    System.err.println("foo1: " + first);
+                    System.err.println("foo2: " + chunkMaxTime);
                     SortedMap<ChunkLogCoords, ChunkLogEvent> uptoGametick = rest.headMap(chunkMaxTime);
                     if (!uptoGametick.isEmpty()) {
                         ChunkLogCoords key = uptoGametick.firstKey();
@@ -638,6 +640,11 @@ public class Chunkdata implements Serializable {
 
     // called for each event received in order
     public void addData(int gametick, int eventNumber, int x, int z, int d, int eventcode, int traceid) {
+
+        if((gametick < 0) || (eventNumber<0)){
+            throw new IllegalArgumentException();
+        }
+
         ChunkLogChunkCoords chunk = new ChunkLogChunkCoords(x, z, d);
         ChunkLogTimeCoords time = new ChunkLogTimeCoords(gametick, eventNumber);
         if (eventcode < 0 || eventcode >= Event.values().length) {
