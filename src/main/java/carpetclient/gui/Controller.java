@@ -195,9 +195,7 @@ public class Controller {
     void setTick(int gametick) {
         int dimention = debug.getSelectedDimension();
         ChunkGrid canvas = debug.getChunkGrid();
-//        int sizeX = canvas.sizeX();
-//        int sizeZ = canvas.sizeZ();
-        
+
         int minX = view.x - canvas.sizeX() / 2;
         int minZ = view.y - canvas.sizeZ() / 2;
 
@@ -205,22 +203,13 @@ public class Controller {
 
         chunkData.seekTime(gametick);
 
-        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list;
-
-//        if (debug.areStackTracesEnabled()) { // temporary hackfix to display 2 data types
-            list = chunkData.getDisplayArea();
-//        } else {
-//            list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
-//        }
-        for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
-            Chunkdata.ChunkLogCoords chunk = entry.getKey();
-            if (chunk == null) continue;
-            Chunkdata.ChunkLogEvent event = list.get(chunk);
-            if (event == null) {
-                canvas.setGridColor(chunk.space.x - minX, chunk.space.z - minZ, getColor(Chunkdata.Event.MISSED_EVENT_ERROR));
-                continue;
+        for (Chunkdata.ChunkView cv : chunkData) {
+            int color = 0;
+            for (int c : cv.getColors()) {
+                color = c;
             }
-            canvas.setGridColor(chunk.space.x - minX, chunk.space.z - minZ, getColor(event.event));
+
+            canvas.setGridColor(cv.getX(), cv.getZ(), color);
         }
 
         if (selectionBox != null && selectionDimention == dimention) {
