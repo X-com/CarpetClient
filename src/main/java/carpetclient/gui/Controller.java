@@ -209,7 +209,9 @@ public class Controller {
                 color = c;
             }
 
-            canvas.setGridColor(cv.getX(), cv.getZ(), color);
+
+            canvas.setGridColor(cv.getX() - minX, cv.getZ() - minZ, color);
+
         }
 
         if (selectionBox != null && selectionDimention == dimention) {

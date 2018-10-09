@@ -318,7 +318,7 @@ public class Chunkdata implements Serializable {
             TreeMap<ChunkLogCoords, ChunkLogEvent> previousEvents = new TreeMap(compareGroupChunks);
             for (int z = minz; z < maxz; ++z) {
                 ChunkLogCoords minSpace = new ChunkLogCoords(minx, z, dimension, timeMin);
-                ChunkLogCoords maxSpace = new ChunkLogCoords(maxx, z, dimension, timeMax);
+                ChunkLogCoords maxSpace = new ChunkLogCoords(maxx, z, dimension, timeMin);
                 SortedMap<ChunkLogCoords, ChunkLogEvent> rest = this.logsGroupedByChunk.tailMap(minSpace);
                 while(!rest.isEmpty()){
                     ChunkLogCoords first = rest.firstKey();
