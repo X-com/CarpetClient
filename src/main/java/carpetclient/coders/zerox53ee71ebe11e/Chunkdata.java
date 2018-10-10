@@ -626,6 +626,7 @@ public class Chunkdata implements Serializable {
             return new ChunkView(this.currentMap.subMap(min, true, max, true), gametick);
         }
 
+        @Deprecated
         public SortedMap<ChunkLogCoords, ChunkLogEvent> getDisplayArea() {
             return currentMap;
         }
