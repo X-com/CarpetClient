@@ -3,22 +3,16 @@ package carpetclient.gui;
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 import carpetclient.coders.zerox53ee71ebe11e.ZeroXstuff;
 import carpetclient.pluginchannel.CarpetPluginChannel;
-import com.google.common.base.Splitter;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.util.Point;
 
-//import javax.swing.*;
-//import java.awt.*;
-//import java.awt.event.KeyEvent;
 import javax.swing.*;
 import java.io.*;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
 
 public class Controller {
     private GuiChunkGrid debug;
@@ -143,7 +137,6 @@ public class Controller {
     }
 
     public void play() {
-        //TODO fix so timer cant go above highest time.
         play = !play;
 
         if (play) {
@@ -175,9 +168,15 @@ public class Controller {
     }
 
     public void setTime(String text) {
-        //TODO fix so timer cant be set outside bounded time.
         try {
             int gt = Integer.parseInt(text);
+            int first = ZeroXstuff.data.getFirstGametick();
+            int last = ZeroXstuff.data.getLastGametick();
+            if (gt < first) {
+                gt = first;
+            } else if (gt > last) {
+                gt = last;
+            }
             setTick(gt);
         } catch (NumberFormatException e) {
             return;
@@ -305,13 +304,16 @@ public class Controller {
     private class Timer extends Thread {
 
         public void run() {
+            int last = ZeroXstuff.data.getLastGametick();
             while (play) {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                setTick(lastGametick + 1);
+                int next = lastGametick + 1;
+                if (next >= last) play = false;
+                setTick(next);
             }
         }
     }
