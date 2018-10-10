@@ -16,8 +16,9 @@ import java.util.Map;
 import java.util.SortedMap;
 
 public class Controller {
-    GuiChunkGrid debug;
+    private GuiChunkGrid debug;
     boolean start = false;
+    boolean play = false;
     private boolean live = false;
     private int lastGametick;
     private Point view = new Point();
@@ -44,6 +45,7 @@ public class Controller {
             home();
             ZeroXstuff.data.clear();
             selectionBox = null;
+            play = false;
         }
         PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
         sender.writeInt(CarpetPluginChannel.CHUNK_LOGGER);
@@ -68,6 +70,8 @@ public class Controller {
                 ZeroXstuff.data.readObject(in);
                 view.x = in.readInt();
                 view.y = in.readInt();
+                debug.setXText(view.x);
+                debug.setZText(view.y);
                 in.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -125,7 +129,21 @@ public class Controller {
         setTick(lastGametick);
     }
 
-    public void setTime(KeyEvent e) {
+    public void begining() {
+        setTick(ZeroXstuff.data.getFirstGametick());
+    }
+
+    public void end() {
+        setTick(ZeroXstuff.data.getLastGametick());
+    }
+
+    public void play() {
+        //TODO fix so timer cant go above highest time.
+        play = !play;
+
+        if (play) {
+            new Timer().start();
+        }
     }
 
     public void home() {
@@ -151,30 +169,34 @@ public class Controller {
         }
     }
 
-    public void setX(KeyEvent e, JTextArea textX) {
-        if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
-        view.x = integerInputs(e, textX, view.x);
-        textX.setText(Integer.toString(view.x));
-        setTick(lastGametick);
-    }
-
-    public void setZ(KeyEvent e, JTextArea textZ) {
-        if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
-        view.y = integerInputs(e, textZ, view.y);
-        textZ.setText(Integer.toString(view.y));
-        setTick(lastGametick);
-    }
-
-    private int integerInputs(KeyEvent e, JTextArea box, int oldNum) {
-        e.consume();
-        String text = box.getText();
-        int newNum;
+    public void setTime(String text) {
+        //TODO fix so timer cant be set outside bounded time.
         try {
-            newNum = Integer.parseInt(text);
-        } catch (Exception exception) {
-            return oldNum;
+            int gt = Integer.parseInt(text);
+            setTick(gt);
+        } catch (NumberFormatException e) {
+            return;
         }
-        return newNum;
+    }
+
+    public void setX(String text) {
+        try {
+            int x = Integer.parseInt(text);
+            view.x = x;
+        } catch (NumberFormatException e) {
+            return;
+        }
+        setTick(lastGametick);
+    }
+
+    public void setZ(String text) {
+        try {
+            int z = Integer.parseInt(text);
+            view.y = z;
+        } catch (NumberFormatException e) {
+            return;
+        }
+        setTick(lastGametick);
     }
 
     public void liveUpdate(int time) {
@@ -292,5 +314,19 @@ public class Controller {
         ChunkGrid canvas = debug.getChunkGrid();
         canvas.setScale(canvas.width(), canvas.height(), scrollAmount);
         setTick(lastGametick);
+    }
+
+    private class Timer extends Thread {
+
+        public void run() {
+            while (play) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                setTick(lastGametick + 1);
+            }
+        }
     }
 }
