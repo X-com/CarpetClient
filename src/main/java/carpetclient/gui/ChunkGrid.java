@@ -54,17 +54,18 @@ public class ChunkGrid {
                 int ry = z * scale;
                 int cellX = thisX + rx;
                 int cellY = thisY + ry;
+                float brightenFactor = colors.containsKey(new Point(x, z)) ? 0.3f : 0.01f;
                 int color = getGridColor(x, z);
                 int alpha = (color & 0xff000000) >>> 24;
                 int red = (color & 0xff0000) >> 16;
                 int green = (color & 0xff00) >> 8;
                 int blue = (color & 0xff);
-                int color1 = brighten(color);
+                int color1 = brighten(color, brightenFactor);
                 int alpha1 = (color1 & 0xff000000) >>> 24;
                 int red1 = (color1 & 0xff0000) >> 16;
                 int green1 = (color1 & 0xff00) >> 8;
                 int blue1 = (color1 & 0xff);
-                int color2 = brighten(color1);
+                int color2 = brighten(color1, brightenFactor);
                 int alpha2 = (color2 & 0xff000000) >>> 24;
                 int red2 = (color2 & 0xff0000) >> 16;
                 int green2 = (color2 & 0xff00) >> 8;
@@ -115,7 +116,7 @@ public class ChunkGrid {
         return col;
     }
 
-    private static int brighten(int col) {
+    private static int brighten(int col, float factor) {
         int alpha = (col & 0xff000000) >>> 24;
         int red = (col & 0xff0000) >> 16;
         int green = (col & 0xff00) >> 8;
@@ -123,9 +124,9 @@ public class ChunkGrid {
 
         // redn't green't and bluen't are technical terms
         int rednt = 255 - red, greent = 255 - green, bluent = 255 - blue;
-        rednt = (int) (rednt * 0.9);
-        greent = (int) (greent * 0.9);
-        bluent = (int) (bluent * 0.9);
+        rednt = (int) (rednt * (1 - factor));
+        greent = (int) (greent * (1 - factor));
+        bluent = (int) (bluent * (1 - factor));
         red = 255 - rednt;
         green = 255 - greent;
         blue = 255 - bluent;
