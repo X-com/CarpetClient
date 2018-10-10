@@ -266,8 +266,12 @@ public class GuiChunkGrid extends GuiScreen {
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
-    // Minimap
+    @Override
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
 
+    // Minimap
 
     public void renderMinimap(int screenWidth, int screenHeight) {
         int minimapX = (int) (screenWidth * MINIMAP_X);

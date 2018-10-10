@@ -3,15 +3,20 @@ package carpetclient.gui;
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 import carpetclient.coders.zerox53ee71ebe11e.ZeroXstuff;
 import carpetclient.pluginchannel.CarpetPluginChannel;
+import com.google.common.base.Splitter;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
+import org.lwjgl.util.Point;
 
+//import javax.swing.*;
+//import java.awt.*;
+//import java.awt.event.KeyEvent;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
@@ -68,10 +73,10 @@ public class Controller {
             try {
                 ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
                 ZeroXstuff.data.readObject(in);
-                view.x = in.readInt();
-                view.y = in.readInt();
-                debug.setXText(view.x);
-                debug.setZText(view.y);
+                view.setX(in.readInt());
+                view.setY(in.readInt());
+                debug.setXText(view.getX());
+                debug.setZText(view.getY());
                 in.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -93,8 +98,8 @@ public class Controller {
             try {
                 ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
                 ZeroXstuff.data.writeObject(out);
-                out.writeInt(view.x);
-                out.writeInt(view.y);
+                out.writeInt(view.getX());
+                out.writeInt(view.getY());
                 out.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -105,7 +110,7 @@ public class Controller {
     public void back() {
         live = false;
         if (selectionBox != null) {
-            setTick(ZeroXstuff.data.getPreviousGametickForChunk(lastGametick, selectionBox.x, selectionBox.y, selectionDimention));
+            setTick(ZeroXstuff.data.getPreviousGametickForChunk(lastGametick, selectionBox.getX(), selectionBox.getY(), selectionDimention));
         } else {
             setTick(ZeroXstuff.data.getPrevGametick(lastGametick));
         }
@@ -114,7 +119,7 @@ public class Controller {
     public void forward() {
         live = false;
         if (selectionBox != null) {
-            setTick(ZeroXstuff.data.getNextGametickForChunk(lastGametick, selectionBox.x, selectionBox.y, selectionDimention));
+            setTick(ZeroXstuff.data.getNextGametickForChunk(lastGametick, selectionBox.getX(), selectionBox.getY(), selectionDimention));
         } else {
             setTick(ZeroXstuff.data.getNextGametick(lastGametick));
         }
@@ -148,11 +153,11 @@ public class Controller {
 
     public void home() {
         BlockPos pos = Minecraft.getMinecraft().player.getPosition();
-        view.x = pos.getX() >> 4;
-        view.y = pos.getZ() >> 4;
+        view.setX(pos.getX() >> 4);
+        view.setY(pos.getZ() >> 4);
 
-        debug.setXText(view.x);
-        debug.setZText(view.y);
+        debug.setXText(view.getX());
+        debug.setZText(view.getY());
 
         changeDimentionTo(Minecraft.getMinecraft().player.dimension);
 
@@ -182,7 +187,7 @@ public class Controller {
     public void setX(String text) {
         try {
             int x = Integer.parseInt(text);
-            view.x = x;
+            view.setX(x);
         } catch (NumberFormatException e) {
             return;
         }
@@ -192,7 +197,7 @@ public class Controller {
     public void setZ(String text) {
         try {
             int z = Integer.parseInt(text);
-            view.y = z;
+            view.setY(z);
         } catch (NumberFormatException e) {
             return;
         }
@@ -210,10 +215,10 @@ public class Controller {
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
 
-        int minX = view.x - sizeX / 2;
-        int maxX = view.x + sizeX / 2;
-        int minZ = view.y - sizeZ / 2;
-        int maxZ = view.y + sizeZ / 2;
+        int minX = view.getX() - sizeX / 2;
+        int maxX = view.getX() + sizeX / 2;
+        int minZ = view.getY() - sizeZ / 2;
+        int maxZ = view.getY() + sizeZ / 2;
 
         chunkData.seekSpace(dimention, minX, maxX + 2, minZ, maxZ + 2);
         chunkData.seekTime(gametick);
@@ -230,7 +235,7 @@ public class Controller {
         }
 
         if (selectionBox != null && selectionDimention == dimention) {
-            debug.getChunkGrid().setSelectionBox(selectionBox.x - minX, selectionBox.y - minZ);
+            debug.getChunkGrid().setSelectionBox(selectionBox.getX() - minX, selectionBox.getY() - minZ);
         } else {
             debug.getChunkGrid().setSelectionBox(Integer.MAX_VALUE, 0);
         }
@@ -249,10 +254,10 @@ public class Controller {
         int cx = canvas.getGridX(x);
         int cz = canvas.getGridY(y);
 
-        int minX = view.x - sizeX / 2;
-        int maxX = view.x + sizeX / 2;
-        int minZ = view.y - sizeZ / 2;
-        int maxZ = view.y + sizeZ / 2;
+        int minX = view.getX() - sizeX / 2;
+        int maxX = view.getX() + sizeX / 2;
+        int minZ = view.getY() - sizeZ / 2;
+        int maxZ = view.getY() + sizeZ / 2;
 
         if (button == 0) {
             mouseDown.setLocation(x, y);
@@ -267,10 +272,12 @@ public class Controller {
                     continue;
                 }
                 if (chunk.space.x == (cx + minX) && chunk.space.z == (cz + minZ)) {
-                    System.out.println("Event: " + event.event.toString());
+                    List<String> props = Arrays.asList("Event: " + event.event.toString());
                     String s = ZeroXstuff.data.getStackTraceString(event.stackTraceId);
                     if (s.length() != 0)
-                        System.out.println("StackTrace:\n" + ZeroXstuff.data.getStackTraceString(event.stackTraceId));
+                        Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(chunk.space.x, chunk.space.z, debug, debug, props, Splitter.onPattern("\\r?\\n").splitToList(s)));
+                    else
+                        Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(chunk.space.x, chunk.space.z, debug, debug, props, null));
                 }
             }
         }
@@ -278,10 +285,10 @@ public class Controller {
 
     public void buttonUp(int x, int y, int mouseButton) {
         if (mouseButton == 0 && !panning) {
-            int cx = debug.getChunkGrid().getGridX(x) + view.x - debug.getChunkGrid().sizeX() / 2;
-            int cz = debug.getChunkGrid().getGridY(y) + view.y - debug.getChunkGrid().sizeZ() / 2;
+            int cx = debug.getChunkGrid().getGridX(x) + view.getX() - debug.getChunkGrid().sizeX() / 2;
+            int cz = debug.getChunkGrid().getGridY(y) + view.getY() - debug.getChunkGrid().sizeZ() / 2;
 
-            if (selectionBox != null && selectionBox.x == cx && selectionBox.y == cz) {
+            if (selectionBox != null && selectionBox.getX() == cx && selectionBox.getY() == cz) {
                 selectionBox = null;
                 debug.setBackButtonText("Back");
                 debug.setForwardButtonText("Forward");
@@ -298,14 +305,14 @@ public class Controller {
     }
 
     public void mouseDrag(int x, int y, int button) {
-        if (!panning && mouseDown.distance(x, y) > 5) {
+        int dx = x - mouseDown.getX();
+        int dy = y - mouseDown.getY();
+        if (!panning && dx * dx + dy * dy > 5 * 5) {
             panning = true;
         } else if (button == 0 && panning) {
-            int dx = x - mouseDown.x;
-            int dy = y - mouseDown.y;
-            view.setLocation(dragView.x - dx, dragView.y - dy);
-            debug.setXText(view.x);
-            debug.setZText(view.y);
+            view.setLocation(dragView.getX() - dx, dragView.getY() - dy);
+            debug.setXText(view.getX());
+            debug.setZText(view.getY());
             setTick(lastGametick);
         }
     }
