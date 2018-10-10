@@ -236,7 +236,7 @@ public class Chunkdata implements Serializable {
 
     static final ChunkLogChunkCoords spaceMin = new ChunkLogChunkCoords(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
     static final ChunkLogChunkCoords spaceMax = new ChunkLogChunkCoords(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(Integer.MIN_VALUE , Integer.MIN_VALUE);
+    static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(Integer.MIN_VALUE, Integer.MIN_VALUE);
     static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
     ArrayList<String> allStackTraces = new ArrayList();
@@ -364,7 +364,7 @@ public class Chunkdata implements Serializable {
             this.event = event;
         }
 
-        int getOrder() {
+        public int getOrder() {
             return this.order;
         }
 
@@ -640,7 +640,7 @@ public class Chunkdata implements Serializable {
     // called for each event received in order
     public void addData(int gametick, int eventNumber, int x, int z, int d, int eventcode, int traceid) {
 
-        if((gametick < 0) || (eventNumber<0)){
+        if ((gametick < 0) || (eventNumber < 0)) {
             throw new IllegalArgumentException();
         }
 

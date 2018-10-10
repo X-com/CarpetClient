@@ -246,40 +246,19 @@ public class Controller {
     }
 
     public void buttonDown(int x, int y, int button) {
-        ChunkGrid canvas = debug.getChunkGrid();
-        int dimention = debug.getSelectedDimension();
-        int sizeX = canvas.sizeX();
-        int sizeZ = canvas.sizeZ();
-
-        int cx = canvas.getGridX(x);
-        int cz = canvas.getGridY(y);
-
-        int minX = view.getX() - sizeX / 2;
-        int maxX = view.getX() + sizeX / 2;
-        int minZ = view.getY() - sizeZ / 2;
-        int maxZ = view.getY() + sizeZ / 2;
-
         if (button == 0) {
             mouseDown.setLocation(x, y);
             dragView.setLocation(view);
         } else if (button == 1) {
-            SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(lastGametick, dimention, minX, maxX, minZ, maxZ);
-            for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
-                Chunkdata.ChunkLogCoords chunk = entry.getKey();
-                if (chunk == null) continue;
-                Chunkdata.ChunkLogEvent event = list.get(chunk);
-                if (event == null) {
-                    continue;
-                }
-                if (chunk.space.x == (cx + minX) && chunk.space.z == (cz + minZ)) {
-                    List<String> props = Arrays.asList("Event: " + event.event.toString());
-                    String s = ZeroXstuff.data.getStackTraceString(event.stackTraceId);
-                    if (s.length() != 0)
-                        Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(chunk.space.x, chunk.space.z, debug, debug, props, Splitter.onPattern("\\r?\\n").splitToList(s)));
-                    else
-                        Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(chunk.space.x, chunk.space.z, debug, debug, props, null));
-                }
+            int cx = debug.getChunkGrid().getGridX(x) + view.getX() - debug.getChunkGrid().sizeX() / 2;
+            int cz = debug.getChunkGrid().getGridY(y) + view.getY() - debug.getChunkGrid().sizeZ() / 2;
+            List<String> props = new ArrayList<>();
+            List<String> stacktrace = new ArrayList<>();
+            for (Chunkdata.EventView ev : chunkData.pickChunk(cx, cz)) {
+                props.add("Event: " + ev.getType().toString() + " Order: " + Integer.toString(ev.getOrder()));
+                stacktrace.add(ev.getStacktrace());
             }
+            Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(cx, cz, debug, debug, props, stacktrace));
         }
     }
 
