@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
 
 import java.util.HashMap;
@@ -12,9 +13,9 @@ import java.util.Map;
 
 public class ChunkGrid {
 
-    private int scaledWidth = 100;
-    private int scaledHeight = 100;
-    private int cellSize = 0;
+    private int columnCount = 100;
+    private int rowCount = 100;
+    //private double cellSize = 0;
     private int scale = 10;
 
     private int selectionX = -1;
@@ -23,45 +24,69 @@ public class ChunkGrid {
     private Map<Point, Integer> colors = new HashMap<>();
 
     public void draw(int thisX, int thisY, int width, int height) {
-        scaledHeight = height / scale;
-        scaledWidth = width / scale;
 
-        int cellHeight = height / scaledHeight;
-        int cellWidth = width / scaledWidth;
+        /*
+        System.out.println("===================");
+        colors.entrySet().stream().limit(10).forEach(entry -> System.out.println("(" + entry.getKey().getX() + ", " + entry.getKey().getY() + "): " + entry.getValue()));
+        */
 
-        cellSize = Math.min(cellHeight, cellWidth);
-//        double frame = 0;
 
-//        drawRect(thisX, thisY, thisX + width - 1, thisY + height - 1, 0xff808080);
-//        drawRect(thisX + selectionX * cellSize,
-//                thisY + selectionY * cellSize,
-//                thisX + selectionX * cellSize + cellSize - 1,
-//                thisY + selectionY * cellSize + cellSize - 1,
-//                0xff000000);
+        rowCount = (int) Math.ceil((float) height / scale);
+        columnCount = (int) Math.ceil((float) width / scale);
 
-        for (int z = 0; z < scaledHeight; ++z) {
-            for (int x = 0; x < scaledWidth; ++x) {
-                int rx = x * cellSize;
-                int ry = z * cellSize;
-                Gui.drawRect(thisX + rx,
-                        thisY + ry,
-                        thisX + rx + cellSize,
-                        thisY + ry + cellSize,
-                        getGridColor(x, z));
+        double cellHeight = (double) height / rowCount;
+        double cellWidth = (double) width / columnCount;
+
+        //cellSize = Math.min(cellHeight, cellWidth);
+
+        Tessellator tess = Tessellator.getInstance();
+        BufferBuilder buf = tess.getBuffer();
+        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+
+        for (int z = 0; z < rowCount; ++z) {
+            for (int x = 0; x < columnCount; ++x) {
+                int rx = x * scale;
+                int ry = z * scale;
+                int cellX = thisX + rx;
+                int cellY = thisY + ry;
+                int color = getGridColor(x, z);
+                int alpha = (color & 0xff000000) >>> 24;
+                int red = (color & 0xff0000) >> 16;
+                int green = (color & 0xff00) >> 8;
+                int blue = (color & 0xff);
+                int color1 = brighten(color);
+                int alpha1 = (color1 & 0xff000000) >>> 24;
+                int red1 = (color1 & 0xff0000) >> 16;
+                int green1 = (color1 & 0xff00) >> 8;
+                int blue1 = (color1 & 0xff);
+                int color2 = brighten(color1);
+                int alpha2 = (color2 & 0xff000000) >>> 24;
+                int red2 = (color2 & 0xff0000) >> 16;
+                int green2 = (color2 & 0xff00) >> 8;
+                int blue2 = (color2 & 0xff);
+
+                buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+                buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
+                buf.pos(cellX, cellY + scale, 0).color(red1, green1, blue1, alpha1).endVertex();
+                buf.pos(cellX + scale, cellY + scale, 0).color(red2, green2, blue2, alpha2).endVertex();
+                buf.pos(cellX + scale, cellY, 0).color(red1, green1, blue1, alpha1).endVertex();
+                tess.draw();
             }
         }
+
+        GlStateManager.shadeModel(GL11.GL_FLAT);
     }
 
     public int getGridX(int pixelX) {
-        if (cellSize == 0)
+        if (scale == 0)
             return 0;
-        return pixelX / cellSize;
+        return pixelX / scale;
     }
 
     public int getGridY(int pixelY) {
-        if (cellSize == 0)
+        if (scale == 0)
             return 0;
-        return pixelY / cellSize;
+        return pixelY / scale;
     }
 
     public void showSelection(int x, int y) {
@@ -72,8 +97,8 @@ public class ChunkGrid {
     public void setGrid(int scaledWidth, int scaledHeight, Map<Point, Integer> colors) {
         this.colors.clear();
         this.colors.putAll(colors);
-        this.scaledWidth = scaledWidth;
-        this.scaledHeight = scaledHeight;
+        this.columnCount = scaledWidth;
+        this.rowCount = scaledHeight;
     }
 
     public void setGridColor(int x, int z, int color) {
@@ -83,7 +108,7 @@ public class ChunkGrid {
     public int getGridColor(int x, int z) {
         Integer col = colors.get(new Point(x, z));
         if (col == null) return 0xff000000;
-        if ((x + z) % 2 == 0) return brighten(col);
+        //if ((x + z) % 2 == 0) return brighten(col);
         return col;
     }
 
@@ -109,11 +134,11 @@ public class ChunkGrid {
     }
 
     public int sizeX() {
-        return scaledWidth;
+        return columnCount;
     }
 
     public int sizeZ() {
-        return scaledHeight;
+        return rowCount;
     }
 
     public void setScale(int width, int height, int value) {
@@ -123,8 +148,8 @@ public class ChunkGrid {
         } else if (scale > 50) {
             scale = 50;
         }
-        scaledHeight = height / scale;
-        scaledWidth = width / scale;
+        rowCount = height / scale;
+        columnCount = width / scale;
     }
 
     public void clearColors() {
