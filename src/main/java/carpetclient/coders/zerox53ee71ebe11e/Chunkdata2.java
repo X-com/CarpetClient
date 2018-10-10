@@ -4,6 +4,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.*;
 import java.io.IOException;
+import java.util.Map.Entry;
 
 public class Chunkdata2 implements Serializable {
 
@@ -117,8 +118,10 @@ public class Chunkdata2 implements Serializable {
             if((colors == null) || (colors.length != length)){
                 colors = new int[length];
             }
-            for(int i = 0; i<currentEvents.length; ++i){
-                colors[i+1] = currentEvents[i].e.getColor();
+            if(currentEvents != null){
+                for(int i = 0; i<currentEvents.length; ++i){
+                    colors[i+1] = currentEvents[i].e.getColor();
+                }
             }
             if(wasLoaded()){
                 if(wasUnloadQueuedAndNotCanceled()){
@@ -136,6 +139,9 @@ public class Chunkdata2 implements Serializable {
             }
             else if(wasLoededInThePast()){
                 colors[0] = 0xff111111;
+            }
+            else {
+                colors[0] = 0;
             }
         }
 
@@ -699,10 +705,54 @@ public class Chunkdata2 implements Serializable {
 
     private void writeObject(java.io.ObjectOutputStream out)
             throws IOException {
+
+        out.writeInt(allStacktraces.size());
+
+        for(String s: allStacktraces){
+            out.writeObject(s);
+        }
+        int count = 0;
+        for(EventCollection c : allEvents){
+            for(Entry<Integer,FullEvent[]> entry : c.eventsForGametick.entrySet()){
+                count += entry.getValue().length;
+            }
+        }
+
+        out.writeInt(count);
+
+        for(EventCollection c : allEvents){
+            for(Entry<Integer,FullEvent[]> entry : c.eventsForGametick.entrySet()){
+                for(FullEvent event:entry.getValue()){
+                    out.writeInt(event.x);
+                    out.writeInt(event.z);
+                    out.writeInt(event.d);
+                    out.writeInt(event.t);
+                    out.writeInt(event.o);
+                    out.writeInt(event.e.ordinal());
+                    out.writeInt(event.s);
+                }
+            }
+        }
     }
 
     private void readObject(java.io.ObjectInputStream in)
             throws IOException, ClassNotFoundException {
+        clear();
+        int stcount = in.readInt();
+        for (int i = 0; i < stcount; ++i) {
+            this.addStacktrace((String) in.readObject());
+        }
+        int eventCount = in.readInt();
+        for (int i = 0; i < eventCount; ++i) {
+            int x = in.readInt();
+            int z = in.readInt();
+            int d = in.readInt();
+            int tick = in.readInt();
+            int evnum = in.readInt();
+            int event = in.readInt();
+            int traceid = in.readInt();
+            this.addData(tick, evnum, x, z, d, event, traceid);
+        }
     }
 
     private void readObjectNoData()
