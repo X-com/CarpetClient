@@ -390,6 +390,10 @@ public class Chunkdata implements Serializable {
             this.gametick = gametick;
         }
 
+        public int getGametick() {
+            return gametick;
+        }
+
         @Override
         public Iterator<EventView> iterator() {
             return new Iterator<EventView>() {
