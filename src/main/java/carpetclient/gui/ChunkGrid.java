@@ -13,13 +13,14 @@ import java.util.Map;
 
 public class ChunkGrid {
 
+    private int screenWidth = 0;
+    private int screenHeight = 0;
     private int columnCount = 100;
     private int rowCount = 100;
-    //private double cellSize = 0;
+    private int cellSize = 0;
     private int scale = 10;
 
-    private int selectionX = -1;
-    private int selectionY = -1;
+    private Point selection = new Point(Integer.MAX_VALUE, 0);
 
     private Map<Point, Integer> colors = new HashMap<>();
 
@@ -31,13 +32,17 @@ public class ChunkGrid {
         */
 
 
+        screenWidth = width;
+        screenHeight = height;
         rowCount = (int) Math.ceil((float) height / scale);
         columnCount = (int) Math.ceil((float) width / scale);
 
+        /*
         double cellHeight = (double) height / rowCount;
         double cellWidth = (double) width / columnCount;
 
-        //cellSize = Math.min(cellHeight, cellWidth);
+        cellSize = Math.min(cellHeight, cellWidth);
+        */
 
         Tessellator tess = Tessellator.getInstance();
         BufferBuilder buf = tess.getBuffer();
@@ -75,6 +80,16 @@ public class ChunkGrid {
         }
 
         GlStateManager.shadeModel(GL11.GL_FLAT);
+
+        if (selection.getX() != Integer.MAX_VALUE) {
+            int rx = selection.getX() * cellSize;
+            int ry = selection.getY() * cellSize;
+            Gui.drawRect(thisX + rx,
+                    thisY + ry,
+                    thisX + rx + cellSize,
+                    thisY + ry + cellSize,
+                    0xff646245);
+        }
     }
 
     public int getGridX(int pixelX) {
@@ -87,18 +102,6 @@ public class ChunkGrid {
         if (scale == 0)
             return 0;
         return pixelY / scale;
-    }
-
-    public void showSelection(int x, int y) {
-        selectionX = x;
-        selectionY = y;
-    }
-
-    public void setGrid(int scaledWidth, int scaledHeight, Map<Point, Integer> colors) {
-        this.colors.clear();
-        this.colors.putAll(colors);
-        this.columnCount = scaledWidth;
-        this.rowCount = scaledHeight;
     }
 
     public void setGridColor(int x, int z, int color) {
@@ -154,5 +157,17 @@ public class ChunkGrid {
 
     public void clearColors() {
         colors.clear();
+    }
+
+    public void setSelectionBox(int x, int y) {
+        selection.setLocation(x, y);
+    }
+
+    public int height() {
+        return screenHeight;
+    }
+
+    public int width() {
+        return screenWidth;
     }
 }

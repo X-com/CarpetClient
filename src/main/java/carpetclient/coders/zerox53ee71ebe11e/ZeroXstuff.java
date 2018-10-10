@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+
 import net.minecraft.world.World;
 import com.google.gson.Gson;
 // temp stuff end
@@ -65,9 +66,9 @@ public class ZeroXstuff {
         NBTTagList list = nbt.getTagList("data", 10);
         int time = nbt.getInteger("time");
 //        ChunkLogData.TimeIndex timeIndex = data.addData(time);
-        for(int index = 0; index < list.tagCount(); ++index) {
+        for (int index = 0; index < list.tagCount(); ++index) {
             NBTTagCompound chunk = list.getCompoundTagAt(index);
-            
+
             int x = chunk.getInteger("x");
             int z = chunk.getInteger("z");
             int dimention = chunk.getInteger("d");
@@ -81,7 +82,7 @@ public class ZeroXstuff {
 
         GuiChunkGrid.instance.liveUpdate(time);
     }
-    
+
     /////////// temp stuff ///////////////
 
     static Gson gson = new Gson();
@@ -92,14 +93,14 @@ public class ZeroXstuff {
         int gameticks = w.getMinecraftServer().getTickCounter();
         String s = gson.toJson(this);
 
-        Path file = Paths.get(".",logdir, name , "new.json");
+        Path file = Paths.get(".", logdir, name, "new.json");
         try {
             File f = Files.createFile(file).toFile();
-            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(f,false), StandardCharsets.UTF_8);
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8);
             writer.write(s);
             writer.flush();
             writer.close();
-            Path file2 = Paths.get(".",logdir, name, ""+ gameticks + ".json");
+            Path file2 = Paths.get(".", logdir, name, "" + gameticks + ".json");
             Files.move(file, file2);
         } catch (IOException e) {
             // TODO Auto-generated catch block

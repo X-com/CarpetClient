@@ -9,19 +9,27 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.Map;
 import java.util.SortedMap;
 
 public class Controller {
-    GuiChunkGrid debug;
+    private GuiChunkGrid debug;
     boolean start = false;
+    boolean play = false;
     private boolean live = false;
     private int lastGametick;
-    private int viewX;
-    private int viewZ;
+    private Point view = new Point();
+    private Point dragView = new Point();
+    private Point selectionBox;
+    private int selectionDimention;
+
     private Chunkdata.MapView chunkData;
+    private Point mouseDown = new Point();
+    private boolean panning = false;
+
 
     public Controller(GuiChunkGrid d) {
         debug = d;
@@ -36,6 +44,8 @@ public class Controller {
         if (start) {
             home();
             ZeroXstuff.data.clear();
+            selectionBox = null;
+            play = false;
         }
         PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
         sender.writeInt(CarpetPluginChannel.CHUNK_LOGGER);
@@ -56,7 +66,13 @@ public class Controller {
         if (rval == JFileChooser.APPROVE_OPTION) {
             String path = fc.getSelectedFile().getPath();
             try {
-                ZeroXstuff.data.readObject(new ObjectInputStream(new FileInputStream(path)));
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
+                ZeroXstuff.data.readObject(in);
+                view.x = in.readInt();
+                view.y = in.readInt();
+                debug.setXText(view.x);
+                debug.setZText(view.y);
+                in.close();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
@@ -75,7 +91,11 @@ public class Controller {
         if (rval == JFileChooser.APPROVE_OPTION) {
             String path = fc.getSelectedFile().getPath();
             try {
-                ZeroXstuff.data.writeObject(new ObjectOutputStream(new FileOutputStream(path)));
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
+                ZeroXstuff.data.writeObject(out);
+                out.writeInt(view.x);
+                out.writeInt(view.y);
+                out.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -84,12 +104,20 @@ public class Controller {
 
     public void back() {
         live = false;
-        setTick(ZeroXstuff.data.getPrevGametick(lastGametick));
+        if (selectionBox != null) {
+            setTick(ZeroXstuff.data.getPreviousGametickForChunk(lastGametick, selectionBox.x, selectionBox.y, selectionDimention));
+        } else {
+            setTick(ZeroXstuff.data.getPrevGametick(lastGametick));
+        }
     }
 
     public void forward() {
         live = false;
-        setTick(ZeroXstuff.data.getNextGametick(lastGametick));
+        if (selectionBox != null) {
+            setTick(ZeroXstuff.data.getNextGametickForChunk(lastGametick, selectionBox.x, selectionBox.y, selectionDimention));
+        } else {
+            setTick(ZeroXstuff.data.getNextGametick(lastGametick));
+        }
     }
 
     public void current() {
@@ -101,20 +129,33 @@ public class Controller {
         setTick(lastGametick);
     }
 
-    public void setTime(KeyEvent e) {
+    public void begining() {
+        setTick(ZeroXstuff.data.getFirstGametick());
+    }
+
+    public void end() {
+        setTick(ZeroXstuff.data.getLastGametick());
+    }
+
+    public void play() {
+        //TODO fix so timer cant go above highest time.
+        play = !play;
+
+        if (play) {
+            new Timer().start();
+        }
     }
 
     public void home() {
         BlockPos pos = Minecraft.getMinecraft().player.getPosition();
-        viewX = pos.getX() >> 4;
-        viewZ = pos.getZ() >> 4;
+        view.x = pos.getX() >> 4;
+        view.y = pos.getZ() >> 4;
 
-        debug.setXText(viewX);
-        debug.setZText(viewZ);
+        debug.setXText(view.x);
+        debug.setZText(view.y);
 
         changeDimentionTo(Minecraft.getMinecraft().player.dimension);
 
-        setMapViewData();
         setTick(lastGametick);
     }
 
@@ -128,32 +169,34 @@ public class Controller {
         }
     }
 
-    public void setX(KeyEvent e, JTextArea textX) {
-        if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
-        viewX = integerInputs(e, textX, viewX);
-        textX.setText(Integer.toString(viewX));
-        setMapViewData();
-        setTick(lastGametick);
-    }
-
-    public void setZ(KeyEvent e, JTextArea textZ) {
-        if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
-        viewZ = integerInputs(e, textZ, viewZ);
-        textZ.setText(Integer.toString(viewZ));
-        setMapViewData();
-        setTick(lastGametick);
-    }
-
-    private int integerInputs(KeyEvent e, JTextArea box, int oldNum) {
-        e.consume();
-        String text = box.getText();
-        int newNum;
+    public void setTime(String text) {
+        //TODO fix so timer cant be set outside bounded time.
         try {
-            newNum = Integer.parseInt(text);
-        } catch (Exception exception) {
-            return oldNum;
+            int gt = Integer.parseInt(text);
+            setTick(gt);
+        } catch (NumberFormatException e) {
+            return;
         }
-        return newNum;
+    }
+
+    public void setX(String text) {
+        try {
+            int x = Integer.parseInt(text);
+            view.x = x;
+        } catch (NumberFormatException e) {
+            return;
+        }
+        setTick(lastGametick);
+    }
+
+    public void setZ(String text) {
+        try {
+            int z = Integer.parseInt(text);
+            view.y = z;
+        } catch (NumberFormatException e) {
+            return;
+        }
+        setTick(lastGametick);
     }
 
     public void liveUpdate(int time) {
@@ -161,69 +204,43 @@ public class Controller {
         setTick(time);
     }
 
-    private void setMapViewData() {
-        ChunkGrid canvas = debug.getChunkGrid();
-        int sizeX = canvas.sizeX();
-        int sizeZ = canvas.sizeZ();
-
-        int minX = viewX - sizeX / 2;
-        int maxX = viewX + sizeX / 2;
-        int minZ = viewZ - sizeZ / 2;
-        int maxZ = viewZ + sizeZ / 2;
-
-        int dimention = debug.getSelectedDimension();
-
-        chunkData.seekSpace(dimention, minX, maxX, minZ, maxZ);
-    }
-
     void setTick(int gametick) {
-        System.out.println("gametick set " + gametick);
         int dimention = debug.getSelectedDimension();
         ChunkGrid canvas = debug.getChunkGrid();
         int sizeX = canvas.sizeX();
         int sizeZ = canvas.sizeZ();
 
-        int minX = viewX - sizeX / 2;
-        int maxX = viewX + sizeX / 2;
-        int minZ = viewZ - sizeZ / 2;
-        int maxZ = viewZ + sizeZ / 2;
+        int minX = view.x - sizeX / 2;
+        int maxX = view.x + sizeX / 2;
+        int minZ = view.y - sizeZ / 2;
+        int maxZ = view.y + sizeZ / 2;
+
+        chunkData.seekSpace(dimention, minX, maxX + 2, minZ, maxZ + 2);
+        chunkData.seekTime(gametick);
 
         canvas.clearColors();
 
-        chunkData.seekTime(gametick);
-
-        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list;
-
-        if (debug.areStackTracesEnabled()) { // temporary hackfix to display 2 data types
-            list = chunkData.getDisplayArea();
-        } else {
-            list = ZeroXstuff.data.getAllLogsForDisplayArea(gametick, dimention, minX, maxX, minZ, maxZ);
-        }
-        for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
-            Chunkdata.ChunkLogCoords chunk = entry.getKey();
-            if (chunk == null) continue;
-            Chunkdata.ChunkLogEvent event = list.get(chunk);
-            if (event == null) {
-                canvas.setGridColor(chunk.space.x - minX, chunk.space.z - minZ, getColor(Chunkdata.Event.MISSED_EVENT_ERROR));
-                continue;
+        for (Chunkdata.ChunkView cv : chunkData) {
+            int color = 0;
+            for (int c : cv.getColors()) {
+                color = c;
             }
-            canvas.setGridColor(chunk.space.x - minX, chunk.space.z - minZ, getColor(event.event));
+
+            canvas.setGridColor(cv.getX() - minX, cv.getZ() - minZ, color);
         }
 
-        lastGametick = gametick;
+        if (selectionBox != null && selectionDimention == dimention) {
+            debug.getChunkGrid().setSelectionBox(selectionBox.x - minX, selectionBox.y - minZ);
+        } else {
+            debug.getChunkGrid().setSelectionBox(Integer.MAX_VALUE, 0);
+        }
 
         debug.setTime(gametick);
+
+        lastGametick = gametick;
     }
 
-    private int getOffsetX(int x, ChunkGrid canvas) {
-        return x + viewX - canvas.sizeX() / 2;
-    }
-
-    private int getOffsetZ(int z, ChunkGrid canvas) {
-        return z + viewZ - canvas.sizeZ() / 2;
-    }
-
-    public void selectchunk(int x, int y) {
+    public void buttonDown(int x, int y, int button) {
         ChunkGrid canvas = debug.getChunkGrid();
         int dimention = debug.getSelectedDimension();
         int sizeX = canvas.sizeX();
@@ -232,83 +249,84 @@ public class Controller {
         int cx = canvas.getGridX(x);
         int cz = canvas.getGridY(y);
 
-        int minX = viewX - sizeX / 2;
-        int maxX = viewX + sizeX / 2;
-        int minZ = viewZ - sizeZ / 2;
-        int maxZ = viewZ + sizeZ / 2;
+        int minX = view.x - sizeX / 2;
+        int maxX = view.x + sizeX / 2;
+        int minZ = view.y - sizeZ / 2;
+        int maxZ = view.y + sizeZ / 2;
 
-        System.out.println("Selected: " + cx + " " + cz + " " + (cx + minX) + " " + (cz + minZ));
-        SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(lastGametick, dimention, minX, maxX, minZ, maxZ);
-        for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
-            Chunkdata.ChunkLogCoords chunk = entry.getKey();
-            if (chunk == null) continue;
-            Chunkdata.ChunkLogEvent event = list.get(chunk);
-            if (event == null) {
-                continue;
-            }
-            if (chunk.space.x == (cx + minX) && chunk.space.z == (cz + minZ)) {
-                String s = ZeroXstuff.data.getStackTraceString(event.stackTraceId);
-                System.out.println("Event: " + event.event.toString());
-                if (s != "")
-                    System.out.println("StackTrace:\n" + ZeroXstuff.data.getStackTraceString(event.stackTraceId));
+        if (button == 0) {
+            mouseDown.setLocation(x, y);
+            dragView.setLocation(view);
+        } else if (button == 1) {
+            SortedMap<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> list = ZeroXstuff.data.getAllLogsForDisplayArea(lastGametick, dimention, minX, maxX, minZ, maxZ);
+            for (Map.Entry<Chunkdata.ChunkLogCoords, Chunkdata.ChunkLogEvent> entry : list.entrySet()) {
+                Chunkdata.ChunkLogCoords chunk = entry.getKey();
+                if (chunk == null) continue;
+                Chunkdata.ChunkLogEvent event = list.get(chunk);
+                if (event == null) {
+                    continue;
+                }
+                if (chunk.space.x == (cx + minX) && chunk.space.z == (cz + minZ)) {
+                    System.out.println("Event: " + event.event.toString());
+                    String s = ZeroXstuff.data.getStackTraceString(event.stackTraceId);
+                    if (s.length() != 0)
+                        System.out.println("StackTrace:\n" + ZeroXstuff.data.getStackTraceString(event.stackTraceId));
+                }
             }
         }
     }
 
-    // retard color system
-    final int cunloaded = 0xffc8c8c8;
-    final int cplayerloaded = 0xff3232c8;
-    final int cloaded = 0xff32c832;
-    final int cunloadqueued = 0xffc8c832;
-    final int cunloadqueueing = 0xffffff00;
-    final int cunloading = 0xffff0000;
-    final int cunloadingcanceled = 0xff0000ff;
-    final int cloading = 0xff00ff00;
+    public void buttonUp(int x, int y, int mouseButton) {
+        if (mouseButton == 0 && !panning) {
+            int cx = debug.getChunkGrid().getGridX(x) + view.x - debug.getChunkGrid().sizeX() / 2;
+            int cz = debug.getChunkGrid().getGridY(y) + view.y - debug.getChunkGrid().sizeZ() / 2;
 
-    int getColor(Chunkdata.Event event) {
-        int color = 0xffffff;
-        switch (event) {
-            case MISSED_EVENT_ERROR:
-                color = cunloaded;
-                break;
-            case UNLOADING:
-                color = cunloaded;
-                break;
-            case LOADING:
-                color = cloaded;
-                break;
-            case PLAYER_ENTERS:
-                color = cunloadqueued;
-                break;
-            case PLAYER_LEAVES:
-                color = cunloadqueueing;
-                break;
-            case QUEUE_UNLOAD:
-                color = cunloading;
-                break;
-            case CANCEL_UNLOAD:
-                color = cunloadingcanceled;
-                break;
-            case UNQUEUE_UNLOAD:
-                color = cloading;
-                break;
-            case GENERATING:
-                color = cloading;
-                break;
-            case POPULATING:
-                color = cloading;
-                break;
-            case GENERATING_STRUCTURES:
-                color = cloading;
-                break;
+            if (selectionBox != null && selectionBox.x == cx && selectionBox.y == cz) {
+                selectionBox = null;
+                debug.setBackButtonText("Back");
+                debug.setForwardButtonText("Forward");
+            } else {
+                selectionBox = new Point(cx, cz);
+                selectionDimention = debug.getSelectedDimension();
+                debug.setBackButtonText("Back(chunk)");
+                debug.setForwardButtonText("Forward(chunk)");
+            }
+
+            setTick(lastGametick);
         }
+        panning = false;
+    }
 
-        return color;
+    public void mouseDrag(int x, int y, int button) {
+        if (!panning && mouseDown.distance(x, y) > 5) {
+            panning = true;
+        } else if (button == 0 && panning) {
+            int dx = x - mouseDown.x;
+            int dy = y - mouseDown.y;
+            view.setLocation(dragView.x - dx, dragView.y - dy);
+            debug.setXText(view.x);
+            debug.setZText(view.y);
+            setTick(lastGametick);
+        }
     }
 
     public void scroll(int scrollAmount) {
         ChunkGrid canvas = debug.getChunkGrid();
-        canvas.setScale(debug.width, debug.height, scrollAmount);
+        canvas.setScale(canvas.width(), canvas.height(), scrollAmount);
         setTick(lastGametick);
+    }
+
+    private class Timer extends Thread {
+
+        public void run() {
+            while (play) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                setTick(lastGametick + 1);
+            }
+        }
     }
 }

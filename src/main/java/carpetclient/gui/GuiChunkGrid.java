@@ -7,15 +7,14 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import carpetclient.coders.Pokechu22.GuiNumericIntTextField;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import sun.security.provider.certpath.Vertex;
 
 import java.io.IOException;
-import java.nio.Buffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiChunkGrid extends GuiScreen {
 
@@ -25,12 +24,20 @@ public class GuiChunkGrid extends GuiScreen {
     private ChunkGrid chunkgrid = new ChunkGrid();
 
     private GuiButton startStopButton;
-    private GuiCheckbox stackTracesCheckbox;
     private GuiButton loadButton;
     private GuiButton saveButton;
+    private GuiButton backButton;
+    private GuiButton forwardButton;
     private GuiButton currentButton;
+    private GuiButton beginingButton;
+    private GuiButton endButton;
+    private GuiButton playButton;
 
     private GuiCheckbox minimapVisibleCheckbox;
+
+    private GuiNumericIntTextField textFieldX;
+    private GuiNumericIntTextField textFieldZ;
+    private GuiNumericIntTextField textFieldGT;
 
     private int time;
     private int xText;
@@ -52,31 +59,49 @@ public class GuiChunkGrid extends GuiScreen {
 
         addButton(startStopButton = new GuiButton(0, getFooterX(0), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, controller.start ? "Stop" : "Start"));
 
-        boolean stackTracesOn = stackTracesCheckbox != null && stackTracesCheckbox.checked;
-        stackTracesCheckbox = new GuiCheckbox(1, getFooterX(1), getFooterY(0), "Stack Traces");
-        stackTracesCheckbox.x += (getFooterColWidth() - stackTracesCheckbox.getButtonWidth()) / 2;
-        stackTracesCheckbox.y += (FOOTER_ROW_HEIGHT - 8) / 2; // Hardcoded constant, no getter :(
-        stackTracesCheckbox.checked = stackTracesOn;
-        addButton(stackTracesCheckbox);
-
-        addButton(loadButton = new GuiButton(2, getFooterX(2), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Load"));
-        addButton(saveButton = new GuiButton(3, getFooterX(3), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Save"));
-        loadButton.enabled = saveButton.enabled = !controller.start;
-
-        addButton(new GuiButton(4, getFooterX(0), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Back"));
-        addButton(new GuiButton(5, getFooterX(1), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Forward"));
-
-        addButton(currentButton = new GuiButton(6, getFooterX(3), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Current"));
-
-        addButton(new GuiButton(7, getFooterX(0), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Home"));
-        addButton(dimensionButton = new GuiButton(8, getFooterX(1), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, DIMENSION_NAMES[selectedDimension]));
-
+        minimapVisibleCheckbox = new GuiCheckbox(1, getFooterX(1), getFooterY(0), "Show Minimap");
         boolean minimapVisible = isMinimapVisible();
-        minimapVisibleCheckbox = new GuiCheckbox(9, getFooterX(3), getFooterY(2), "Show Minimap");
         minimapVisibleCheckbox.x += (getFooterColWidth() - minimapVisibleCheckbox.getButtonWidth()) / 2;
         minimapVisibleCheckbox.y += (FOOTER_ROW_HEIGHT - 8) / 2; // Hardcoded constant, no getter :(
         minimapVisibleCheckbox.checked = minimapVisible;
         addButton(minimapVisibleCheckbox);
+
+        addButton(loadButton = new GuiButton(2, getFooterX(2), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Load"));
+        addButton(saveButton = new GuiButton(3, getFooterX(3), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Save"));
+        addButton(currentButton = new GuiButton(4, getFooterX(4), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Current"));
+
+
+        addButton(backButton = new GuiButton(5, getFooterX(0), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Back"));
+        addButton(forwardButton = new GuiButton(6, getFooterX(1), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Forward"));
+
+        addButton(beginingButton = new GuiButton(7, getFooterX(2), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Begining"));
+        addButton(endButton = new GuiButton(8, getFooterX(3), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "End"));
+        addButton(playButton = new GuiButton(9, getFooterX(4), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, controller.play ? "Pause" : "Play"));
+
+        addButton(new GuiButton(10, getFooterX(0), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Home"));
+        addButton(dimensionButton = new GuiButton(11, getFooterX(1), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, DIMENSION_NAMES[selectedDimension]));
+
+        textFieldX = new GuiNumericIntTextField(12, mc.fontRenderer, getFooterXTextField(2), getFooterY(2), getFooterColWidthTextField(), FOOTER_ROW_HEIGHT) {
+            @Override
+            public void performTextAction() {
+                controller.setX(getText());
+            }
+        };
+        textFieldZ = new GuiNumericIntTextField(13, mc.fontRenderer, getFooterXTextField(3), getFooterY(2), getFooterColWidthTextField(), FOOTER_ROW_HEIGHT) {
+            @Override
+            public void performTextAction() {
+                controller.setZ(getText());
+            }
+        };
+        textFieldGT = new GuiNumericIntTextField(14, mc.fontRenderer, getFooterXTextField(4), getFooterY(2), getFooterColWidthTextField(), FOOTER_ROW_HEIGHT) {
+            @Override
+            public void performTextAction() {
+                controller.setTime(getText());
+            }
+        };
+
+        loadButton.enabled = saveButton.enabled = playButton.enabled = !controller.start;
+        currentButton.enabled = controller.start;
     }
 
     @Override
@@ -85,16 +110,16 @@ public class GuiChunkGrid extends GuiScreen {
             case 0:
                 if (controller.startStop()) {
                     startStopButton.displayString = "Stop";
-                    loadButton.enabled = saveButton.enabled = false;
+                    loadButton.enabled = saveButton.enabled = playButton.enabled = false;
                     currentButton.enabled = true;
                 } else {
                     startStopButton.displayString = "Start";
-                    loadButton.enabled = saveButton.enabled = true;
+                    loadButton.enabled = saveButton.enabled = playButton.enabled = true;
                     currentButton.enabled = false;
                 }
                 break;
             case 1:
-                stackTracesCheckbox.checked = !stackTracesCheckbox.checked;
+                setMinimapVisible(!isMinimapVisible());
                 break;
             case 2:
                 controller.load();
@@ -103,24 +128,35 @@ public class GuiChunkGrid extends GuiScreen {
                 controller.save();
                 break;
             case 4:
-                controller.back();
-                break;
-            case 5:
-                controller.forward();
-                break;
-            case 6:
                 controller.current();
                 break;
+            case 5:
+                controller.back();
+                break;
+            case 6:
+                controller.forward();
+                break;
             case 7:
-                controller.home();
+                controller.begining();
                 break;
             case 8:
+                controller.end();
+                break;
+            case 9:
+                controller.play();
+                if (controller.play) {
+                    playButton.displayString = "Pause";
+                } else {
+                    playButton.displayString = "Play";
+                }
+                break;
+            case 10:
+                controller.home();
+                break;
+            case 11:
                 selectedDimension = (selectedDimension + 1) % DIMENSION_NAMES.length;
                 dimensionButton.displayString = DIMENSION_NAMES[selectedDimension];
                 controller.comboBoxAction();
-                break;
-            case 9:
-                setMinimapVisible(!isMinimapVisible());
                 break;
         }
     }
@@ -135,8 +171,33 @@ public class GuiChunkGrid extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
+        textFieldGT.mouseClicked(mouseX, mouseY, mouseButton);
+        textFieldX.mouseClicked(mouseX, mouseY, mouseButton);
+        textFieldZ.mouseClicked(mouseX, mouseY, mouseButton);
         if (mouseY >= HEADER_HEIGHT && mouseY < height - FOOTER_HEIGHT)
-            controller.selectchunk(mouseX, mouseY - HEADER_HEIGHT);
+            controller.buttonDown(mouseX, mouseY - HEADER_HEIGHT, mouseButton);
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
+        super.mouseReleased(mouseX, mouseY, mouseButton);
+        if (mouseY >= HEADER_HEIGHT && mouseY < height - FOOTER_HEIGHT)
+            controller.buttonUp(mouseX, mouseY - HEADER_HEIGHT, mouseButton);
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+        super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+        if (mouseY >= HEADER_HEIGHT && mouseY < height - FOOTER_HEIGHT)
+            controller.mouseDrag(mouseX, mouseY - HEADER_HEIGHT, clickedMouseButton);
+    }
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        textFieldGT.keyDown(typedChar, keyCode);
+        textFieldX.keyDown(typedChar, keyCode);
+        textFieldZ.keyDown(typedChar, keyCode);
+        super.keyTyped(typedChar, keyCode);
     }
 
     @Override
@@ -190,10 +251,17 @@ public class GuiChunkGrid extends GuiScreen {
         // Text
         drawCenteredString(fontRenderer, "Chunk Debug Map", width / 2, 0, 0xffffff);
 
-        drawCenteredString(fontRenderer, "GT: " + time, getFooterX(2) + getFooterColWidth() / 2, getFooterY(1) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
+//        drawCenteredString(fontRenderer, "Chunk selected ", 0, HEADER_HEIGHT + 10, 0xffffff); // possible indicator for chunk selected
 
-        String posText = "X: " + xText + ", Z: " + zText;
-        drawCenteredString(fontRenderer, posText, getFooterX(2) + getFooterColWidth() / 2, getFooterY(2) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
+        drawCenteredString(fontRenderer, "X:", getFooterX(2) + 5, getFooterY(2) + FOOTER_ROW_HEIGHT / 2 - 4, 0xffffff);
+        textFieldX.drawTextBox();
+        drawCenteredString(fontRenderer, "Z:", getFooterX(3) + 5, getFooterY(2) + FOOTER_ROW_HEIGHT / 2 - 4, 0xffffff);
+        textFieldZ.drawTextBox();
+        drawCenteredString(fontRenderer, "GT:", getFooterX(4) + 4, getFooterY(2) + FOOTER_ROW_HEIGHT / 2 - 4, 0xffffff);
+        textFieldGT.drawTextBox();
+
+//        String posText = "X: " + xText + ", Z: " + zText;
+//        drawCenteredString(fontRenderer, posText, getFooterX(2) + getFooterColWidth() / 2, getFooterY(2) + FOOTER_ROW_HEIGHT / 2, 0xffffff);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
@@ -236,7 +304,7 @@ public class GuiChunkGrid extends GuiScreen {
     private static final int FOOTER_ROW_COUNT = 3;
     private static final int FOOTER_HEIGHT = FOOTER_ROW_HEIGHT * FOOTER_ROW_COUNT + FOOTER_ROW_PADDING * (FOOTER_ROW_COUNT + 1);
     private static final int FOOTER_COL_PADDING = 5;
-    private static final int FOOTER_COL_COUNT = 4;
+    private static final int FOOTER_COL_COUNT = 5;
     private static final float MINIMAP_X = 0.7f;
     private static final float MINIMAP_Y = 0.05f;
     private static final float MINIMAP_WIDTH = 0.25f;
@@ -250,15 +318,19 @@ public class GuiChunkGrid extends GuiScreen {
         return x * getFooterColWidth() + (x + 1) * FOOTER_COL_PADDING;
     }
 
+    private int getFooterXTextField(int x) {
+        return x * getFooterColWidth() + (x + 1) * FOOTER_COL_PADDING + 13;
+    }
+
     private int getFooterY(int y) {
         return height - FOOTER_HEIGHT + y * FOOTER_ROW_HEIGHT + (y + 1) * FOOTER_ROW_PADDING;
     }
 
-    // Accessors
-
-    public boolean areStackTracesEnabled() {
-        return stackTracesCheckbox.checked;
+    private int getFooterColWidthTextField() {
+        return (width - FOOTER_ROW_PADDING * (FOOTER_COL_COUNT + 1)) / FOOTER_COL_COUNT - 15;
     }
+
+    // Accessors
 
     public ChunkGrid getChunkGrid() {
         return chunkgrid;
@@ -269,15 +341,23 @@ public class GuiChunkGrid extends GuiScreen {
     }
 
     public void setTime(int time) {
-        this.time = time;
+        this.textFieldGT.setText(Integer.toString(time));
     }
 
     public void setXText(int xText) {
-        this.xText = xText;
+        this.textFieldX.setText(Integer.toString(xText));
     }
 
     public void setZText(int zText) {
-        this.zText = zText;
+        this.textFieldZ.setText(Integer.toString(zText));
+    }
+
+    public void setBackButtonText(String text) {
+        this.backButton.displayString = text;
+    }
+
+    public void setForwardButtonText(String text) {
+        this.forwardButton.displayString = text;
     }
 
     public void liveUpdate(int time) {

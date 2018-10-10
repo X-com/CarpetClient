@@ -37,8 +37,8 @@ public class ScrollGUI extends GuiScreen {
     public static void initGUI(GuiIngameMenu guiIngameMenu) {
         Minecraft.getMinecraft().displayGuiScreen(new ScrollGUI(guiIngameMenu));
     }
-    
-    public static void setServerVersion(String s){
+
+    public static void setServerVersion(String s) {
         serverVersion = s;
     }
 
@@ -318,7 +318,7 @@ public class ScrollGUI extends GuiScreen {
 
             @Override
             public void keyDown(char typedChar, int keyCode) {
-                if (field.isFocused()) System.out.println("type " + keyCode + " keytypechar " + typedChar);
+//                if (field.isFocused()) System.out.println("type " + keyCode + " keytypechar " + typedChar);
                 if (this.field.textboxKeyTyped(typedChar, keyCode)) {
 //                    setRule(ruleName, Float.toString(this.field.getValue()));
                 } else if (keyCode == Keyboard.KEY_RETURN) {
