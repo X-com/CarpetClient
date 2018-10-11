@@ -464,7 +464,11 @@ public class Chunkdata implements Serializable {
         }
 
         public String getStacktrace() {
-            return allStacktraces.get(event.s);
+            int i = event.s;
+            if(i>=0 && i<allStacktraces.size()) {
+                return allStacktraces.get(event.s);
+            }
+            return null;
         }
     }
 
@@ -714,7 +718,7 @@ public class Chunkdata implements Serializable {
             else if ((gametick < this.gametick) && (gametick >= getPrevGametick(this.gametick))) {
                 for (int zi = 0; zi < zsize; ++zi) {
                     int z = zi + minz;
-                    for (int xi = 0; xi < zsize; ++xi) {
+                    for (int xi = 0; xi < xsize; ++xi) {
                         int x = xi + minx;
                         int i = xi + zi * xsize;
                         if (chunkViews[i].isDowngradable(gametick)) {
