@@ -22,18 +22,9 @@ public class ChunkGrid {
 
     private Point selection = new Point(Integer.MAX_VALUE, 0);
 
-//    private Map<Point, Integer> colors = new HashMap<>();
-
     private int[][][] colors;
 
     public void draw(int thisX, int thisY, int width, int height) {
-
-        /*
-        System.out.println("===================");
-        colors.entrySet().stream().limit(10).forEach(entry -> System.out.println("(" + entry.getKey().getX() + ", " + entry.getKey().getY() + "): " + entry.getValue()));
-        */
-
-
         screenWidth = width;
         screenHeight = height;
         rowCount = (int) Math.ceil((float) height / scale);
@@ -122,19 +113,12 @@ public class ChunkGrid {
         return pixelY / scale;
     }
 
-//    public void setGridColor(int x, int z, int color) {
-//        colors.put(new Point(x, z), color);
-//    }
-
     public int getGridColor(int x, int z) {
         if (x < 0 || z < 0 || x >= colors.length || z >= colors[x].length || colors[x][z].length == 0) {
             return GuiChunkGrid.style.getBackgroundColor();
         }
         int color[] = colors[x][z];
         return color[color.length - 1];
-//        Integer col = colors.get(new Point(x, z));
-//        if (col == null) return GuiChunkGrid.style.getBackgroundColor();
-//        return col;
     }
 
     private static int brighten(int col, float factor) {
@@ -176,10 +160,6 @@ public class ChunkGrid {
         rowCount = height / scale;
         columnCount = width / scale;
     }
-
-//    public void clearColors() {
-//        colors.clear();
-//    }
 
     public void setSelectionBox(int x, int y) {
         selection.setLocation(x, y);

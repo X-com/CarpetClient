@@ -230,18 +230,7 @@ public class Controller {
 
         chunkData.seekSpace(dimention, minX, maxX + 2, minZ, maxZ + 2);
         chunkData.seekTime(gametick);
-//        canvas.clearColors();
         canvas.setRenderColors(chunkData.getRenderColors());
-//        chunkData.seekSpace(dimention, minX, maxX + 2, minZ, maxZ + 2);
-//        chunkData.seekTime(gametick);
-//        for (Chunkdata.ChunkView cv : chunkData) {
-//            int color = GuiChunkGrid.style.getBackgroundColor();
-//            for (int c : cv.getColors()) {
-//                color = c;
-//            }
-//
-//            canvas.setGridColor(cv.getX() - minX, cv.getZ() - minZ, color);
-//        }
 
         if (selectionBox != null && selectionDimention == dimention) {
             debug.getChunkGrid().setSelectionBox(selectionBox.getX() - minX, selectionBox.getY() - minZ);
