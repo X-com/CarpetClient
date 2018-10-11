@@ -334,7 +334,7 @@ public class Controller {
                     e.printStackTrace();
                 }
                 int next = lastGametick + 1;
-                if (next >= last) play = false;
+                if (next >= last) return;
                 setTick(next);
             }
         }
