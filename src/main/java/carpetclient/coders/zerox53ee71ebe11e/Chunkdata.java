@@ -325,25 +325,27 @@ public class Chunkdata implements Serializable {
             if(gametick == this.gametick) {
                 return;
             }
+            int xsize = maxx - minx;
+            int zsize = maxz - minz;
             FullEvent  seekGametick[][] = getAllChunksForGametick(gametick,dimension,minx,maxx,minz,maxz);
             // seek one step forward
             if((gametick > this.gametick) && (gametick <= getNextGametick(this.gametick))) {
-                for(int zi = 0; zi < (maxz - minz); ++zi) {
+                for(int zi = 0; zi < zsize; ++zi) {
                     int z = zi + minz;
-                    for (int xi = 0; xi < (maxx - minx); ++xi) {
+                    for (int xi = 0; xi < xsize; ++xi) {
                         int x = xi + minx;
-                        int i = xi + zi * (maxx - minx);
+                        int i = xi + zi * xsize;
                         chunkViews[i].update(seekGametick[i]);
                     }
                 }
             }
             // seek one step backward
             else if((gametick < this.gametick) && (gametick >= getPrevGametick(this.gametick))) {
-                for(int zi = 0; zi < (maxz - minz); ++zi) {
+                for(int zi = 0; zi < zsize; ++zi) {
                     int z = zi + minz;
-                    for (int xi = 0; xi < (maxx - minx); ++xi) {
+                    for (int xi = 0; xi < zsize; ++xi) {
                         int x = xi + minx;
-                        int i = xi + zi * (maxx - minx);
+                        int i = xi + zi * xsize;
                         if (chunkViews[i].isDowngradable(gametick)) {
                             chunkViews[i].downgrade(seekGametick[i]);
                         } else {
@@ -355,13 +357,11 @@ public class Chunkdata implements Serializable {
             }
             // seek to an arbitrary time
             else {
-                int xsize = maxx - minx;
-                int zsize = maxx - minx;
                 for(int zi = 0; zi < zsize; ++zi){
                     int z = zi + minz;
                     for(int xi = 0; xi < xsize; ++xi){
                         int x = xi + minx;
-                        int i = xi+zi*xsize;
+                        int i = xi + zi * xsize;
                         FullEvent old[] = getOldEventsForChunk(x,z,dimension,gametick);
                         chunkViews[i].reset(x,z,dimension,old,seekGametick[i]);
                     }
