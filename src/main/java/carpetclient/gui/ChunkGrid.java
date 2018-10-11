@@ -46,7 +46,9 @@ public class ChunkGrid {
 
         Tessellator tess = Tessellator.getInstance();
         BufferBuilder buf = tess.getBuffer();
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+
+        if (GuiChunkGrid.style.isGradient())
+            GlStateManager.shadeModel(GL11.GL_SMOOTH);
 
         for (int z = 0; z < rowCount; ++z) {
             for (int x = 0; x < columnCount; ++x) {
@@ -54,18 +56,31 @@ public class ChunkGrid {
                 int ry = z * scale;
                 int cellX = thisX + rx;
                 int cellY = thisY + ry;
-                float brightenFactor = colors.containsKey(new Point(x, z)) ? 0.3f : 0.01f;
+
                 int color = getGridColor(x, z);
                 int alpha = (color & 0xff000000) >>> 24;
                 int red = (color & 0xff0000) >> 16;
                 int green = (color & 0xff00) >> 8;
                 int blue = (color & 0xff);
-                int color1 = brighten(color, brightenFactor);
+                float brightenFactor = 0.3f;
+                if (red == 0 && green == 0 && blue == 0)
+                    brightenFactor = 0.01f;
+
+                if (GuiChunkGrid.style.isCheckerboard() && (x + z) % 2 == 0)
+                    color = brighten(color, brightenFactor);
+
+                int color1, color2;
+                if (GuiChunkGrid.style.isGradient()) {
+                    color1 = brighten(color, brightenFactor);
+                    color2 = brighten(color1, brightenFactor);
+                } else {
+                    color2 = color1 = color;
+                }
+
                 int alpha1 = (color1 & 0xff000000) >>> 24;
                 int red1 = (color1 & 0xff0000) >> 16;
                 int green1 = (color1 & 0xff00) >> 8;
                 int blue1 = (color1 & 0xff);
-                int color2 = brighten(color1, brightenFactor);
                 int alpha2 = (color2 & 0xff000000) >>> 24;
                 int red2 = (color2 & 0xff0000) >> 16;
                 int green2 = (color2 & 0xff00) >> 8;
@@ -111,8 +126,7 @@ public class ChunkGrid {
 
     public int getGridColor(int x, int z) {
         Integer col = colors.get(new Point(x, z));
-        if (col == null) return 0xff000000;
-        //if ((x + z) % 2 == 0) return brighten(col);
+        if (col == null) return GuiChunkGrid.style.getBackgroundColor();
         return col;
     }
 

@@ -23,6 +23,7 @@ public class ClientGUI {
     public static final int CARPET_SERVER_RULE_OPTIONS = 2;
     public static final int VILLAGE_MARKER_OPTIONS = 3;
     public static final int BOUNDINGBOX_OPTIONS = 4;
+    public static final int CHUNK_DEBUG_MAP_OPTIONS = 5;
 
     public ClientGUI(ScrollGUI scrollGUI) {
         this.scrollGUI = scrollGUI;
@@ -42,6 +43,8 @@ public class ClientGUI {
             displayVillageOptions();
         } else if (displayLayer == BOUNDINGBOX_OPTIONS) {
             displayBoundingBoxOptions();
+        } else if (displayLayer == CHUNK_DEBUG_MAP_OPTIONS) {
+            displayChunkDebugMapOptions();
         }
     }
 
@@ -64,6 +67,11 @@ public class ClientGUI {
             VillageMarker.guiVillageOptions(buttonID);
         } else if (displayLayer == BOUNDINGBOX_OPTIONS) {
             ShowBoundingBoxes.guiBoudingBoxOptions(buttonID);
+        } else if (displayLayer == CHUNK_DEBUG_MAP_OPTIONS) {
+            if (buttonID == 0) {
+                GuiChunkGrid.style = ChunkGridStyle.values()[(GuiChunkGrid.style.ordinal() + 1) % ChunkGridStyle.values().length];
+                display();
+            }
         }
     }
 
@@ -90,6 +98,7 @@ public class ClientGUI {
         list.addNewButton("Carpet Server Options", CARPET_SERVER_RULE_OPTIONS);
         list.addNewButton("Village Markers Options", VILLAGE_MARKER_OPTIONS);
         list.addNewButton("Bounding Box Options", BOUNDINGBOX_OPTIONS);
+        list.addNewButton("Chunk Debug Map Options", CHUNK_DEBUG_MAP_OPTIONS);
     }
 
     /**
@@ -151,6 +160,15 @@ public class ClientGUI {
         list.addNewRuleButton("Liquid ghost block fix", String.valueOf(Config.bucketGhostBlockFix), false, "Toggles the ghost block liquid option.", 1);
         list.addNewRuleButton("Elytra fix", String.valueOf(Config.elytraFix), false, "Earthcomputers hacky elytra fix.", 2);
         list.addNewRuleButton("Clip through pistons fix", String.valueOf(Config.clipThroughPistons), false, "Parcially fixes clipping through pistons, clipping can still happen but this helps.", 3);
+    }
+
+    /**
+     * Displays the chunk debug map options
+     */
+    private static void displayChunkDebugMapOptions() {
+        list.clear();
+
+        list.addNewRuleButton("Chunk Grid Style", GuiChunkGrid.style.getName(), false, "Theme of the chunk grid" + (GuiChunkGrid.style.getDesc() == null ? "" : " (" + GuiChunkGrid.style.getDesc() + ")"), 0);
     }
 
     /**

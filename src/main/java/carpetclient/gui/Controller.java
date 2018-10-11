@@ -229,7 +229,7 @@ public class Controller {
         canvas.clearColors();
 
         for (Chunkdata.ChunkView cv : chunkData) {
-            int color = 0;
+            int color = GuiChunkGrid.style.getBackgroundColor();
             for (int c : cv.getColors()) {
                 color = c;
             }

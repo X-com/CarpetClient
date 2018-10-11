@@ -2,6 +2,7 @@ package carpetclient.gui;
 
 import carpetclient.Util;
 import com.mumfrey.liteloader.client.gui.GuiCheckbox;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -20,6 +21,8 @@ import java.util.List;
 public class GuiChunkGrid extends GuiScreen {
 
     public static GuiChunkGrid instance;
+
+    public static ChunkGridStyle style = "Xcom6000".equals(Minecraft.getMinecraft().getSession().getUsername()) ? ChunkGridStyle.CHECKERBOARD_NOBG : ChunkGridStyle.GRADIENT;
 
     private Controller controller;
     private ChunkGrid chunkgrid = new ChunkGrid();

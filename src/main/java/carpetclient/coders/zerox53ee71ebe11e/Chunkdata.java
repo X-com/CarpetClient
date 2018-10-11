@@ -1,5 +1,7 @@
 package carpetclient.coders.zerox53ee71ebe11e;
 
+import carpetclient.gui.GuiChunkGrid;
+
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.*;
@@ -127,7 +129,7 @@ public class Chunkdata implements Serializable {
                 colors[0] = 0xff111111;
             }
             else {
-                colors[0] = 0;
+                colors[0] = GuiChunkGrid.style.getBackgroundColor();
             }
         }
 
