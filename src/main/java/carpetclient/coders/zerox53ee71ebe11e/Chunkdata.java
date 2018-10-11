@@ -170,6 +170,21 @@ public class Chunkdata implements Serializable {
             updateColors();
         }
 
+        private boolean isDowngradable(int gametick) {
+            for(FullEvent event : oldEvents){
+                if((event != null) && (event.t >= gametick)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private void downgrade(FullEvent previousGametick[]) {
+            checkEvents(previousGametick, false);
+            this.currentEvents = previousGametick;
+            updateColors();
+        }
+
         @Override
         public Iterator<EventView> iterator() {
             return new Iterator<EventView>() {
@@ -334,8 +349,44 @@ public class Chunkdata implements Serializable {
         }
 
         public void seekTime(int gametick) {
+            if(gametick == this.gametick) {
+                return;
+            }
+            // seek one step forward
+            else if((gametick > this.gametick) && (gametick <= getNextGametick(this.gametick))) {
+                FullEvent[][] newEvents = getAllChunksForGametick(gametick);
+                for(int zi = 0; zi < (maxz - minz); ++zi) {
+                    int z = zi + minz;
+                    for (int xi = 0; xi < (maxx - minx); ++xi) {
+                        int x = xi + minx;
+                        int i = xi + zi * (maxx - minx);
+                        chunkViews[i].update(newEvents[i]);
+                    }
+                }
+            }
+            // seek one step backward
+            else if((gametick < this.gametick) && (gametick >= getPrevGametick(this.gametick))) {
+                FullEvent[][] previousEvents = getAllChunksForGametick(gametick);
+                for(int zi = 0; zi < (maxz - minz); ++zi) {
+                    int z = zi + minz;
+                    for (int xi = 0; xi < (maxx - minx); ++xi) {
+                        int x = xi + minx;
+                        int i = xi + zi * (maxx - minx);
+                        if (chunkViews[i].isDowngradable(gametick)) {
+                            chunkViews[i].downgrade(previousEvents[i]);
+                        } else {
+                            FullEvent oldEvents[] = getOldEventsForChunk(x, z, dimension, gametick);
+                            chunkViews[i].reset(x, z, dimension, oldEvents, previousEvents[i]);
+                        }
+                    }
+                }
+            }
+            // seek to an arbitrary position
+            else {
+                this.gametick = gametick;
+                resetView();
+            }
             this.gametick = gametick;
-            resetView();
             // TODO more optimal implementation on incremental steps
         }
 
