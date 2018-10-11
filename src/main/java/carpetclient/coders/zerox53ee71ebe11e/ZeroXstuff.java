@@ -1,8 +1,6 @@
 package carpetclient.coders.zerox53ee71ebe11e;
 
-import carpetclient.gui.Controller;
-import carpetclient.gui.GuiChunkGrid;
-import net.minecraft.client.Minecraft;
+import carpetclient.gui.chunkgrid.GuiChunkGrid;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
@@ -10,14 +8,7 @@ import net.minecraft.network.PacketBuffer;
 import java.io.IOException;
 
 // temp stuff
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 
-import net.minecraft.world.World;
-import com.google.gson.Gson;
 // temp stuff end
 
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
-import carpetclient.gui.GuiChunkGrid;
+import carpetclient.gui.chunkgrid.GuiChunkGrid;
 import com.mumfrey.liteloader.*;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.rules.CarpetRules;

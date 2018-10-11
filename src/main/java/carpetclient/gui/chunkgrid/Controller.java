@@ -1,4 +1,4 @@
-package carpetclient.gui;
+package carpetclient.gui.chunkgrid;
 
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 import carpetclient.coders.zerox53ee71ebe11e.ZeroXstuff;

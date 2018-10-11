@@ -1,4 +1,4 @@
-package carpetclient.gui;
+package carpetclient.gui.chunkgrid;
 
 import carpetclient.Util;
 import com.mumfrey.liteloader.client.gui.GuiCheckbox;

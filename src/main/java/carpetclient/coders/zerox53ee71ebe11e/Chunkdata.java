@@ -1,6 +1,6 @@
 package carpetclient.coders.zerox53ee71ebe11e;
 
-import carpetclient.gui.GuiChunkGrid;
+import carpetclient.gui.chunkgrid.GuiChunkGrid;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
