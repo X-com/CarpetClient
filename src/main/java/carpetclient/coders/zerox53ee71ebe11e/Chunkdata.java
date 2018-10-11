@@ -52,7 +52,6 @@ public class Chunkdata implements Serializable {
                 0xff00dd88,//GENERATING
                 0xff00dd66,//POPULATING
                 0xff00dd44//GENERATING_STRUCTURES
-
         };
 
         public int getColor() {
@@ -268,123 +267,105 @@ public class Chunkdata implements Serializable {
             chunkViews = new ChunkView[0];
         }
 
-        private FullEvent[][] getAllChunksForGametick(int gametick){
-            int xsize = maxx - minx;
-            int zsize = maxx - minx;
-            FullEvent[][] allChunks = new FullEvent[xsize*zsize][];
-            FullEvent [] thisGametick = sortedEventsForGametick(gametick);
-            for(int zi = 0; zi<zsize; ++zi){
-                int z = zi+minz;
-                FullEvent min = new FullEvent(minx, z, dimension, 0, 0, 0, 0);
-                FullEvent max = new FullEvent(maxx, z, dimension, 0, 0, 0, 0);
-                int startindex = findPreviousInArray(thisGametick,min,spacialSorted) + 1;
-                while(startindex<thisGametick.length){
-                    FullEvent event = thisGametick[startindex];
-                    if(spacialSorted.compare(event,max)>=0){
-                        break;
-                    }
-                    int endindex;
-                    for(endindex = startindex+1; (endindex<thisGametick.length) && (spacialSorted.compare(thisGametick[endindex],event)==0); ++endindex);
-                    int chunkstart = startindex;
-
-                    int x = event.x;
-                    int xi = x-minx;
-                    int i = xi + zi*xsize;
-                    allChunks[i] = Arrays.copyOfRange(thisGametick,startindex,endindex);
-                    startindex = endindex;
-
-                    for(FullEvent e:allChunks[i]){
-                        if((e.x != x) || (e.z != z) || (e.d != dimension) || (e.t != gametick)){
-                            throw new IllegalStateException();
-                        }
-                    }
-                }
-            }
-            return allChunks;
-        }
-
-        private void resetView() {
-            FullEvent  thisGametick[][] = getAllChunksForGametick(gametick);
-            int xsize = maxx - minx;
-            int zsize = maxx - minx;
-            for(int zi = 0; zi < zsize; ++zi){
-                int z = zi + minz;
-                for(int xi = 0; xi < xsize; ++xi){
-                    int x = xi + minx;
-                    int i = xi+zi*xsize;
-                    FullEvent old[] = getOldEventsForChunk(x,z,dimension,gametick);
-                    chunkViews[i].reset(x,z,dimension,old,thisGametick[i]);
-                }
-            }
-            //System.out.println(String.format("Loaded events for gametick %d with %d chunks",gametick,chunkViews.length));
-        }
 
         public void seekSpace(int dimension, int minx, int maxx, int minz, int maxz) {
-            int xsize = maxx - minx;
-            int zsize = maxx - minx;
-            int oldxsize = this.maxx - this.minx;
-            int oldzsize = this.maxx - this.minx;
-
-            if((xsize < 0)||(zsize < 0)){
+            if((minx > maxx) || (minz > maxz)){
                 throw new IllegalArgumentException("Inverted range");
             }
+            if((this.dimension == dimension) &&
+                    (this.minx == minx) &&
+                    (this.maxx == maxx) &&
+                    (this.minz == minz) &&
+                    (this.maxz == maxz)) {
+                return;
+            }
 
-            // resizing
-            if(oldxsize*oldzsize != xsize*zsize) {
-                chunkViews = Arrays.copyOf(chunkViews,xsize*zsize);
-                for (int i = 0; i < xsize * zsize; ++i) {
-                    if(chunkViews[i] == null){
-                        chunkViews[i] = new ChunkView();
+            FullEvent  thisGametick[][] = getAllChunksForGametick(gametick,dimension,minx,maxx,minz,maxz);
+
+            ChunkView[] newViews = new ChunkView[(maxx-minx)*(maxz-minz)];
+
+            int oldxsize = this.maxx - this.minx;
+            int oldzsize = this.maxz - this.minz;
+            int xsize = maxx - minx;
+            int zsize = maxz - minz;
+
+            for(int zi = 0; zi < zsize; ++zi){
+                int z = zi + minz;
+                int oldzi = z - this.minz;
+                boolean zok = (oldzi >= 0) && (oldzi < oldzsize);
+                for(int xi = 0; xi < xsize; ++xi){
+                    int x = xi + minx;
+                    int oldxi = x - this.minx;
+                    boolean xok = (oldxi >= 0) && (oldxi < oldxsize);
+                    int i = xi + zi * xsize;
+                    if(xok && zok && (this.dimension == dimension)){
+                        int oldi = oldxi + oldzi * oldxsize;
+                        ChunkView view = this.chunkViews[oldi];
+                        if((view.x != x) || (view.z != z) || (view.d != dimension)){
+                            throw new IllegalStateException();
+                        }
+                        newViews[i] = view;
+                    }
+                    else {
+                        newViews[i] = new ChunkView();
+                        FullEvent old[] = getOldEventsForChunk(x,z,dimension,gametick);
+                        newViews[i].reset(x,z,dimension,old,thisGametick[i]);
                     }
                 }
             }
+            this.chunkViews = newViews;
             this.minx = minx;
             this.maxx = maxx;
             this.minz = minz;
             this.maxz = maxz;
             this.dimension = dimension;
-
-            // TODO more optimal implementation when not resizing
-            resetView();
         }
 
         public void seekTime(int gametick) {
             if(gametick == this.gametick) {
                 return;
             }
+            FullEvent  seekGametick[][] = getAllChunksForGametick(gametick,dimension,minx,maxx,minz,maxz);
             // seek one step forward
-            else if((gametick > this.gametick) && (gametick <= getNextGametick(this.gametick))) {
-                FullEvent[][] newEvents = getAllChunksForGametick(gametick);
+            if((gametick > this.gametick) && (gametick <= getNextGametick(this.gametick))) {
                 for(int zi = 0; zi < (maxz - minz); ++zi) {
                     int z = zi + minz;
                     for (int xi = 0; xi < (maxx - minx); ++xi) {
                         int x = xi + minx;
                         int i = xi + zi * (maxx - minx);
-                        chunkViews[i].update(newEvents[i]);
+                        chunkViews[i].update(seekGametick[i]);
                     }
                 }
             }
             // seek one step backward
             else if((gametick < this.gametick) && (gametick >= getPrevGametick(this.gametick))) {
-                FullEvent[][] previousEvents = getAllChunksForGametick(gametick);
                 for(int zi = 0; zi < (maxz - minz); ++zi) {
                     int z = zi + minz;
                     for (int xi = 0; xi < (maxx - minx); ++xi) {
                         int x = xi + minx;
                         int i = xi + zi * (maxx - minx);
                         if (chunkViews[i].isDowngradable(gametick)) {
-                            chunkViews[i].downgrade(previousEvents[i]);
+                            chunkViews[i].downgrade(seekGametick[i]);
                         } else {
                             FullEvent oldEvents[] = getOldEventsForChunk(x, z, dimension, gametick);
-                            chunkViews[i].reset(x, z, dimension, oldEvents, previousEvents[i]);
+                            chunkViews[i].reset(x, z, dimension, oldEvents, seekGametick[i]);
                         }
                     }
                 }
             }
-            // seek to an arbitrary position
+            // seek to an arbitrary time
             else {
-                this.gametick = gametick;
-                resetView();
+                int xsize = maxx - minx;
+                int zsize = maxx - minx;
+                for(int zi = 0; zi < zsize; ++zi){
+                    int z = zi + minz;
+                    for(int xi = 0; xi < xsize; ++xi){
+                        int x = xi + minx;
+                        int i = xi+zi*xsize;
+                        FullEvent old[] = getOldEventsForChunk(x,z,dimension,gametick);
+                        chunkViews[i].reset(x,z,dimension,old,seekGametick[i]);
+                    }
+                }
             }
             this.gametick = gametick;
         }
@@ -586,6 +567,40 @@ public class Chunkdata implements Serializable {
         Arrays.sort(merged,temporalSorted);
         Arrays.sort(merged,spacialSorted);
         return merged;
+    }
+
+    private FullEvent[][] getAllChunksForGametick(int gametick, int dimension, int minx, int maxx, int minz, int maxz){
+        int xsize = maxx - minx;
+        int zsize = maxx - minx;
+        FullEvent[][] allChunks = new FullEvent[xsize*zsize][];
+        FullEvent [] thisGametick = sortedEventsForGametick(gametick);
+        for(int zi = 0; zi<zsize; ++zi){
+            int z = zi+minz;
+            FullEvent min = new FullEvent(minx, z, dimension, 0, 0, 0, 0);
+            FullEvent max = new FullEvent(maxx, z, dimension, 0, 0, 0, 0);
+            int startindex = findPreviousInArray(thisGametick,min,spacialSorted) + 1;
+            while(startindex<thisGametick.length){
+                FullEvent event = thisGametick[startindex];
+                if(spacialSorted.compare(event,max)>=0){
+                    break;
+                }
+                int endindex;
+                for(endindex = startindex+1; (endindex<thisGametick.length) && (spacialSorted.compare(thisGametick[endindex],event)==0); ++endindex);
+
+                int x = event.x;
+                int xi = x-minx;
+                int i = xi + zi*xsize;
+                allChunks[i] = Arrays.copyOfRange(thisGametick,startindex,endindex);
+                startindex = endindex;
+
+                for(FullEvent e:allChunks[i]){
+                    if((e.x != x) || (e.z != z) || (e.d != dimension) || (e.t != gametick)){
+                        throw new IllegalStateException();
+                    }
+                }
+            }
+        }
+        return allChunks;
     }
 
     private FullEvent[] getOldEventsForChunk(int x, int z, int d, int gametick){
