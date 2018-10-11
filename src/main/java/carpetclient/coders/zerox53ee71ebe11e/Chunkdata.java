@@ -43,15 +43,15 @@ public class Chunkdata implements Serializable {
 
         static final int eventColors[] = {
                 0xffff0000,//MISSED_EVENT_ERROR
-                0xffaa0000,//UNLOADING
-                0xff00aa00,//LOADING
-                0xff00aaaa,//PLAYER_ENTERS
-                0xffaa00aa,//PLAYER_LEAVES
-                0xffaaaa00,//QUEUE_UNLOAD
-                0xff66aa00,//CANCEL_UNLOAD
-                0xff00aa66,//GENERATING
-                0xff00aa33,//POPULATING
-                0xff00aa11//GENERATING_STRUCTURES
+                0xffdd0000,//UNLOADING
+                0xff00dd00,//LOADING
+                0xff00dddd,//PLAYER_ENTERS
+                0xffdd00dd,//PLAYER_LEAVES
+                0xffdddd00,//QUEUE_UNLOAD
+                0xff88dd00,//CANCEL_UNLOAD
+                0xff00dd88,//GENERATING
+                0xff00dd66,//POPULATING
+                0xff00dd44//GENERATING_STRUCTURES
 
         };
 
@@ -116,13 +116,13 @@ public class Chunkdata implements Serializable {
             }
             if(wasLoaded()){
                 if(wasUnloadQueued()){
-                    colors[0] = 0xff663300;
+                    colors[0] = 0xff886600;
                 }
                 else if(wasPlayerLoaded()) {
-                    colors[0] = 0xff000022;
+                    colors[0] = 0xff000088;
                 }
                 else {
-                    colors[0] = 0xff002200;
+                    colors[0] = 0xff008800;
                 }
             }
             else if(wasLoadedInThePast()){
@@ -431,6 +431,7 @@ public class Chunkdata implements Serializable {
     public void addStacktrace(String s) {
         try {
             allStacktraces.add(s);
+            System.out.println(String.format("Added Stacktrace %d",allStacktraces.size()-1));
         }
         catch(RuntimeException e){
             e.printStackTrace();
@@ -441,7 +442,7 @@ public class Chunkdata implements Serializable {
     // called for each event received in order
     public void addData(int gametick, int eventNumber, int x, int z, int d, int eventcode, int traceid) {
         try {
-            System.out.println(String.format("Adding data: x/z/d: %d/%d/%d t: %d e/s: %d/%d", x, z, d, gametick, eventcode, traceid));
+            //System.out.println(String.format("Adding data: x/z/d: %d/%d/%d t: %d e/s: %d/%d", x, z, d, gametick, eventcode, traceid));
             if ((allStacktraces.size() != 0) && (traceid >= allStacktraces.size())) {
                 //throw new IllegalArgumentException();
                 System.err.println(String.format("Warning: Referenced non-existant Stacktrace %d (All Stacktraces: %d)",traceid,allStacktraces.size()));
