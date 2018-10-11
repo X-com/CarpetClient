@@ -57,7 +57,7 @@ public class ZeroXstuff {
     private static void addStackTrace(NBTTagCompound nbttagcompound) {
         int id = nbttagcompound.getInteger("id");
         String stack = nbttagcompound.getString("stack");
-        data.addStacktrace(stack);
+        data.addStacktrace(stack,id);
 //        System.out.println("stack " + id + " " + stack);
     }
 
