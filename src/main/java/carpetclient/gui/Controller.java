@@ -212,6 +212,10 @@ public class Controller {
         setTick(time);
     }
 
+    public void initGUI() {
+        setTick(lastGametick);
+    }
+
     void setTick(int gametick) {
         int dimention = debug.getSelectedDimension();
         ChunkGrid canvas = debug.getChunkGrid();
@@ -239,9 +243,18 @@ public class Controller {
 
         if (selectionBox != null && selectionDimention == dimention) {
             debug.getChunkGrid().setSelectionBox(selectionBox.getX() - minX, selectionBox.getY() - minZ);
+            debug.setBackButtonText("Back*");
+            debug.setForwardButtonText("Forward*");
+            debug.selectedChunk(true, selectionBox.getX(), selectionBox.getY());
         } else {
             debug.getChunkGrid().setSelectionBox(Integer.MAX_VALUE, 0);
+            debug.setBackButtonText("Back");
+            debug.setForwardButtonText("Forward");
+            debug.selectedChunk(false, 0, 0);
         }
+
+        debug.setXText(view.getX());
+        debug.setZText(view.getY());
 
         debug.setTime(gametick);
 
@@ -273,13 +286,9 @@ public class Controller {
 
             if (selectionBox != null && selectionBox.getX() == cx && selectionBox.getY() == cz) {
                 selectionBox = null;
-                debug.setBackButtonText("Back");
-                debug.setForwardButtonText("Forward");
             } else {
                 selectionBox = new Point(cx, cz);
                 selectionDimention = debug.getSelectedDimension();
-                debug.setBackButtonText("Back(chunk)");
-                debug.setForwardButtonText("Forward(chunk)");
             }
 
             setTick(lastGametick);
@@ -294,8 +303,6 @@ public class Controller {
             panning = true;
         } else if (button == 0 && panning) {
             view.setLocation(dragView.getX() - dx, dragView.getY() - dy);
-            debug.setXText(view.getX());
-            debug.setZText(view.getY());
             setTick(lastGametick);
         }
     }

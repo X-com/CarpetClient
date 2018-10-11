@@ -14,8 +14,6 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class GuiChunkGrid extends GuiScreen {
 
@@ -47,6 +45,21 @@ public class GuiChunkGrid extends GuiScreen {
     private static final String[] DIMENSION_NAMES = {"Overworld", "Nether", "End"};
     private int selectedDimension = 0;
     private GuiButton dimensionButton;
+    private boolean chunkSelection;
+    private String chunkSelectionString;
+
+    // Footer is a grid, makes stuff easier
+    private static final int HEADER_HEIGHT = 9;
+    private static final int FOOTER_ROW_HEIGHT = 20;
+    private static final int FOOTER_ROW_PADDING = 5;
+    private static final int FOOTER_ROW_COUNT = 3;
+    private static final int FOOTER_HEIGHT = FOOTER_ROW_HEIGHT * FOOTER_ROW_COUNT + FOOTER_ROW_PADDING * (FOOTER_ROW_COUNT + 1);
+    private static final int FOOTER_COL_PADDING = 5;
+    private static final int FOOTER_COL_COUNT = 5;
+    private static final float MINIMAP_X = 0.7f;
+    private static final float MINIMAP_Y = 0.05f;
+    private static final float MINIMAP_WIDTH = 0.25f;
+    private static final float MINIMAP_HEIGHT = 0.45f;
 
     public GuiChunkGrid() {
         this.controller = new Controller(this);
@@ -103,6 +116,8 @@ public class GuiChunkGrid extends GuiScreen {
 
         loadButton.enabled = saveButton.enabled = playButton.enabled = !controller.start;
         currentButton.enabled = controller.start;
+
+        controller.initGUI();
     }
 
     @Override
@@ -195,6 +210,9 @@ public class GuiChunkGrid extends GuiScreen {
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        if (keyCode == Keyboard.KEY_F6) {
+            mc.displayGuiScreen(null);
+        }
         textFieldGT.keyDown(typedChar, keyCode);
         textFieldX.keyDown(typedChar, keyCode);
         textFieldZ.keyDown(typedChar, keyCode);
@@ -252,7 +270,9 @@ public class GuiChunkGrid extends GuiScreen {
         // Text
         drawCenteredString(fontRenderer, "Chunk Debug Map", width / 2, 0, 0xffffff);
 
-//        drawCenteredString(fontRenderer, "Chunk selected ", 0, HEADER_HEIGHT + 10, 0xffffff); // possible indicator for chunk selected
+        if (chunkSelection) {
+            drawCenteredString(fontRenderer, chunkSelectionString, width / 2, HEADER_HEIGHT + 10, 0xffffff); // possible indicator for chunk selected
+        }
 
         drawCenteredString(fontRenderer, "X:", getFooterX(2) + 5, getFooterY(2) + FOOTER_ROW_HEIGHT / 2 - 4, 0xffffff);
         textFieldX.drawTextBox();
@@ -301,19 +321,6 @@ public class GuiChunkGrid extends GuiScreen {
         // Actual minimap content
         chunkgrid.draw(minimapX, minimapY, minimapWidth, minimapHeight);
     }
-
-    // Footer is a grid, makes stuff easier
-    private static final int HEADER_HEIGHT = 9;
-    private static final int FOOTER_ROW_HEIGHT = 20;
-    private static final int FOOTER_ROW_PADDING = 5;
-    private static final int FOOTER_ROW_COUNT = 3;
-    private static final int FOOTER_HEIGHT = FOOTER_ROW_HEIGHT * FOOTER_ROW_COUNT + FOOTER_ROW_PADDING * (FOOTER_ROW_COUNT + 1);
-    private static final int FOOTER_COL_PADDING = 5;
-    private static final int FOOTER_COL_COUNT = 5;
-    private static final float MINIMAP_X = 0.7f;
-    private static final float MINIMAP_Y = 0.05f;
-    private static final float MINIMAP_WIDTH = 0.25f;
-    private static final float MINIMAP_HEIGHT = 0.45f;
 
     private int getFooterColWidth() {
         return (width - FOOTER_ROW_PADDING * (FOOTER_COL_COUNT + 1)) / FOOTER_COL_COUNT;
@@ -380,6 +387,11 @@ public class GuiChunkGrid extends GuiScreen {
 
     public void setMinimapVisible(boolean minimapVisible) {
         this.minimapVisibleCheckbox.checked = minimapVisible;
+    }
+
+    public void selectedChunk(boolean cs, int x, int y) {
+        chunkSelection = cs;
+        chunkSelectionString = "Chunk selected X: " + x + " Z: " + y;
     }
 
     public void disableDebugger() {
