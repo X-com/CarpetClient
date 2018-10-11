@@ -422,7 +422,6 @@ public class Chunkdata implements Serializable {
                 throw new IllegalArgumentException(String.format("Stacktraces must get inserted in the correct order. Received ID: %d Expected ID: %d", id, allStacktraces.size()));
             }
             allStacktraces.add(s);
-            System.out.println(String.format("Added Stacktrace %d",allStacktraces.size()-1));
         }
         catch(RuntimeException e){
             e.printStackTrace();
@@ -433,10 +432,9 @@ public class Chunkdata implements Serializable {
     // called for each event received in order
     public void addData(int gametick, int eventNumber, int x, int z, int d, int eventcode, int traceid) {
         try {
-            //System.out.println(String.format("Adding data: x/z/d: %d/%d/%d t: %d e/s: %d/%d", x, z, d, gametick, eventcode, traceid));
             if ((allStacktraces.size() != 0) && (traceid >= allStacktraces.size())) {
                 //throw new IllegalArgumentException();
-     //           System.err.println(String.format("Warning: Referenced non-existant Stacktrace %d (All Stacktraces: %d)",traceid,allStacktraces.size()));
+                System.err.println(String.format("Warning: Referenced non-existant Stacktrace %d (All Stacktraces: %d)",traceid,allStacktraces.size()));
             }
             FullEvent event = new FullEvent(x, z, d, eventcode, traceid, gametick, eventNumber);
             allEvents[event.e.categorizeEvent()].addEvent(event);
