@@ -1,4 +1,4 @@
-package carpetclient.gui;
+package carpetclient.gui.chunkgrid;
 
 public enum ChunkGridStyle {
     GRADIENT("Gradient", "Earth's favorite style"),

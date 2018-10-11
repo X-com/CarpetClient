@@ -1,6 +1,6 @@
 package carpetclient;
 
-import carpetclient.gui.GuiChunkGrid;
+import carpetclient.gui.chunkgrid.GuiChunkGrid;
 import com.mumfrey.liteloader.core.LiteLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;

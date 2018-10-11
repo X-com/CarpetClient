@@ -1,4 +1,4 @@
-package carpetclient.gui;
+package carpetclient.gui.chunkgrid;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;

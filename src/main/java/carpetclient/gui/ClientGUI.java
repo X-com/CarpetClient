@@ -4,6 +4,8 @@ import carpetclient.Config;
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.coders.Pokechu22.ScrollGUI;
+import carpetclient.gui.chunkgrid.ChunkGridStyle;
+import carpetclient.gui.chunkgrid.GuiChunkGrid;
 import carpetclient.rules.CarpetRules;
 import carpetclient.rules.TickRate;
 
