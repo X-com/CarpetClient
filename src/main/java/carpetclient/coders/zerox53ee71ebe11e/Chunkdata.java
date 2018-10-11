@@ -387,7 +387,6 @@ public class Chunkdata implements Serializable {
                 resetView();
             }
             this.gametick = gametick;
-            // TODO more optimal implementation on incremental steps
         }
 
         @Override
@@ -421,10 +420,7 @@ public class Chunkdata implements Serializable {
     }
 
     public Chunkdata() {
-        this.allEvents = new EventCollection[categoryCount];
-        for(int i=0;i<categoryCount;++i){
-            this.allEvents[i] = new EventCollection();
-        }
+        init();
     }
 
     // called for each received stacktrace in order
@@ -533,7 +529,7 @@ public class Chunkdata implements Serializable {
 
     public void clear() {
         clearCount++;
-        for(EventCollection c:allEvents) {
+        for(EventCollection c: allEvents) {
             c.clear();
         }
         allStacktraces.clear();
@@ -541,7 +537,7 @@ public class Chunkdata implements Serializable {
 
     private int clearCount = 0;
     private EventCollection allEvents[];
-    private ArrayList<String> allStacktraces = new ArrayList<String>();
+    private ArrayList<String> allStacktraces;
 
     private class EventCollection {
         TreeMap<Integer,FullEvent[]> eventsForGametick = new TreeMap<Integer,FullEvent[]>();
@@ -761,6 +757,20 @@ public class Chunkdata implements Serializable {
         }
     }
 
+    private void init() {
+        if(this.allEvents == null){
+            this.allEvents = new EventCollection[categoryCount];
+        }
+        for(int i=0;i<categoryCount;++i){
+            if(this.allEvents[i] == null) {
+                this.allEvents[i] = new EventCollection();
+            }
+        }
+        if(this.allStacktraces == null) {
+            this.allStacktraces = new ArrayList<>();
+        }
+    }
+
     private void writeObject(java.io.ObjectOutputStream out)
             throws IOException {
 
@@ -795,6 +805,7 @@ public class Chunkdata implements Serializable {
 
     private void readObject(java.io.ObjectInputStream in)
             throws IOException, ClassNotFoundException {
+        init();
         clear();
         int stcount = in.readInt();
         for (int i = 0; i < stcount; ++i) {
