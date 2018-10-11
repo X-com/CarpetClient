@@ -16,7 +16,6 @@ public class Chunkdata implements Serializable {
         PLAYER_LEAVES,
         QUEUE_UNLOAD,
         CANCEL_UNLOAD,
-        UNQUEUE_UNLOAD,
         GENERATING,
         POPULATING,
         GENERATING_STRUCTURES;
@@ -31,23 +30,9 @@ public class Chunkdata implements Serializable {
             }
         }
 
-        public boolean isQueueEvent() {
-            switch (this) {
-                case QUEUE_UNLOAD:
-                case CANCEL_UNLOAD:
-                case UNQUEUE_UNLOAD:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
         public int categorizeEvent(){
             if(this.isPlayerEvent()){
                 return 1;
-            }
-            else if(this.isQueueEvent()){
-                return 2;
             }
             else{
                 return 0;
@@ -62,7 +47,6 @@ public class Chunkdata implements Serializable {
                 0xffaa00aa,//PLAYER_LEAVES
                 0xffaaaa00,//QUEUE_UNLOAD
                 0xff66aa00,//CANCEL_UNLOAD
-                0xff33aa00,//UNQUEUE_UNLOAD
                 0xff00aa66,//GENERATING
                 0xff00aa33,//POPULATING
                 0xff00aa11//GENERATING_STRUCTURES
@@ -74,7 +58,7 @@ public class Chunkdata implements Serializable {
         }
     }
 
-    private static final int categoryCount = 3;
+    private static final int categoryCount = 2;
     private static final FullEvent[] emptyEvents = new FullEvent[categoryCount];
     
     public MapView getChunkData() {
@@ -129,11 +113,8 @@ public class Chunkdata implements Serializable {
                 }
             }
             if(wasLoaded()){
-                if(wasUnloadQueuedAndNotCanceled()){
-                    colors[0] = 0xff221100;
-                }
-                else if(wasUnloadQueuedButCanceled()){
-                    colors[0] = 0xff222200;
+                if(wasUnloadQueued()){
+                    colors[0] = 0xff663300;
                 }
                 else if(wasPlayerLoaded()) {
                     colors[0] = 0xff000022;
@@ -142,7 +123,7 @@ public class Chunkdata implements Serializable {
                     colors[0] = 0xff002200;
                 }
             }
-            else if(wasLoededInThePast()){
+            else if(wasLoadedInThePast()){
                 colors[0] = 0xff111111;
             }
             else {
@@ -219,7 +200,7 @@ public class Chunkdata implements Serializable {
         }
 
         // previous state of the chunks
-        public boolean wasLoededInThePast(){
+        public boolean wasLoadedInThePast(){
             return (oldEvents[0] != null);
         }
 
@@ -240,17 +221,9 @@ public class Chunkdata implements Serializable {
         }
 
         // previous state of the chunks
-        public boolean wasUnloadQueuedButCanceled(){
-            if(oldEvents[2] != null){
-                return oldEvents[2].e == Event.CANCEL_UNLOAD;
-            }
-            return false;
-        }
-
-        // previous state of the chunks
-        public boolean wasUnloadQueuedAndNotCanceled(){
-            if(oldEvents[2] != null){
-                return oldEvents[2].e == Event.QUEUE_UNLOAD;
+        public boolean wasUnloadQueued(){
+            if(oldEvents[1] != null){
+                return oldEvents[1].e == Event.QUEUE_UNLOAD;
             }
             return false;
         }
