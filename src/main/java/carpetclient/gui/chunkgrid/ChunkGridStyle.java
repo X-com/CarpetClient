@@ -3,8 +3,8 @@ package carpetclient.gui.chunkgrid;
 public enum ChunkGridStyle {
     GRADIENT("Gradient", "Earth's favorite style"),
     GRADIENT_NOBG("Transparent Gradient", "0x's favorite style", false),
-    CHECKERBOARD("Checkerboard"),
-    CHECKERBOARD_NOBG("Transparent Checkerboard", "Xcom's favorite style", false),
+    CHECKERBOARD("Checkerboard", "Xcom's favorite style"),
+    CHECKERBOARD_NOBG("Transparent Checkerboard"),
     //FLAT_COLOR("Flat Color"),
     ;
 

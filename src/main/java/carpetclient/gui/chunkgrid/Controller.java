@@ -3,6 +3,7 @@ package carpetclient.gui.chunkgrid;
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 import carpetclient.coders.zerox53ee71ebe11e.ZeroXstuff;
 import carpetclient.pluginchannel.CarpetPluginChannel;
+import com.google.common.base.Splitter;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -266,8 +267,12 @@ public class Controller {
             List<String> props = new ArrayList<>();
             List<String> stacktrace = new ArrayList<>();
             for (Chunkdata.EventView ev : mapView.pickChunk(cx, cz)) {
-                props.add("Event: " + ev.getType().toString() + " Order: " + ev.getOrder() + " GT: " + ev.getGametick());
-                stacktrace.add(ev.getStacktrace());
+                String eventString = "Event: " + ev.getType().toString() + " Order: " + ev.getOrder() + " GT: " + ev.getGametick();
+                props.add(eventString);
+                String s = ev.getStacktrace();
+                stacktrace.add("");
+                stacktrace.add(eventString);
+                stacktrace.addAll(Splitter.onPattern("\\r?\\n").splitToList(s));
             }
             Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(cx, cz, debug, debug, props, stacktrace.size() != 0 ? stacktrace : null));
         }
