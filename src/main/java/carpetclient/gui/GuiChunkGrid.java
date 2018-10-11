@@ -1,5 +1,6 @@
 package carpetclient.gui;
 
+import carpetclient.Util;
 import com.mumfrey.liteloader.client.gui.GuiCheckbox;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -379,5 +380,13 @@ public class GuiChunkGrid extends GuiScreen {
 
     public void setMinimapVisible(boolean minimapVisible) {
         this.minimapVisibleCheckbox.checked = minimapVisible;
+    }
+
+    public void disableDebugger() {
+        startStopButton.displayString = "Start";
+        loadButton.enabled = saveButton.enabled = playButton.enabled = true;
+        currentButton.enabled = false;
+        controller.setStart(false);
+        Util.printToChat("Chunk Debug Tool disabled on the server, enable chunkDebugTool rule for use.");
     }
 }

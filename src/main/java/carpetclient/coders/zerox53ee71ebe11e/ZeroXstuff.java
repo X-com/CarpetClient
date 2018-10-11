@@ -1,5 +1,6 @@
 package carpetclient.coders.zerox53ee71ebe11e;
 
+import carpetclient.gui.Controller;
 import carpetclient.gui.GuiChunkGrid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,6 +25,7 @@ public class ZeroXstuff {
 
     public static final int PACKET_EVENTS = 0;
     public static final int PACKET_STACKTRACE = 1;
+    public static final int PACKET_ACCESS_DENIED = 2;
     public static Chunkdata data = new Chunkdata();
 
     public static void chunkLogger(PacketBuffer data) {
@@ -43,7 +45,13 @@ public class ZeroXstuff {
             unpackNBT(nbt);
         } else if (PACKET_STACKTRACE == type) {
             unpackNBTStackTrace(nbt);
+        } else if (PACKET_ACCESS_DENIED == type) {
+            disableDebugTool();
         }
+    }
+
+    private static void disableDebugTool() {
+        GuiChunkGrid.instance.disableDebugger();
     }
 
     private static void unpackNBTStackTrace(NBTTagCompound nbt) {
@@ -82,31 +90,4 @@ public class ZeroXstuff {
 
         GuiChunkGrid.instance.liveUpdate(time);
     }
-
-    /////////// temp stuff ///////////////
-
-    static Gson gson = new Gson();
-    static final String logdir = "chunklog";
-    String name = "Tempname";
-
-    void dumpLog(World w) {
-        int gameticks = w.getMinecraftServer().getTickCounter();
-        String s = gson.toJson(this);
-
-        Path file = Paths.get(".", logdir, name, "new.json");
-        try {
-            File f = Files.createFile(file).toFile();
-            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8);
-            writer.write(s);
-            writer.flush();
-            writer.close();
-            Path file2 = Paths.get(".", logdir, name, "" + gameticks + ".json");
-            Files.move(file, file2);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    // temp stuff end
 }

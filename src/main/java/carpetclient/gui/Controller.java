@@ -57,6 +57,10 @@ public class Controller {
         return start;
     }
 
+    public void setStart(boolean s) {
+        start = s;
+    }
+
     public void load() {
         JFrame frame = new JFrame();
         JFileChooser fc = new JFileChooser();
