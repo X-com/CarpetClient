@@ -26,6 +26,7 @@ public class Controller {
     private Point selectionBox;
     private int selectionDimention;
     private Chunkdata chunkData;
+    private Chunkdata.MapView mapView;
 
     //    private Chunkdata.MapView chunkData;
     private Point mouseDown = new Point();
@@ -35,6 +36,7 @@ public class Controller {
         debug = d;
         lastGametick = 0;
         chunkData = ZeroXstuff.data;
+        mapView = chunkData.getChunkData();
     }
 
     public boolean startStop() {
@@ -44,6 +46,7 @@ public class Controller {
         if (start) {
             home();
             chunkData.clear();
+            mapView = chunkData.getChunkData();
             selectionBox = null;
             play = false;
         }
@@ -71,7 +74,8 @@ public class Controller {
             String path = fc.getSelectedFile().getPath();
             try {
                 ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
-                chunkData.readObject(in);
+                chunkData = (Chunkdata) in.readObject();
+                mapView = chunkData.getChunkData();
                 view.setX(in.readInt());
                 view.setY(in.readInt());
                 debug.setXText(view.getX());
@@ -96,7 +100,7 @@ public class Controller {
             String path = fc.getSelectedFile().getPath();
             try {
                 ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
-                chunkData.writeObject(out);
+                out.writeObject(chunkData);
                 out.writeInt(view.getX());
                 out.writeInt(view.getY());
                 out.close();
@@ -228,9 +232,9 @@ public class Controller {
         int minZ = view.getY() - sizeZ / 2;
         int maxZ = view.getY() + sizeZ / 2;
 
-        chunkData.seekSpace(dimention, minX, maxX + 2, minZ, maxZ + 2);
-        chunkData.seekTime(gametick);
-        canvas.setRenderColors(chunkData.getRenderColors());
+        mapView.seekSpace(dimention, minX, maxX + 2, minZ, maxZ + 2);
+        mapView.seekTime(gametick);
+        canvas.setView(mapView);
 
         if (selectionBox != null && selectionDimention == dimention) {
             debug.getChunkGrid().setSelectionBox(selectionBox.getX() - minX, selectionBox.getY() - minZ);
@@ -261,7 +265,7 @@ public class Controller {
             int cz = debug.getChunkGrid().getGridY(y) + view.getY() - debug.getChunkGrid().sizeZ() / 2;
             List<String> props = new ArrayList<>();
             List<String> stacktrace = new ArrayList<>();
-            for (Chunkdata.EventView ev : chunkData.chunkEventData(cx, cz)) {
+            for (Chunkdata.EventView ev : mapView.pickChunk(cx, cz)) {
                 props.add("Event: " + ev.getType().toString() + " Order: " + ev.getOrder() + " GT: " + ev.getGametick());
                 stacktrace.add(ev.getStacktrace());
             }

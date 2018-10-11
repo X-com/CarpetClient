@@ -7,11 +7,14 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
+import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChunkGrid {
+
+    Chunkdata.MapView view;
 
     private int screenWidth = 0;
     private int screenHeight = 0;
@@ -21,8 +24,6 @@ public class ChunkGrid {
     private int scale = 10;
 
     private Point selection = new Point(Integer.MAX_VALUE, 0);
-
-    private int[][][] colors;
 
     public void draw(int thisX, int thisY, int width, int height) {
         screenWidth = width;
@@ -43,14 +44,20 @@ public class ChunkGrid {
         if (GuiChunkGrid.style.isGradient())
             GlStateManager.shadeModel(GL11.GL_SMOOTH);
 
-        for (int z = 0; z < rowCount; ++z) {
-            for (int x = 0; x < columnCount; ++x) {
+        int originx = view.getLowerX();
+        int origonz = view.getLowerZ();
+
+        if(view != null) {
+            for (Chunkdata.ChunkView chunkdata : view) {
+                int x = chunkdata.getX() - originx;
+                int z = chunkdata.getZ() - origonz;
                 int rx = x * scale;
                 int ry = z * scale;
                 int cellX = thisX + rx;
                 int cellY = thisY + ry;
 
-                int color = getGridColor(x, z);
+                int colors[] = chunkdata.getColors();
+                int color = colors[colors.length-1];
                 int alpha = (color & 0xff000000) >>> 24;
                 int red = (color & 0xff0000) >> 16;
                 int green = (color & 0xff00) >> 8;
@@ -113,13 +120,13 @@ public class ChunkGrid {
         return pixelY / scale;
     }
 
-    public int getGridColor(int x, int z) {
+    /*public int getGridColor(int x, int z) {
         if (x < 0 || z < 0 || x >= colors.length || z >= colors[x].length || colors[x][z].length == 0) {
             return GuiChunkGrid.style.getBackgroundColor();
         }
         int color[] = colors[x][z];
         return color[color.length - 1];
-    }
+    }*/
 
     private static int brighten(int col, float factor) {
         int alpha = (col & 0xff000000) >>> 24;
@@ -173,7 +180,7 @@ public class ChunkGrid {
         return screenWidth;
     }
 
-    public void setRenderColors(int[][][] renderColors) {
-        colors = renderColors;
+    public void setView(Chunkdata.MapView view){
+        this.view = view;
     }
 }

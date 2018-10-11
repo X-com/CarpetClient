@@ -271,6 +271,13 @@ public class Chunkdata implements Serializable {
             chunkViews = new ChunkView[0];
         }
 
+        public int getLowerX() {
+            return minx;
+        }
+
+        public int getLowerZ() {
+            return minz;
+        }
 
         public void seekSpace(int dimension, int minx, int maxx, int minz, int maxz) {
             if((minx > maxx) || (minz > maxz)){
