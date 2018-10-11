@@ -70,7 +70,7 @@ public class Controller {
             String path = fc.getSelectedFile().getPath();
             try {
                 ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
-                ZeroXstuff.data.readObject(in);
+                ZeroXstuff.data = (Chunkdata) in.readObject();
                 view.setX(in.readInt());
                 view.setY(in.readInt());
                 debug.setXText(view.getX());
@@ -95,7 +95,7 @@ public class Controller {
             String path = fc.getSelectedFile().getPath();
             try {
                 ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
-                ZeroXstuff.data.writeObject(out);
+                out.writeObject(ZeroXstuff.data);
                 out.writeInt(view.getX());
                 out.writeInt(view.getY());
                 out.close();
@@ -259,7 +259,7 @@ public class Controller {
             List<String> stacktrace = new ArrayList<>();
             Chunkdata.ChunkView cv = chunkData.pickChunk(cx, cz);
             for (Chunkdata.EventView ev : cv) {
-                props.add("Event: " + ev.getType().toString() + " Order: " + Integer.toString(ev.getOrder()) + " GT: " + cv.getGametick());
+                props.add("Event: " + ev.getType().toString() + " Order: " + Integer.toString(ev.getOrder()) + " GT: " + ev.getGametick());
                 stacktrace.add(ev.getStacktrace());
             }
             Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(cx, cz, debug, debug, props, stacktrace.size() != 0 ? stacktrace : null));

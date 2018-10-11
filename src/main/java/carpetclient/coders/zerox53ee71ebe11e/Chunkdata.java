@@ -3,13 +3,13 @@ package carpetclient.coders.zerox53ee71ebe11e;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.*;
-import java.util.Map.Entry;
 import java.io.IOException;
+import java.util.Map.Entry;
 
 public class Chunkdata implements Serializable {
 
     public static enum Event {
-        MISSED_EVENT_ERROR,
+        NONE,
         UNLOADING,
         LOADING,
         PLAYER_ENTERS,
@@ -42,6 +42,18 @@ public class Chunkdata implements Serializable {
             }
         }
 
+        public int categorizeEvent(){
+            if(this.isPlayerEvent()){
+                return 1;
+            }
+            else if(this.isQueueEvent()){
+                return 2;
+            }
+            else{
+                return 0;
+            }
+        }
+
         static final int eventColors[] = {
                 0xffff0000,//MISSED_EVENT_ERROR
                 0xffaa0000,//UNLOADING
@@ -54,6 +66,7 @@ public class Chunkdata implements Serializable {
                 0xff00aa66,//GENERATING
                 0xff00aa33,//POPULATING
                 0xff00aa11//GENERATING_STRUCTURES
+
         };
 
         public int getColor() {
@@ -61,761 +74,699 @@ public class Chunkdata implements Serializable {
         }
     }
 
-    public static final class ChunkLogChunkCoords {
-
-        public final int x;
-        public final int z;
-        public final int d;
-
-        ChunkLogChunkCoords(int x, int z, int d) {
-            this.x = x;
-            this.z = z;
-            this.d = d;
-        }
-
-        public int compareTo(ChunkLogChunkCoords other) {
-            if (this.d != other.d) {
-                return this.d > other.d ? 1 : -1;
-            } else if (this.z != other.z) {
-                return this.z > other.z ? 1 : -1;
-            } else if (this.x != other.x) {
-                return this.x > other.x ? 1 : -1;
-            } else {
-                return 0;
-            }
-        }
-
-        @Override
-        public boolean equals(Object oo) {
-            if (oo instanceof ChunkLogChunkCoords) {
-                ChunkLogChunkCoords o = (ChunkLogChunkCoords) oo;
-                return this.compareTo(o) == 0;
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return (x * 1281773681) + (z * 1298815619) + (d * 2022620329);
-        }
-
-    }
-
-    public static class ChunkLogTimeCoords {
-
-        public final int gametick;
-        public final int eventNumber;
-
-        ChunkLogTimeCoords(int gametick, int eventNumber) {
-            this.gametick = gametick;
-            this.eventNumber = eventNumber;
-        }
-
-        public int compareTo(ChunkLogTimeCoords other) {
-            if (this.gametick != other.gametick) {
-                return this.gametick > other.gametick ? 1 : -1;
-            } else if (this.eventNumber != other.eventNumber) {
-                return this.eventNumber > other.eventNumber ? 1 : -1;
-            } else {
-                return 0;
-            }
-        }
-
-        @Override
-        public boolean equals(Object oo) {
-            if (oo instanceof ChunkLogTimeCoords) {
-                ChunkLogTimeCoords o = (ChunkLogTimeCoords) oo;
-                return this.compareTo(o) == 0;
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return (gametick * 2145814481) + (eventNumber * 1247900611);
-        }
-
-    }
-
-    public static class ChunkLogEvent {
-
-        public final Event event;
-        public final int stackTraceId;
-
-        ChunkLogEvent(Event event, int traceid) {
-            this.event = event;
-            this.stackTraceId = traceid;
-        }
-
-        @Override
-        public boolean equals(Object oo) {
-            if (oo instanceof ChunkLogEvent) {
-                ChunkLogEvent o = (ChunkLogEvent) oo;
-                return this.event == o.event && this.stackTraceId == o.stackTraceId;
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return (event.ordinal() * 1369892371) + (stackTraceId * 1713470669);
-        }
-    }
-
-    public static class ChunkLogCoords {
-
-        public final ChunkLogChunkCoords space;
-        public final ChunkLogTimeCoords time;
-
-        ChunkLogCoords(ChunkLogChunkCoords space, ChunkLogTimeCoords time) {
-            this.space = space;
-            this.time = time;
-        }
-
-        ChunkLogCoords(int x, int z, int d, int gametick, int eventNumber) {
-            space = new ChunkLogChunkCoords(x, z, d);
-            time = new ChunkLogTimeCoords(gametick, eventNumber);
-        }
-
-        ChunkLogCoords(ChunkLogChunkCoords space, int gametick, int eventNumber) {
-            this.space = space;
-            time = new ChunkLogTimeCoords(gametick, eventNumber);
-        }
-
-        ChunkLogCoords(int x, int z, int d, ChunkLogTimeCoords time) {
-            space = new ChunkLogChunkCoords(x, z, d);
-            this.time = time;
-        }
-
-        @Override
-        public boolean equals(Object oo) {
-            if (oo instanceof ChunkLogCoords) {
-                ChunkLogCoords o = (ChunkLogCoords) oo;
-                return this.space.equals(o.space) && this.time.equals(o.time);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return time.hashCode() + space.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return String.format("gametick: %d order: %d x: %d z: %d d: %d", time.gametick, time.eventNumber, space.x, space.z, space.d);
-        }
-
-    }
-
-    int latestGametick;
-
-    static final Comparator<ChunkLogCoords> compareGroupTime = new Comparator<ChunkLogCoords>() {
-        @Override
-        public int compare(ChunkLogCoords a, ChunkLogCoords b) {
-            int time = a.time.compareTo(b.time);
-            if (time != 0) {
-                return time;
-            } else {
-                return a.space.compareTo(b.space);
-            }
-        }
-    };
-
-    static final Comparator<ChunkLogCoords> compareGroupChunks = new Comparator<ChunkLogCoords>() {
-        @Override
-        public int compare(ChunkLogCoords a, ChunkLogCoords b) {
-            int space = a.space.compareTo(b.space);
-            if (space != 0) {
-                return space;
-            } else {
-                return a.time.compareTo(b.time);
-            }
-        }
-    };
-
-    static final ChunkLogChunkCoords spaceMin = new ChunkLogChunkCoords(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
-    static final ChunkLogChunkCoords spaceMax = new ChunkLogChunkCoords(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    static final ChunkLogTimeCoords timeMin = new ChunkLogTimeCoords(Integer.MIN_VALUE, Integer.MIN_VALUE);
-    static final ChunkLogTimeCoords timeMax = new ChunkLogTimeCoords(Integer.MAX_VALUE, Integer.MAX_VALUE);
-
-    ArrayList<String> allStackTraces = new ArrayList();
-    public SortedLogs playerLogs = new SortedLogs();
-    public SortedLogs chunkLogs = new SortedLogs();
-    HashMap<ChunkLogChunkCoords, ChunkLogChunkCoords> allChunks = new HashMap();
-    HashMap<ChunkLogEvent, ChunkLogEvent> allEvents = new HashMap();
-
-    public class SortedLogs {
-
-        TreeMap<ChunkLogCoords, ChunkLogEvent> logsGroupedByTime = new TreeMap(compareGroupTime);
-        TreeMap<ChunkLogCoords, ChunkLogEvent> logsGroupedByChunk = new TreeMap(compareGroupChunks);
-
-        public SortedMap<ChunkLogCoords, ChunkLogEvent> getLogsForGametick(int gametick) {
-            ChunkLogCoords low = new ChunkLogCoords(spaceMin, gametick, Integer.MIN_VALUE);
-            ChunkLogCoords high = new ChunkLogCoords(spaceMax, gametick, Integer.MAX_VALUE);
-            return logsGroupedByTime.subMap(low, true, high, true);
-        }
-
-        public SortedMap<ChunkLogCoords, ChunkLogEvent> getLogsForChunk(ChunkLogChunkCoords coords) {
-            ChunkLogCoords low = new ChunkLogCoords(coords, timeMin);
-            ChunkLogCoords high = new ChunkLogCoords(coords, timeMax);
-            return logsGroupedByChunk.subMap(low, true, high, true);
-        }
-
-        @Deprecated
-        public SortedMap<ChunkLogCoords, ChunkLogEvent> getLogsForDisplayArea(
-                int gametick,
-                int dimension,
-                int minx, int maxx, int minz, int maxz) {
-            TreeMap<ChunkLogCoords, ChunkLogEvent> logs = new TreeMap(compareGroupChunks);
-            logs.putAll(getPreviousLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz));
-            logs.putAll(getCurrentLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz));
-            return logs;
-        }
-
-        void checkChunkRange(ChunkLogCoords c, int xmin, int xmax, int zmin, int zmax, int dim, int tmin, int tmax) {
-            boolean xok = (c.space.x >= xmin) && (c.space.x < xmax);
-            boolean zok = (c.space.z >= zmin) && (c.space.z < zmax);
-            boolean dok = (c.space.d == dim);
-            boolean tok = (c.time.gametick >= tmin) && (c.time.gametick < tmax);
-            if (xok && zok && dok && tok) {
-                return;
-            } else {
-                String bad = new String();
-                if (!xok) bad += String.format("x = %d, should be in range [%d, %d] ", c.space.x, xmin, xmax - 1);
-                if (!zok) bad += String.format("z = %d, should be in range [%d, %d] ", c.space.z, zmin, zmax - 1);
-                if (!dok) bad += String.format("d = %d, should be %d ", c.space.d, dim);
-                if (!tok) bad += String.format("t = %d, should be in range [%d, %d] ", c.time.gametick, tmin, tmax - 1);
-                throw new IllegalStateException(bad);
-            }
-        }
-
-        SortedMap<ChunkLogCoords, ChunkLogEvent> getCurrentLogsForDisplayArea(
-                int gametick,
-                int dimension,
-                int minx, int maxx, int minz, int maxz) {
-            TreeMap<ChunkLogCoords, ChunkLogEvent> currentEvents = new TreeMap(compareGroupChunks);
-            SortedMap<ChunkLogCoords, ChunkLogEvent> currentAreaEvents = new TreeMap(compareGroupChunks);
-            currentAreaEvents.putAll(getLogsForGametick(gametick));
-            for (int z = minz; z < maxz; ++z) {
-                ChunkLogCoords chunkMin = new ChunkLogCoords(minx, z, dimension, timeMin);
-                ChunkLogCoords chunkMax = new ChunkLogCoords(maxx, z, dimension, timeMin);
-                SortedMap<ChunkLogCoords, ChunkLogEvent> chunks = currentEvents.subMap(chunkMin, chunkMax);
-                for (ChunkLogCoords coords : chunks.keySet()) {
-                    checkChunkRange(coords, minx, maxx, minz, maxz, dimension, gametick, gametick + 1);
-                }
-                currentAreaEvents.putAll(chunks);
-            }
-            return currentAreaEvents;
-        }
-
-        SortedMap<ChunkLogCoords, ChunkLogEvent> getPreviousLogsForDisplayArea(
-                int gametick,
-                int dimension,
-                int minx, int maxx, int minz, int maxz
-        ) {
-            TreeMap<ChunkLogCoords, ChunkLogEvent> previousEvents = new TreeMap(compareGroupChunks);
-            for (int z = minz; z < maxz; ++z) {
-                ChunkLogCoords minSpace = new ChunkLogCoords(minx, z, dimension, timeMin);
-                ChunkLogCoords maxSpace = new ChunkLogCoords(maxx, z, dimension, timeMin);
-                SortedMap<ChunkLogCoords, ChunkLogEvent> rest = this.logsGroupedByChunk.tailMap(minSpace);
-                while (!rest.isEmpty()) {
-                    ChunkLogCoords first = rest.firstKey();
-                    if (compareGroupChunks.compare(first, maxSpace) >= 0) {
-                        break;
-                    }
-                    ChunkLogCoords chunkMaxTime = new ChunkLogCoords(first.space.x, z, dimension, gametick, 0);
-                    SortedMap<ChunkLogCoords, ChunkLogEvent> uptoGametick = rest.headMap(chunkMaxTime);
-                    if (!uptoGametick.isEmpty()) {
-                        ChunkLogCoords key = uptoGametick.firstKey();
-                        ChunkLogEvent event = uptoGametick.get(key);
-                        checkChunkRange(key, minx, maxx, minz, maxz, dimension, Integer.MIN_VALUE, gametick);
-                        previousEvents.put(key, event);
-                    }
-                    ChunkLogCoords nextChunk = new ChunkLogCoords(first.space.x + 1, z, dimension, timeMin);
-                    rest = rest.tailMap(nextChunk);
-                }
-            }
-            return previousEvents;
-        }
-
-        public void put(ChunkLogCoords coords, ChunkLogEvent event) {
-            this.logsGroupedByChunk.put(coords, event);
-            this.logsGroupedByTime.put(coords, event);
-        }
-
-        public void clear() {
-            logsGroupedByTime.clear();
-            logsGroupedByChunk.clear();
-        }
-
-    }
-
+    private static final int categoryCount = 3;
+    private static final FullEvent[] emptyEvents = new FullEvent[categoryCount];
+    
     public MapView getChunkData() {
         return new MapView();
     }
 
     public class EventView {
-        int order;
-        ChunkLogEvent event;
 
-        EventView(int order, ChunkLogEvent event) {
-            this.order = order;
-            this.event = event;
+        FullEvent event;
+
+        EventView(FullEvent e){
+            this.event = e;
+        }
+
+        public int getGametick() {
+            return event.t;
         }
 
         public int getOrder() {
-            return this.order;
+            return event.o;
         }
 
         public Event getType() {
-            return event.event;
+            return event.e;
         }
 
         public String getStacktrace() {
-            if (this.event.stackTraceId < allStackTraces.size()) {
-                return allStackTraces.get(this.event.stackTraceId);
-            } else {
-                return null;
-            }
+            return allStacktraces.get(event.s);
         }
     }
 
     public class ChunkView implements Iterable<EventView> {
-        SortedMap<ChunkLogCoords, ChunkLogEvent> events;
-        int gametick;
 
-        ChunkView(SortedMap<ChunkLogCoords, ChunkLogEvent> events, int gametick) {
-            this.events = events;
-            this.gametick = gametick;
+        FullEvent oldEvents [] = null;
+        FullEvent currentEvents [] = null;
+        int colors [];
+        int x = 0;
+        int z = 0;
+        int d = -1;
+
+        private void updateColors(){
+            int length = 1;
+            if(currentEvents != null) {
+                length += currentEvents.length;
+            }
+            if((colors == null) || (colors.length != length)){
+                colors = new int[length];
+            }
+            if(currentEvents != null){
+                for(int i = 0; i<currentEvents.length; ++i){
+                    colors[i+1] = currentEvents[i].e.getColor();
+                }
+            }
+            if(wasLoaded()){
+                if(wasUnloadQueuedAndNotCanceled()){
+                    colors[0] = 0xff221100;
+                }
+                else if(wasUnloadQueuedButCanceled()){
+                    colors[0] = 0xff222200;
+                }
+                else if(wasPlayerLoaded()) {
+                    colors[0] = 0xff000022;
+                }
+                else {
+                    colors[0] = 0xff002200;
+                }
+            }
+            else if(wasLoededInThePast()){
+                colors[0] = 0xff111111;
+            }
+            else {
+                colors[0] = 0;
+            }
         }
 
-        public int getGametick() {
-            return gametick;
+        private void checkEvents(FullEvent events[], boolean allownull){
+            if(events != null){
+                for (FullEvent e : events) {
+                    if ((e!=null) && ((e.x != x) || (e.z != z) || (e.d != d))) {
+                        throw new IllegalArgumentException();
+                    }
+                    else if(!allownull && (e==null)){
+                        throw new IllegalArgumentException();
+                    }
+                }
+            }
+        }
+
+        private void reset(int x, int z, int d, FullEvent oldEvents[], FullEvent currentEvents[]) {
+            this.x = x;
+            this.z = z;
+            this.d = d;
+            if(oldEvents == null) throw new IllegalArgumentException();
+            checkEvents(oldEvents,true);
+            checkEvents(currentEvents,false);
+            this.oldEvents = oldEvents;
+            this.currentEvents = currentEvents;
+            updateColors();
+        }
+
+        private void update(FullEvent newGametick[]) {
+            checkEvents(newGametick,false);
+            if(currentEvents != null) {
+                for (FullEvent event : currentEvents) {
+                    int category = event.e.categorizeEvent();
+                    oldEvents[category] = event;
+                }
+            }
+            currentEvents = newGametick;
+            updateColors();
         }
 
         @Override
         public Iterator<EventView> iterator() {
             return new Iterator<EventView>() {
-                Iterator<Entry<ChunkLogCoords, ChunkLogEvent>> i = events.entrySet().iterator();
-                Entry<ChunkLogCoords, ChunkLogEvent> n = null;
-
+                int i;
                 @Override
                 public boolean hasNext() {
-                    while (n == null || (n.getKey().time.gametick != gametick)) {
-                        if (i.hasNext()) {
-                            n = i.next();
-                        } else {
-                            return false;
-                        }
-                    }
-                    return true;
+                    return (currentEvents!=null) && (i<currentEvents.length);
                 }
 
                 @Override
                 public EventView next() {
-                    if (hasNext()) {
-                        Entry<ChunkLogCoords, ChunkLogEvent> n = this.n;
-                        this.n = null;
-                        return new EventView(n.getKey().time.eventNumber, n.getValue());
-                    } else {
+                    if(!hasNext()){
                         throw new NoSuchElementException();
                     }
+                    return new EventView(currentEvents[i++]);
                 }
             };
         }
 
         public int getX() {
-            return events.firstKey().space.x;
-        }
-
-        public int getZ() {
-            return events.firstKey().space.z;
-        }
-
-        public int getDimension() {
-            return events.firstKey().space.d;
-        }
-
-        public boolean isPlayerLoaded() {
-            boolean x = false;
-            int count = 0;
-            for (ChunkLogEvent event : events.values()) {
-                if (event.event.isPlayerEvent()) {
-                    count++;
-                    if (count > 1) {
-                        System.err.println("Your crappy data structure is completely broken");
-                    }
-                    x = event.event == Event.PLAYER_ENTERS;
-                }
-            }
             return x;
         }
 
-        public boolean isLoaded() {
-            boolean loaded = false;
-            for (ChunkLogEvent event : events.values()) {
-                if (!event.event.isPlayerEvent()) {
-                    loaded = event.event != Event.UNLOADING;
-                }
+        public int getZ() {
+            return z;
+        }
+
+        public int getDimension() {
+            return d;
+        }
+
+        // previous state of the chunks
+        public boolean wasLoededInThePast(){
+            return (oldEvents[0] != null);
+        }
+
+        // previous state of the chunks
+        public boolean wasLoaded(){
+            if(oldEvents[0] != null) {
+                return oldEvents[0].e != Event.UNLOADING;
             }
-            return loaded;
+            else return false;
+        }
+
+        // previous state of the chunks
+        public boolean wasPlayerLoaded(){
+            if(oldEvents[1] != null) {
+                return oldEvents[1].e != Event.PLAYER_LEAVES;
+            }
+            return false;
+        }
+
+        // previous state of the chunks
+        public boolean wasUnloadQueuedButCanceled(){
+            if(oldEvents[2] != null){
+                return oldEvents[2].e == Event.CANCEL_UNLOAD;
+            }
+            return false;
+        }
+
+        // previous state of the chunks
+        public boolean wasUnloadQueuedAndNotCanceled(){
+            if(oldEvents[2] != null){
+                return oldEvents[2].e == Event.QUEUE_UNLOAD;
+            }
+            return false;
         }
 
         // Color of the initial state at the start of the gametick is return in index 0
         // All other entries are the colors for the events that happen this gametick
         public int[] getColors() {
-            int countofevents = 0;
-            int currentTickColor = 0;
-            for (Entry<ChunkLogCoords, ChunkLogEvent> entry : this.events.entrySet()) {
-                ChunkLogCoords coords = entry.getKey();
-                ChunkLogEvent event = entry.getValue();
-                if (coords.time.gametick < gametick) {
-                    currentTickColor = event.event.getColor();
-                } else if (coords.time.gametick == gametick) {
-                    countofevents++;
-                } else {
-                    throw new IllegalStateException("Found an event for a future gametick");
-                }
-            }
-            int[] colors = new int[countofevents + 1];
-            int i = 1;
-            colors[0] = currentTickColor;
-            for (Entry<ChunkLogCoords, ChunkLogEvent> entry : this.events.entrySet()) {
-                ChunkLogCoords coords = entry.getKey();
-                ChunkLogEvent event = entry.getValue();
-                if (coords.time.gametick == gametick) {
-                    colors[i++] = event.event.getColor();
-                }
-            }
             return colors;
         }
     }
 
     public class MapView implements Iterable<ChunkView> {
 
-        TreeMap<ChunkLogCoords, ChunkLogEvent> currentMap = new TreeMap(compareGroupChunks);
-        int dimension = -1;
-        int gametick = -1;
-        int minx = 0;
-        int minz = 0;
-        int maxx = 0;
-        int maxz = 0;
+        private int clearCount = Chunkdata.this.clearCount;
+        private int gametick;
+        private int minx = 0;
+        private int maxx = 0;
+        private int minz = 0;
+        private int maxz = 0;
+        private int dimension = 0;
 
-        /*
-         * Sets the area to be displayed
-         * min coordinates are inclusive
-         * max coordinates are exclusive
-         */
-        public void seekSpace(int dimension, int minx, int maxx, int minz, int maxz) {
-            if ((minx > maxx) || (minz > maxz)) {
-                throw new IllegalArgumentException("Illegal range: min>max");
-            }
-            // Display area changed completely, get the whole thing
-            if ((dimension != this.dimension) ||
-                    (minx >= this.maxx) || (minz >= this.maxz) ||
-                    (maxx <= this.minx) || (maxz <= this.minz)) {
-                currentMap.clear();
-                currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz));
-            }
-            // Display area just slightly adjusted, just get updates
-            else {
-                if ((minx > this.minx) || (maxx < this.maxx) || (minz > this.minz) || (maxz < this.maxz)) {
-                    currentMap.keySet().removeIf(e ->
-                            (e.space.x < minx) || (e.space.x >= maxx) || (e.space.z < minz) || (e.space.z >= maxz));
-                }
-                if (minx < this.minx) {
-                    // area that got added to the left
-                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, this.minx, Integer.max(minz, this.minz), Integer.min(maxz, this.maxz)));
-                }
-                if (maxx > this.maxx) {
-                    // area that got added to the right
-                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, this.maxx, maxx, Integer.max(minz, this.minz), Integer.min(maxz, this.maxz)));
-                }
-                if (minz < this.minz) {
-                    // area that got added to the top
-                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, maxx, minz, this.minz));
-                }
-                if (maxz > this.maxz) {
-                    // area that got added to the buttom
-                    currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, maxx, this.maxz, maxz));
-                }
-            }
-            this.dimension = dimension;
-            this.minx = minx;
-            this.minz = minz;
-            this.maxx = maxx;
-            this.maxz = maxz;
+        ChunkView chunkViews[];
+
+        private MapView() {
+            chunkViews = new ChunkView[0];
         }
 
-        private boolean isNextGametick(int gametick) {
-            if (gametick < this.gametick) {
-                return false;
-            }
-            if (gametick == this.gametick + 1) {
-                return true;
-            }
-            int next = getNextGametick(this.gametick);
-            return gametick <= next;
-        }
+        private FullEvent[][] getAllChunksForGametick(int gametick){
+            int xsize = maxx - minx;
+            int zsize = maxx - minx;
+            FullEvent[][] allChunks = new FullEvent[xsize*zsize][];
+            FullEvent [] thisGametick = sortedEventsForGametick(gametick);
+            for(int zi = 0; zi<zsize; ++zi){
+                int z = zi+minz;
+                FullEvent min = new FullEvent(minx, z, dimension, 0, 0, 0, 0);
+                FullEvent max = new FullEvent(maxx, z, dimension, 0, 0, 0, 0);
+                int startindex = findPreviousInArray(thisGametick,min,spacialSorted) + 1;
+                while(startindex<thisGametick.length){
+                    FullEvent event = thisGametick[startindex];
+                    if(spacialSorted.compare(event,max)>=0){
+                        break;
+                    }
+                    int endindex;
+                    for(endindex = startindex+1; (endindex<thisGametick.length) && (spacialSorted.compare(thisGametick[endindex],event)==0); ++endindex);
+                    int chunkstart = startindex;
 
-        /* 
-         * Seek display area to a given gametick.
-         * Should be more efficient when going forward in time to the next gametick 
-         */
-        public void seekTime(int gametick) {
-            if (!isNextGametick(gametick)) {
-                // can't update efficiently, just seek
-                currentMap.clear();
-                currentMap.putAll(getAllLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz));
-            } else {
-                // update the set
+                    int x = event.x;
+                    int xi = x-minx;
+                    int i = xi + zi*xsize;
+                    allChunks[i] = Arrays.copyOfRange(thisGametick,startindex,endindex);
+                    startindex = endindex;
 
-                TreeMap<ChunkLogCoords, ChunkLogEvent> newEvents = new TreeMap(compareGroupChunks);
-                newEvents.putAll(getAllLogsForGametick(gametick));
-                for (int z = minz; z < maxz; ++z) {
-                    ChunkLogCoords minChunk = new ChunkLogCoords(minx, z, dimension, gametick, 0);
-                    ChunkLogCoords maxChunk = new ChunkLogCoords(maxx, z, dimension, gametick, 0);
-                    // remove superseded entries
-                    SortedMap<ChunkLogCoords, ChunkLogEvent> nowZ = newEvents.subMap(minChunk, maxChunk);
-                    for (Entry<ChunkLogCoords, ChunkLogEvent> entry : nowZ.entrySet()) {
-                        ChunkLogChunkCoords coords = entry.getKey().space;
-                        ChunkLogCoords minEntry = new ChunkLogCoords(coords, timeMin);
-                        ChunkLogCoords maxEntry = new ChunkLogCoords(coords, timeMax);
-                        ChunkLogEvent event = entry.getValue();
-                        SortedMap<ChunkLogCoords, ChunkLogEvent> currentEntries = currentMap.subMap(minEntry, true, maxEntry, true);
-                        Iterator<Entry<ChunkLogCoords, ChunkLogEvent>> iter = currentEntries.entrySet().iterator();
-                        while (iter.hasNext()) {
-                            Entry<ChunkLogCoords, ChunkLogEvent> x = iter.next();
-                            if (x.getValue().event.isPlayerEvent() == event.event.isPlayerEvent()) {
-                                iter.remove();
-                            }
+                    for(FullEvent e:allChunks[i]){
+                        if((e.x != x) || (e.z != z) || (e.d != dimension) || (e.t != gametick)){
+                            throw new IllegalStateException();
                         }
                     }
-                    // add new entries
-                    currentMap.putAll(nowZ);
                 }
             }
+            return allChunks;
+        }
+
+        private void resetView() {
+            FullEvent  thisGametick[][] = getAllChunksForGametick(gametick);
+            int xsize = maxx - minx;
+            int zsize = maxx - minx;
+            for(int zi = 0; zi < zsize; ++zi){
+                int z = zi + minz;
+                for(int xi = 0; xi < xsize; ++xi){
+                    int x = xi + minx;
+                    int i = xi+zi*xsize;
+                    FullEvent old[] = getOldEventsForChunk(x,z,dimension,gametick);
+                    chunkViews[i].reset(x,z,dimension,old,thisGametick[i]);
+                }
+            }
+            //System.out.println(String.format("Loaded events for gametick %d with %d chunks",gametick,chunkViews.length));
+        }
+
+        public void seekSpace(int dimension, int minx, int maxx, int minz, int maxz) {
+            int xsize = maxx - minx;
+            int zsize = maxx - minx;
+            int oldxsize = this.maxx - this.minx;
+            int oldzsize = this.maxx - this.minx;
+
+            if((xsize < 0)||(zsize < 0)){
+                throw new IllegalArgumentException("Inverted range");
+            }
+
+            // resizing
+            if(oldxsize*oldzsize != xsize*zsize) {
+                chunkViews = Arrays.copyOf(chunkViews,xsize*zsize);
+                for (int i = 0; i < xsize * zsize; ++i) {
+                    if(chunkViews[i] == null){
+                        chunkViews[i] = new ChunkView();
+                    }
+                }
+            }
+            this.minx = minx;
+            this.maxx = maxx;
+            this.minz = minz;
+            this.maxz = maxz;
+            this.dimension = dimension;
+
+            // TODO more optimal implementation when not resizing
+            resetView();
+        }
+
+        public void seekTime(int gametick) {
             this.gametick = gametick;
+            resetView();
+            // TODO more optimal implementation on incremental steps
         }
 
         @Override
         public Iterator<ChunkView> iterator() {
-            return new Iterator<ChunkView>() {
-                SortedMap<ChunkLogCoords, ChunkLogEvent> rest = currentMap;
-
-
+            return new Iterator<ChunkView>(){
+                int i = 0;
                 @Override
                 public boolean hasNext() {
-                    return !rest.isEmpty();
+                    return i<chunkViews.length;
                 }
 
                 @Override
                 public ChunkView next() {
-                    if (!hasNext()) {
+                    if(!hasNext()){
                         throw new NoSuchElementException();
                     }
-                    ChunkLogCoords nextChunk = rest.firstKey();
-                    ChunkLogCoords max = new ChunkLogCoords(nextChunk.space.x + 1, nextChunk.space.z, dimension, timeMin);
-                    SortedMap<ChunkLogCoords, ChunkLogEvent> mapChunk = rest.headMap(max);
-                    rest = rest.tailMap(max);
-                    return new ChunkView(mapChunk, gametick);
+                    return chunkViews[i++];
                 }
             };
         }
 
         public ChunkView pickChunk(int x, int z) {
-            ChunkLogCoords min = new ChunkLogCoords(x, z, dimension, timeMin);
-            ChunkLogCoords max = new ChunkLogCoords(x, z, dimension, timeMax);
-            return new ChunkView(this.currentMap.subMap(min, true, max, true), gametick);
+            int xi = x-minx;
+            int zi = z-minz;
+            int i = xi+zi*(maxx-minx);
+            if((xi<0) || (zi<0) || (i >= chunkViews.length)){
+                throw new NoSuchElementException();
+            }
+            return chunkViews[i];
         }
+    }
 
-        @Deprecated
-        public SortedMap<ChunkLogCoords, ChunkLogEvent> getDisplayArea() {
-            return currentMap;
+    public Chunkdata() {
+        this.allEvents = new EventCollection[categoryCount];
+        for(int i=0;i<categoryCount;++i){
+            this.allEvents[i] = new EventCollection();
         }
     }
 
     // called for each received stacktrace in order
     public void addStacktrace(String s) {
-        this.allStackTraces.add(s);
+        try {
+            allStacktraces.add(s);
+        }
+        catch(RuntimeException e){
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     // called for each event received in order
     public void addData(int gametick, int eventNumber, int x, int z, int d, int eventcode, int traceid) {
-
-        if ((gametick < 0) || (eventNumber < 0)) {
-            throw new IllegalArgumentException();
+        try {
+            System.out.println(String.format("Adding data: x/z/d: %d/%d/%d t: %d e/s: %d/%d", x, z, d, gametick, eventcode, traceid));
+            if ((allStacktraces.size() != 0) && (traceid >= allStacktraces.size())) {
+                //throw new IllegalArgumentException();
+                System.err.println(String.format("Warning: Referenced non-existant Stacktrace %d (All Stacktraces: %d)",traceid,allStacktraces.size()));
+            }
+            FullEvent event = new FullEvent(x, z, d, eventcode, traceid, gametick, eventNumber);
+            allEvents[event.e.categorizeEvent()].addEvent(event);
         }
-
-        ChunkLogChunkCoords chunk = new ChunkLogChunkCoords(x, z, d);
-        ChunkLogTimeCoords time = new ChunkLogTimeCoords(gametick, eventNumber);
-        if (eventcode < 0 || eventcode >= Event.values().length) {
-            throw new IllegalArgumentException("Unknown chunk-event code received");
+        catch (RuntimeException e){
+            e.printStackTrace();
+            throw e;
         }
-        Event ec = Event.values()[eventcode];
-        ChunkLogEvent event = new ChunkLogEvent(ec, traceid);
-
-        // optimization to not waste memory
-        if (allChunks.containsKey(chunk)) {
-            chunk = allChunks.get(chunk);
-        } else {
-            allChunks.put(chunk, chunk);
-        }
-        if (allEvents.containsKey(event)) {
-            event = allEvents.get(event);
-        } else {
-            allEvents.put(event, event);
-        }
-        ChunkLogCoords coords = new ChunkLogCoords(chunk, time);
-        if (ec.isPlayerEvent()) {
-            this.playerLogs.put(coords, event);
-        } else {
-            this.chunkLogs.put(coords, event);
-        }
-    }
-
-    // Returns every event that happened in a given gametick
-    @Deprecated
-    public SortedMap<ChunkLogCoords, ChunkLogEvent> getAllLogsForGametick(int gametick) {
-        SortedMap<ChunkLogCoords, ChunkLogEvent> map1 = playerLogs.getLogsForGametick(gametick);
-        SortedMap<ChunkLogCoords, ChunkLogEvent> map2 = chunkLogs.getLogsForGametick(gametick);
-        TreeMap map = new TreeMap(compareGroupChunks);
-        map.putAll(map1);
-        map.putAll(map2);
-        return map;
-    }
-
-    // Returns every event that happened to a given chunk
-    @Deprecated
-    public SortedMap<ChunkLogCoords, ChunkLogEvent> getAllLogsForChunk(ChunkLogChunkCoords coords) {
-        SortedMap<ChunkLogCoords, ChunkLogEvent> map1 = playerLogs.getLogsForChunk(coords);
-        SortedMap<ChunkLogCoords, ChunkLogEvent> map2 = chunkLogs.getLogsForChunk(coords);
-        TreeMap map = new TreeMap(compareGroupTime);
-        map.putAll(map1);
-        map.putAll(map2);
-        return map;
-    }
-
-    /* 
-     * Returns all relevant events to show on the map.
-     * For each chunk it either returns the events that happened this gametick,
-     * or the last event that happened in an earlier gametick.
-     * If there was never any event for a particular chunk, it is not included.
-     * min coordinates are inclusive,
-     * max coordinates are exclusive
-     */
-    @Deprecated
-    public SortedMap<ChunkLogCoords, ChunkLogEvent> getAllLogsForDisplayArea(
-            int gametick,
-            int dimension,
-            int minx, int maxx, int minz, int maxz) {
-        SortedMap<ChunkLogCoords, ChunkLogEvent> map1 = playerLogs.getLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz);
-        SortedMap<ChunkLogCoords, ChunkLogEvent> map2 = chunkLogs.getLogsForDisplayArea(gametick, dimension, minx, maxx, minz, maxz);
-        TreeMap<ChunkLogCoords, ChunkLogEvent> map = new TreeMap(compareGroupChunks);
-        map.putAll(map1);
-        map.putAll(map2);
-        return map;
     }
 
     public int getFirstGametick() {
-        return Integer.min(
-                this.playerLogs.logsGroupedByTime.isEmpty() ?
-                        0 : this.playerLogs.logsGroupedByTime.firstKey().time.gametick,
-                this.chunkLogs.logsGroupedByTime.isEmpty() ?
-                        0 : this.chunkLogs.logsGroupedByTime.firstKey().time.gametick);
+        int first = Integer.MAX_VALUE;
+        for(EventCollection c:allEvents){
+            if(!c.eventsForGametick.isEmpty()) {
+                first = Integer.min(first,c.eventsForGametick.firstKey());
+            }
+        }
+        if(first == Integer.MAX_VALUE){
+            return 0;
+        }
+        return first;
     }
 
     public int getLastGametick() {
-        return Integer.max(
-                this.playerLogs.logsGroupedByTime.isEmpty() ?
-                        0 : this.playerLogs.logsGroupedByTime.lastKey().time.gametick,
-                this.chunkLogs.logsGroupedByTime.isEmpty() ?
-                        0 : this.chunkLogs.logsGroupedByTime.lastKey().time.gametick);
+        int last = 0;
+        for(EventCollection c:allEvents){
+            if(!c.eventsForGametick.isEmpty()) {
+                last = Integer.max(last,c.eventsForGametick.lastKey());
+            }
+        }
+        return last;
     }
 
     public int getNextGametick(int gametick) {
-        ChunkLogCoords min = new ChunkLogCoords(spaceMin, gametick + 1, 0);
-        ChunkLogCoords next1 = this.playerLogs.logsGroupedByTime.ceilingKey(min);
-        ChunkLogCoords next2 = this.chunkLogs.logsGroupedByTime.ceilingKey(min);
-        int tick1 = next1 != null ? next1.time.gametick : getLastGametick();
-        int tick2 = next2 != null ? next2.time.gametick : getLastGametick();
-        int newtick = Integer.min(tick1, tick2);
-        return newtick;
+        int nextGametick = getLastGametick();
+        for(EventCollection c:allEvents) {
+            Integer gt = c.eventsForGametick.higherKey(gametick);
+            if(gt != null){
+                nextGametick = Integer.min(nextGametick,gt);
+            }
+        }
+        return nextGametick;
     }
 
     public int getPrevGametick(int gametick) {
-        ChunkLogCoords min = new ChunkLogCoords(spaceMin, gametick, 0);
-        ChunkLogCoords next1 = this.playerLogs.logsGroupedByTime.lowerKey(min);
-        ChunkLogCoords next2 = this.chunkLogs.logsGroupedByTime.lowerKey(min);
-        int tick1 = next1 != null ? next1.time.gametick : getFirstGametick();
-        int tick2 = next2 != null ? next2.time.gametick : getFirstGametick();
-        int newtick = Integer.max(tick1, tick2);
-        return newtick;
+        int prevGametick = getFirstGametick();
+        for(EventCollection c:allEvents) {
+            Integer gt = c.eventsForGametick.lowerKey(gametick);
+            if(gt != null){
+                prevGametick = Integer.max(prevGametick,gt);
+            }
+        }
+        return prevGametick;
     }
 
     public int getPreviousGametickForChunk(int gametick, int x, int z, int d) {
-        SortedMap<ChunkLogCoords, ChunkLogEvent> map = getAllLogsForChunk(new ChunkLogChunkCoords(x, z, d));
-        ChunkLogCoords coords = new ChunkLogCoords(x, z, d, gametick, 0);
-        SortedMap<ChunkLogCoords, ChunkLogEvent> head = map.headMap(coords);
-        if (head.isEmpty()) {
-            return gametick;
+        int gametickMax = getFirstGametick();
+        FullEvent compare = new FullEvent(0,0,0,0,0,gametick,0);
+        for(EventCollection c:allEvents) {
+            FullEvent[] events = c.getAllEventsForChunk(x,z,d);
+            if(events != null){
+                int i = findPreviousInArray(events,compare,temporalSorted);
+                if(i>=0){
+                    gametickMax = Integer.max(gametickMax,events[i].t);
+                }
+            }
         }
-        return head.lastKey().time.gametick;
+        return gametickMax;
     }
 
     public int getNextGametickForChunk(int gametick, int x, int z, int d) {
-        SortedMap<ChunkLogCoords, ChunkLogEvent> map = getAllLogsForChunk(new ChunkLogChunkCoords(x, z, d));
-        ChunkLogCoords coords = new ChunkLogCoords(x, z, d, gametick + 1, 0);
-        SortedMap<ChunkLogCoords, ChunkLogEvent> tail = map.tailMap(coords);
-        if (tail.isEmpty()) {
-            return gametick;
+        int gametickMin = getLastGametick();
+        FullEvent compare = new FullEvent(0,0,0,0,0,gametick,Integer.MAX_VALUE);
+        for(EventCollection c:allEvents) {
+            FullEvent[] events = c.getAllEventsForChunk(x,z,d);
+            if(events != null) {
+                int i = findNextInArray(events,compare,temporalSorted);
+                if(i>=0) {
+                    gametickMin = Integer.min(gametickMin,events[i].t);
+                }
+            }
         }
-        return tail.firstKey().time.gametick;
+        return gametickMin;
     }
 
     public void clear() {
-        allChunks.clear();
-        playerLogs.clear();
-        chunkLogs.clear();
-        allChunks.clear();
-        allEvents.clear();
-    }
-
-    @Deprecated
-    public String getStackTraceString(int stackTraceId) {
-        if (stackTraceId < 0 || stackTraceId >= allStackTraces.size()) {
-            return "No stack trace found by that stack trace id: " + stackTraceId;
+        clearCount++;
+        for(EventCollection c:allEvents) {
+            c.clear();
         }
-        return allStackTraces.get(stackTraceId);
+        allStacktraces.clear();
     }
 
-    public void writeObject(java.io.ObjectOutputStream out)
+    private int clearCount = 0;
+    private EventCollection allEvents[];
+    private ArrayList<String> allStacktraces = new ArrayList<String>();
+
+    private class EventCollection {
+        TreeMap<Integer,FullEvent[]> eventsForGametick = new TreeMap<Integer,FullEvent[]>();
+        TreeMap<FullEvent,FullEvent[]> eventsForChunk;
+
+        EventCollection() {
+            eventsForChunk = new TreeMap<FullEvent,FullEvent[]>(spacialSorted);
+        }
+
+        void addEvent(FullEvent e){
+            FullEvent[] gtEvents = eventsForGametick.getOrDefault(e.t,null);
+            FullEvent[] chEvents = eventsForChunk.getOrDefault(e,null);
+            if((gtEvents != null) && temporalSorted.compare(gtEvents[gtEvents.length-1],e)>=0){
+                throw new IllegalArgumentException("Events added need to be strictly temporally ordered");
+            }
+            if((chEvents != null) && temporalSorted.compare(chEvents[chEvents.length-1],e)>=0){
+                throw new IllegalArgumentException("Events added need to be strictly temporally ordered");
+            }
+            gtEvents = addToArray(gtEvents,e);
+            chEvents = addToArray(chEvents,e);
+            eventsForGametick.put(e.t,gtEvents);
+            eventsForChunk.put(chEvents[0],chEvents);
+        }
+
+        void clear(){
+            eventsForChunk.clear();
+            eventsForGametick.clear();
+        }
+
+        FullEvent[] getAllEventsForChunk(int x, int z, int d) {
+            FullEvent compare = new FullEvent(x,z,d,0,0,0,0);
+            return eventsForChunk.getOrDefault(compare,null);
+        }
+
+        FullEvent[] getAllEventsForGametick(int t) {
+            return eventsForGametick.getOrDefault(t,null);
+        }
+    }
+
+    private FullEvent[] sortedEventsForGametick(int gametick){
+        FullEvent[][] events = new FullEvent[categoryCount][];
+        for(int i=0;i<categoryCount;++i){
+            events[i] = allEvents[i].getAllEventsForGametick(gametick);
+        }
+        FullEvent merged[] = mergeArrays(events);
+        Arrays.sort(merged,temporalSorted);
+        Arrays.sort(merged,spacialSorted);
+        return merged;
+    }
+
+    private FullEvent[] getOldEventsForChunk(int x, int z, int d, int gametick){
+        FullEvent[] oldEvents = new FullEvent[categoryCount];
+        FullEvent compare = new FullEvent(0,0,0,0,0,gametick,0);
+        for(int i = 0; i < categoryCount; ++i){
+            FullEvent events[] = allEvents[i].getAllEventsForChunk(x, z, d);
+            if(events == null){
+                continue;
+            }
+            int arrayIndex = findPreviousInArray(events,compare,temporalSorted);
+            if(arrayIndex >= 0){
+                oldEvents[i] = events[arrayIndex];
+            }
+        }
+        return oldEvents;
+    }
+
+    private static Comparator<FullEvent> spacialSorted = new Comparator<FullEvent>(){
+        @Override
+        public int compare(FullEvent e1, FullEvent e2) {
+            if(e1.d != e2.d) {
+                return e1.d > e2.d ? 1 : -1;
+            }
+            else if(e1.z != e2.z) {
+                return e1.z > e2.z ? 1 : -1;
+            }
+            else if(e1.x != e2.x) {
+                return e1.x > e2.x ? 1 : -1;
+            }
+            return 0;
+        }
+    };
+
+    private static Comparator<FullEvent> temporalSorted = new Comparator<FullEvent>(){
+        @Override
+        public int compare(FullEvent e1, FullEvent e2) {
+            if(e1.t != e2.t) {
+                return e1.t > e2.t ? 1 : -1;
+            }
+            else if(e1.o != e2.o) {
+                return e1.o > e2.o ? 1 : -1;
+            }
+            return 0;
+        }
+    };
+
+    private static FullEvent[] addToArray(FullEvent[] a, FullEvent e) {
+        if(a==null){
+            FullEvent[] x = new FullEvent[1];
+            x[0] = e;
+            return x;
+
+        }
+        else{
+            FullEvent[] x = Arrays.copyOf(a,a.length+1);
+            x[a.length] = e;
+            return x;
+        }
+    }
+
+    private static FullEvent[] mergeArrays(FullEvent[] ...arrays) {
+        int totallength = 0;
+        int firstnonull = -1;
+        for(int i = 0; i < arrays.length; ++i){
+            if(arrays[i] != null) {
+                totallength += arrays[i].length;
+                if (firstnonull == -1) {
+                    firstnonull = i;
+                }
+            }
+        }
+        if(firstnonull == -1) {
+            return new FullEvent[0];
+        }
+        FullEvent mergedArray[] = Arrays.copyOf(arrays[firstnonull],totallength);
+        int insertindex = arrays[firstnonull].length;
+        for(int i=firstnonull+1; i<arrays.length; ++i){
+            if(arrays[i] != null) {
+                System.arraycopy(arrays[i], 0, mergedArray, insertindex, arrays[i].length);
+                insertindex += arrays[i].length;
+            }
+        }
+
+        return mergedArray;
+    }
+
+    private static int findPreviousInArray(FullEvent[] a, FullEvent compare, Comparator<FullEvent> c) {
+        int i = Arrays.binarySearch(a,compare,c);
+        if(i>=0){
+            while((i>=0) && (c.compare(a[i],compare)==0)){
+                i = i-1;
+            }
+        }
+        else {
+            i = -(i+2);
+        }
+        // I dunno what shit I'm programming, so let's insert a sanity check
+        if((i<-1)||(i>=a.length)) {
+            throw new IllegalStateException();
+        }
+        if(i>=0){
+            // check next value must be larger or equal
+            if((i!=a.length-1) && (c.compare(a[i+1],compare)<0)) {
+                throw new IllegalStateException();
+            }
+            //check actual value must be smaller
+            if(c.compare(a[i],compare)>=0){
+                throw new IllegalStateException();
+            }
+        }
+        return i;
+    }
+
+    private static int findNextInArray(FullEvent[] a, FullEvent compare, Comparator<FullEvent> c){
+        int i = Arrays.binarySearch(a,compare,c);
+        if(i>=0){
+            while((i<a.length) && c.compare(a[i],compare)==0){
+                i = i+1;
+            }
+            if(i==a.length){
+                i = -1;
+            }
+        }
+        else {
+            i = -(i+1);
+            i = i == a.length ? -1 : i;
+        }
+        // I dunno what shit I'm programming, so let's insert a sanity check
+        if((i<-1)||(i>=a.length)) {
+            throw new IllegalStateException();
+        }
+        if(i>=0){
+            // check previous value needs to be smaller or equal
+            if((i!=0)&&(c.compare(a[i-1],compare)>0)){
+                throw new IllegalStateException();
+            }
+            // check actual value needs to be larger
+            if(c.compare(a[i],compare)<=0){
+                throw new IllegalStateException();
+            }
+        }
+        return i;
+    }
+
+    private static class FullEvent {
+        final int x;
+        final int z;
+        final int d;
+        final Event e;
+        final int s;
+        final int t;
+        final int o;
+        FullEvent (int x, int z, int d, int e, int s, int t, int o){
+            if(o<0){
+                throw new IllegalArgumentException();
+            }
+            this.x = x;
+            this.z = z;
+            this.d = d;
+            this.e = Event.values()[e];
+            this.s = s;
+            this.t = t;
+            this.o = o;
+        }
+        @Override
+        public String toString(){
+            return String.format("X: %d Z: %d t: %d O: %d event: %s stack: %d",x,z,t,o,e.toString(),s);
+        }
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out)
             throws IOException {
-        int stcount = allStackTraces.size();
-        out.writeInt(stcount);
-        for (String s : allStackTraces) {
+
+        out.writeInt(allStacktraces.size());
+
+        for(String s: allStacktraces){
             out.writeObject(s);
         }
-        int eventCount = playerLogs.logsGroupedByTime.size() + chunkLogs.logsGroupedByTime.size();
-        out.writeInt(eventCount);
-        Map<ChunkLogCoords, ChunkLogEvent> maps[] = new Map[]{playerLogs.logsGroupedByTime, chunkLogs.logsGroupedByChunk};
-        for (Map<ChunkLogCoords, ChunkLogEvent> map : maps) {
-            for (Entry<ChunkLogCoords, ChunkLogEvent> entry : map.entrySet()) {
-                ChunkLogCoords coords = entry.getKey();
-                ChunkLogEvent event = entry.getValue();
-                out.writeInt(coords.space.x);
-                out.writeInt(coords.space.z);
-                out.writeInt(coords.space.d);
-                out.writeInt(coords.time.gametick);
-                out.writeInt(coords.time.eventNumber);
-                out.writeInt(event.event.ordinal());
-                out.writeInt(event.stackTraceId);
+        int count = 0;
+        for(EventCollection c : allEvents){
+            for(Entry<Integer,FullEvent[]> entry : c.eventsForGametick.entrySet()){
+                count += entry.getValue().length;
+            }
+        }
+
+        out.writeInt(count);
+
+        for(EventCollection c : allEvents){
+            for(Entry<Integer,FullEvent[]> entry : c.eventsForGametick.entrySet()){
+                for(FullEvent event:entry.getValue()){
+                    out.writeInt(event.x);
+                    out.writeInt(event.z);
+                    out.writeInt(event.d);
+                    out.writeInt(event.t);
+                    out.writeInt(event.o);
+                    out.writeInt(event.e.ordinal());
+                    out.writeInt(event.s);
+                }
             }
         }
     }
 
-    public void readObject(java.io.ObjectInputStream in)
+    private void readObject(java.io.ObjectInputStream in)
             throws IOException, ClassNotFoundException {
         clear();
         int stcount = in.readInt();
@@ -838,4 +789,5 @@ public class Chunkdata implements Serializable {
     private void readObjectNoData()
             throws ObjectStreamException {
     }
+
 }
