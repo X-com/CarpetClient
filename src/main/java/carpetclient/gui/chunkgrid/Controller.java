@@ -1,7 +1,6 @@
 package carpetclient.gui.chunkgrid;
 
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
-import carpetclient.coders.zerox53ee71ebe11e.ZeroXstuff;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import com.google.common.base.Splitter;
 import io.netty.buffer.Unpooled;
@@ -37,7 +36,7 @@ public class Controller {
     public Controller(GuiChunkGrid d) {
         debug = d;
         lastGametick = 0;
-        chunkData = ZeroXstuff.data;
+        chunkData = Chunkdata.restartRecording();
         mapView = chunkData.getChunkData();
         mapViewMinimap = chunkData.getChunkData();
     }
@@ -48,7 +47,7 @@ public class Controller {
         live = true;
         if (start) {
             home();
-            chunkData.clear();
+            chunkData = Chunkdata.restartRecording();
             mapView = chunkData.getChunkData();
             mapViewMinimap = chunkData.getChunkData();
             selectionBox = null;
@@ -218,7 +217,8 @@ public class Controller {
         setTick(lastGametick);
     }
 
-    public void liveUpdate(int time) {
+    public void liveUpdate() {
+        int time = chunkData.getLastGametick();
         if (debug.getMinimapType() != 0 && !debug.isChunkDebugWindowOpen()) {
             setMinimap(time);
         }
@@ -275,7 +275,6 @@ public class Controller {
 
         mapViewMinimap.seekSpace(dimention, minX, maxX, minZ, maxZ);
         mapViewMinimap.seekTime(time);
-        canvas.setView(mapViewMinimap);
 
         if (playerDrawn) {
             debug.getChunkGrid().playerChunk(playerX - minX, playerY - minZ);
@@ -303,7 +302,6 @@ public class Controller {
 
         mapView.seekSpace(dimention, minX, maxX + 2, minZ, maxZ + 2);
         mapView.seekTime(gametick);
-        canvas.setView(mapView);
 
         if (selectionBox != null && selectionDimention == dimention) {
             debug.getChunkGrid().setSelectionBox(selectionBox.getX() - minX, selectionBox.getY() - minZ);
@@ -429,9 +427,17 @@ public class Controller {
         setTick(lastGametick);
     }
 
+    public Chunkdata.MapView getView() {
+        return this.mapView;
+    }
+
+    public Chunkdata.MapView getMinimapView() {
+        return this.mapViewMinimap;
+    }
+
     private class Timer extends Thread {
         public void run() {
-            int last = ZeroXstuff.data.getLastGametick();
+            int last = chunkData.getLastGametick();
             while (play) {
                 try {
                     Thread.sleep(50);

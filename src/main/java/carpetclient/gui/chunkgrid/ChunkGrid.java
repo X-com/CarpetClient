@@ -11,8 +11,6 @@ import org.lwjgl.util.Point;
 
 public class ChunkGrid {
 
-    Chunkdata.MapView view;
-
     private int screenWidth = 0;
     private int screenHeight = 0;
     private int columnCount = 100;
@@ -22,7 +20,7 @@ public class ChunkGrid {
     private Point selection = new Point(Integer.MAX_VALUE, 0);
     private Point playerLocation = new Point(Integer.MAX_VALUE, 0);
 
-    public void draw(int thisX, int thisY, int width, int height) {
+    public void draw(Chunkdata.MapView view, int thisX, int thisY, int width, int height) {
         screenWidth = width;
         screenHeight = height;
         rowCount = (int) Math.ceil((float) height / scale);
@@ -197,10 +195,6 @@ public class ChunkGrid {
 
     public int width() {
         return screenWidth;
-    }
-
-    public void setView(Chunkdata.MapView view) {
-        this.view = view;
     }
 
     public int size(int window) {

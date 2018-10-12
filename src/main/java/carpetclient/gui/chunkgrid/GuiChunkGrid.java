@@ -229,7 +229,7 @@ public class GuiChunkGrid extends GuiScreen {
         GlStateManager.disableTexture2D();
 
         // Chunk grid
-        chunkgrid.draw(0, HEADER_HEIGHT, width, height - HEADER_HEIGHT - FOOTER_HEIGHT);
+        chunkgrid.draw(controller.getView(),0, HEADER_HEIGHT, width, height - HEADER_HEIGHT - FOOTER_HEIGHT);
 
         mc.getTextureManager().bindTexture(OPTIONS_BACKGROUND);
         Tessellator tess = Tessellator.getInstance();
@@ -312,7 +312,7 @@ public class GuiChunkGrid extends GuiScreen {
         minimapHeight = (int) (screenHeight * MINIMAP_HEIGHT);
 
         // Actual minimap content
-        chunkgrid.draw(minimapX, minimapY, minimapWidth, minimapHeight);
+        chunkgrid.draw(controller.getMinimapView(),minimapX, minimapY, minimapWidth, minimapHeight);
     }
 
     private int getFooterColWidth() {
@@ -369,8 +369,8 @@ public class GuiChunkGrid extends GuiScreen {
         this.forwardButton.displayString = text;
     }
 
-    public void liveUpdate(int time) {
-        controller.liveUpdate(time);
+    public void liveUpdate() {
+        controller.liveUpdate();
     }
 
     public void setPlayButtonText(String text) {
