@@ -159,6 +159,7 @@ public class Controller {
     }
 
     public void home() {
+        if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().player == null) return;
         BlockPos pos = Minecraft.getMinecraft().player.getPosition();
         view.setX(pos.getX() >> 4);
         view.setY(pos.getZ() >> 4);
@@ -239,6 +240,7 @@ public class Controller {
     }
 
     private void setMinimap(int time) {
+        if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().player == null) return;
         BlockPos pos = Minecraft.getMinecraft().player.getPosition();
         ChunkGrid canvas = debug.getChunkGrid();
         int playerX = pos.getX() >> 4;
