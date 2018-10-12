@@ -365,7 +365,7 @@ public class Controller {
         int tag = 0;
         if (chunk.wasPlayerLoaded()) {
             tag++;
-            s += "Player Loaded";
+            s += "Player-Loaded";
         }
         if (chunk.wasLoaded()) {
             if (tag > 0) s += " : ";
@@ -373,6 +373,11 @@ public class Controller {
             s += "Loaded";
         }
         else if (chunk.wasLoadedInThePast()) {
+            if (tag > 0) s += " : ";
+            tag++;
+            s += "Recently Unloaded";
+        }
+        else {
             if (tag > 0) s += " : ";
             tag++;
             s += "Unloaded";
