@@ -41,6 +41,8 @@ public class ChunkGrid {
         Tessellator tess = Tessellator.getInstance();
         BufferBuilder buf = tess.getBuffer();
 
+        GlStateManager.disableTexture2D();
+
         if (GuiChunkGrid.style.isGradient())
             GlStateManager.shadeModel(GL11.GL_SMOOTH);
 
@@ -95,6 +97,7 @@ public class ChunkGrid {
             }
         }
 
+        GlStateManager.enableTexture2D();
         GlStateManager.shadeModel(GL11.GL_FLAT);
 
         if (selection.getX() != Integer.MAX_VALUE) {
