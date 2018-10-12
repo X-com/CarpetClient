@@ -60,7 +60,6 @@ public class Chunkdata implements Serializable {
     }
 
     private static final int categoryCount = 2;
-    private static final FullEvent[] emptyEvents = new FullEvent[categoryCount];
     
     public MapView getChunkData() {
         return new MapView();
@@ -293,12 +292,12 @@ public class Chunkdata implements Serializable {
 
             FullEvent  thisGametick[][] = getAllChunksForGametick(gametick,dimension,minx,maxx,minz,maxz);
 
-            ChunkView[] newViews = new ChunkView[(maxx-minx)*(maxz-minz)];
-
             int oldxsize = this.maxx - this.minx;
             int oldzsize = this.maxz - this.minz;
             int xsize = maxx - minx;
             int zsize = maxz - minz;
+
+            ChunkView[] newViews = new ChunkView[xsize*zsize];
 
             for(int zi = 0; zi < zsize; ++zi){
                 int z = zi + minz;
@@ -405,7 +404,7 @@ public class Chunkdata implements Serializable {
             int zi = z-minz;
             int i = xi+zi*(maxx-minx);
             if((xi<0) || (zi<0) || (i >= chunkViews.length)){
-                throw new NoSuchElementException();
+                return null;
             }
             return chunkViews[i];
         }
@@ -583,10 +582,10 @@ public class Chunkdata implements Serializable {
 
     private FullEvent[][] getAllChunksForGametick(int gametick, int dimension, int minx, int maxx, int minz, int maxz){
         int xsize = maxx - minx;
-        int zsize = maxx - minx;
+        int zsize = maxz - minz;
         FullEvent[][] allChunks = new FullEvent[xsize*zsize][];
         FullEvent [] thisGametick = sortedEventsForGametick(gametick);
-        for(int zi = 0; zi<zsize; ++zi){
+        for(int zi = 0; zi < zsize; ++zi){
             int z = zi+minz;
             FullEvent min = new FullEvent(minx, z, dimension, 0, 0, 0, 0);
             FullEvent max = new FullEvent(maxx, z, dimension, 0, 0, 0, 0);
