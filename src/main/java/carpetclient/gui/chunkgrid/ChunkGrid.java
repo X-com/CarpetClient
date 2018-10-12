@@ -1,6 +1,6 @@
 package carpetclient.gui.chunkgrid;
 
-import net.minecraft.client.gui.Gui;
+import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -8,10 +8,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
-import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ChunkGrid {
 
@@ -21,7 +17,6 @@ public class ChunkGrid {
     private int screenHeight = 0;
     private int columnCount = 100;
     private int rowCount = 100;
-    private int cellSize = 0;
     private int scale = 10;
 
     private Point selection = new Point(Integer.MAX_VALUE, 0);
@@ -31,13 +26,6 @@ public class ChunkGrid {
         screenHeight = height;
         rowCount = (int) Math.ceil((float) height / scale);
         columnCount = (int) Math.ceil((float) width / scale);
-
-        /*
-        double cellHeight = (double) height / rowCount;
-        double cellWidth = (double) width / columnCount;
-
-        cellSize = Math.min(cellHeight, cellWidth);
-        */
 
         Tessellator tess = Tessellator.getInstance();
         BufferBuilder buf = tess.getBuffer();
@@ -61,80 +49,82 @@ public class ChunkGrid {
 
                 int colors[] = chunkdata.getColors();
                 int color = colors[colors.length - 1];
-                int alpha = (color & 0xff000000) >>> 24;
-                int red = (color & 0xff0000) >> 16;
-                int green = (color & 0xff00) >> 8;
-                int blue = (color & 0xff);
-                float brightenFactor = GuiChunkGrid.style.isCheckerboard() ? 0.1f : 0.3f;
-                if (red == 0 && green == 0 && blue == 0)
-                    brightenFactor = 0.01f;
-
-                if (GuiChunkGrid.style.isCheckerboard() && (x + z) % 2 == 0)
-                    color = brighten(color, brightenFactor);
-
-                int color1, color2;
-                if (GuiChunkGrid.style.isGradient()) {
-                    color1 = brighten(color, brightenFactor);
-                    color2 = brighten(color1, brightenFactor);
-                } else {
-                    color2 = color1 = color;
+                drawBox(tess, buf, cellX, cellY, x, z, color, scale);
+                if (colors.length > 2) {
+                    int c = colors[colors.length - 2];
+                    drawBox(tess, buf, cellX + scale / 4, cellY + scale / 4, x, z, c, scale / 2);
                 }
-
-                int alpha1 = (color1 & 0xff000000) >>> 24;
-                int red1 = (color1 & 0xff0000) >> 16;
-                int green1 = (color1 & 0xff00) >> 8;
-                int blue1 = (color1 & 0xff);
-                int alpha2 = (color2 & 0xff000000) >>> 24;
-                int red2 = (color2 & 0xff0000) >> 16;
-                int green2 = (color2 & 0xff00) >> 8;
-                int blue2 = (color2 & 0xff);
-
-                buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-                buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
-                buf.pos(cellX, cellY + scale, 0).color(red1, green1, blue1, alpha1).endVertex();
-                buf.pos(cellX + scale, cellY + scale, 0).color(red2, green2, blue2, alpha2).endVertex();
-                buf.pos(cellX + scale, cellY, 0).color(red1, green1, blue1, alpha1).endVertex();
-                tess.draw();
             }
         }
 
         if (selection.getX() != Integer.MAX_VALUE) {
-            int alpha = 0xff;
-            int red = 0xf7;
-            int green = 0xf0;
-            int blue = 0x06;
-
-            int x = selection.getX();
-            int z = selection.getY();
-            int rx = x * scale;
-            int ry = z * scale;
-            int cellX = thisX + rx;
-            int cellY = thisY + ry;
-
-            buf.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-            buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
-            buf.pos(cellX, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
-            buf.pos(cellX, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
-            buf.pos(cellX + scale, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
-            buf.pos(cellX + scale, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
-            buf.pos(cellX + scale, cellY, 0).color(red, green, blue, alpha).endVertex();
-            buf.pos(cellX + scale, cellY, 0).color(red, green, blue, alpha).endVertex();
-            buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
-            tess.draw();
+            drawSelectionBox(tess, buf, thisX, thisY, 0xfff7f006);
         }
 
         GlStateManager.enableTexture2D();
         GlStateManager.shadeModel(GL11.GL_FLAT);
+    }
 
-//        if (selection.getX() != Integer.MAX_VALUE) {
-//            int rx = selection.getX() * cellSize;
-//            int ry = selection.getY() * cellSize;
-//            Gui.drawRect(thisX + rx,
-//                    thisY + ry,
-//                    thisX + rx + cellSize,
-//                    thisY + ry + cellSize,
-//                    0xff646245);
-//        }
+    private void drawBox(Tessellator tess, BufferBuilder buf, int cellX, int cellY, int x, int z, int color, int scal) {
+        int alpha = (color & 0xff000000) >>> 24;
+        int red = (color & 0xff0000) >> 16;
+        int green = (color & 0xff00) >> 8;
+        int blue = (color & 0xff);
+        float brightenFactor = GuiChunkGrid.style.isCheckerboard() ? 0.1f : 0.3f;
+        if (red == 0 && green == 0 && blue == 0)
+            brightenFactor = 0.01f;
+
+        if (GuiChunkGrid.style.isCheckerboard() && (x + z) % 2 == 0)
+            color = brighten(color, brightenFactor);
+
+        int color1, color2;
+        if (GuiChunkGrid.style.isGradient()) {
+            color1 = brighten(color, brightenFactor);
+            color2 = brighten(color1, brightenFactor);
+        } else {
+            color2 = color1 = color;
+        }
+
+        int alpha1 = (color1 & 0xff000000) >>> 24;
+        int red1 = (color1 & 0xff0000) >> 16;
+        int green1 = (color1 & 0xff00) >> 8;
+        int blue1 = (color1 & 0xff);
+        int alpha2 = (color2 & 0xff000000) >>> 24;
+        int red2 = (color2 & 0xff0000) >> 16;
+        int green2 = (color2 & 0xff00) >> 8;
+        int blue2 = (color2 & 0xff);
+
+        buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX, cellY + scal, 0).color(red1, green1, blue1, alpha1).endVertex();
+        buf.pos(cellX + scal, cellY + scal, 0).color(red2, green2, blue2, alpha2).endVertex();
+        buf.pos(cellX + scal, cellY, 0).color(red1, green1, blue1, alpha1).endVertex();
+        tess.draw();
+    }
+
+    private void drawSelectionBox(Tessellator tess, BufferBuilder buf, int thisX, int thisY, int color) {
+        int alpha = (color & 0xff000000) >>> 24;
+        int red = (color & 0xff0000) >> 16;
+        int green = (color & 0xff00) >> 8;
+        int blue = (color & 0xff);
+
+        int x = selection.getX();
+        int z = selection.getY();
+        int rx = x * scale;
+        int ry = z * scale;
+        int cellX = thisX + rx;
+        int cellY = thisY + ry;
+
+        buf.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+        buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX + scale, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX + scale, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX + scale, cellY, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX + scale, cellY, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
+        tess.draw();
     }
 
     public int getGridX(int pixelX) {
@@ -148,14 +138,6 @@ public class ChunkGrid {
             return 0;
         return pixelY / scale;
     }
-
-    /*public int getGridColor(int x, int z) {
-        if (x < 0 || z < 0 || x >= colors.length || z >= colors[x].length || colors[x][z].length == 0) {
-            return GuiChunkGrid.style.getBackgroundColor();
-        }
-        int color[] = colors[x][z];
-        return color[color.length - 1];
-    }*/
 
     private static int brighten(int col, float factor) {
         int alpha = (col & 0xff000000) >>> 24;
