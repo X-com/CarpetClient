@@ -44,22 +44,27 @@ public class Chunkdata implements Serializable {
         }
 
         static final int eventColors[] = {
-                0xffff0000,//MISSED_EVENT_ERROR
+                0xff000000,//MISSED_EVENT_ERROR
                 0xffdd0000,//UNLOADING
-                0xff00dd00,//LOADING
-                0xff00dddd,//PLAYER_ENTERS
-                0xffdd00dd,//PLAYER_LEAVES
+                0xff26BAD9,//LOADING
+                0xff1D9441,//PLAYER_ENTERS
+                0xffff8028,//PLAYER_LEAVES
                 0xffdddd00,//QUEUE_UNLOAD
-                0xff88dd00,//CANCEL_UNLOAD
-                0xff00dd88,//GENERATING
-                0xff00dd66,//POPULATING
-                0xff00dd44//GENERATING_STRUCTURES
+                0xffffff00,//CANCEL_UNLOAD
+                0xff804000,//GENERATING
+                0xffdd00dd,//POPULATING
+                0xff770077//GENERATING_STRUCTURES
         };
 
         public int getColor() {
             return eventColors[this.ordinal()];
         }
     }
+
+    private static final int STATE_WAS_UNLOAD_QUEUED = 0xffEAEA00;
+    private static final int STATE_WAS_PLAYER_LOADED = 0xff00D200;
+    private static final int STATE_LOADED = 0xff3F48CC;
+    private static final int STATE_PAST_LOADED = 0xffC3C3C3;
 
     private static final int categoryCount = 2;
 
@@ -120,14 +125,14 @@ public class Chunkdata implements Serializable {
             }
             if (wasLoaded()) {
                 if (wasUnloadQueued()) {
-                    colors[0] = 0xff886600;
+                    colors[0] = STATE_WAS_UNLOAD_QUEUED;
                 } else if (wasPlayerLoaded()) {
-                    colors[0] = 0xff000088;
+                    colors[0] = STATE_WAS_PLAYER_LOADED;
                 } else {
-                    colors[0] = 0xff008800;
+                    colors[0] = STATE_LOADED;
                 }
             } else if (wasLoadedInThePast()) {
-                colors[0] = 0xff111111;
+                colors[0] = STATE_PAST_LOADED;
             } else {
                 colors[0] = GuiChunkGrid.style.getBackgroundColor();
             }
