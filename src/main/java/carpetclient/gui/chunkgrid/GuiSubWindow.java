@@ -12,17 +12,20 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
+import java.util.List;
 
 public abstract class GuiSubWindow extends GuiScreen {
 
     protected String title;
     protected GuiScreen parentScreen;
     protected GuiScreen backgroundScreen;
+    private List<String> stackTrace;
 
-    public GuiSubWindow(String title, GuiScreen parentScreen, GuiScreen backgroundScreen) {
+    public GuiSubWindow(String title, GuiScreen parentScreen, GuiScreen backgroundScreen, List<String> stackTrace) {
         this.title = title;
         this.parentScreen = parentScreen;
         this.backgroundScreen = backgroundScreen;
+        this.stackTrace = stackTrace;
     }
 
     @Override
@@ -79,7 +82,7 @@ public abstract class GuiSubWindow extends GuiScreen {
             if (mouseButton == 0) {
                 mc.displayGuiScreen(parentScreen);
             } else if (mouseButton == 1) {
-                
+                mc.displayGuiScreen(new GuiShowStackTrace(this, backgroundScreen, stackTrace));
             }
         }
     }

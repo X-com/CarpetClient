@@ -21,7 +21,7 @@ public class GuiShowStackTrace extends GuiSubWindow {
     private List<String> stackTrace;
 
     public GuiShowStackTrace(GuiScreen parentScreen, GuiScreen backgroundScreen, List<String> stackTrace) {
-        super("Stack Trace", parentScreen, backgroundScreen);
+        super("Stack Trace", parentScreen, backgroundScreen, stackTrace);
         this.stackTrace = stackTrace;
     }
 
