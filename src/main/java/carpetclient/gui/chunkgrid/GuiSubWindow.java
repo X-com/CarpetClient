@@ -82,7 +82,9 @@ public abstract class GuiSubWindow extends GuiScreen {
             if (mouseButton == 0) {
                 mc.displayGuiScreen(parentScreen);
             } else if (mouseButton == 1) {
-                mc.displayGuiScreen(new GuiShowStackTrace(this, backgroundScreen, stackTrace));
+                if (stackTrace != null) {
+                    mc.displayGuiScreen(new GuiShowStackTrace(this, backgroundScreen, stackTrace));
+                }
             }
         }
     }

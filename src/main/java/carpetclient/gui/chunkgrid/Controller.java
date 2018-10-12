@@ -267,15 +267,17 @@ public class Controller {
             List<String> props = new ArrayList<>();
             List<String> stacktrace = new ArrayList<>();
 
-            Chunkdata.ChunkView chunk = mapView.pickChunk(cx,cz);
-            if(chunk != null) {
+            Chunkdata.ChunkView chunk = mapView.pickChunk(cx, cz);
+            if (chunk != null) {
                 for (Chunkdata.EventView ev : chunk) {
                     String eventString = "Event: " + ev.getType().toString() + " Order: " + ev.getOrder() + " GT: " + ev.getGametick();
                     props.add(eventString);
                     String s = ev.getStacktrace();
-                    stacktrace.add("");
-                    stacktrace.add(eventString);
-                    stacktrace.addAll(Splitter.onPattern("\\r?\\n").splitToList(s));
+                    if (s != null && s.length() != 0) {
+                        stacktrace.add("");
+                        stacktrace.add(eventString);
+                        stacktrace.addAll(Splitter.onPattern("\\r?\\n").splitToList(s));
+                    }
                 }
             }
             Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(cx, cz, debug, debug, props, stacktrace.size() != 0 ? stacktrace : null));
