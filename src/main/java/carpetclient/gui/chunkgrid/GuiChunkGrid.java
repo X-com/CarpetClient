@@ -305,24 +305,6 @@ public class GuiChunkGrid extends GuiScreen {
         int minimapWidth = (int) (screenWidth * MINIMAP_WIDTH);
         int minimapHeight = (int) (screenHeight * MINIMAP_HEIGHT);
 
-        // Minimap frame
-        GlStateManager.disableTexture2D();
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
-
-        final int COL_DARK = 0x30;
-        final int COL_LIGHT = 0xc0;
-        Tessellator tess = Tessellator.getInstance();
-        BufferBuilder buf = tess.getBuffer();
-        buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-        buf.pos(minimapX - 5, minimapY - 5, 0).color(COL_DARK, COL_DARK, COL_DARK, 0xff).endVertex();
-        buf.pos(minimapX - 5, minimapY + minimapHeight + 5, 0).color(COL_LIGHT, COL_LIGHT, COL_LIGHT, 0xff).endVertex();
-        buf.pos(minimapX + minimapWidth + 5, minimapY + minimapHeight + 5, 0).color(COL_DARK, COL_DARK, COL_DARK, 0xff).endVertex();
-        buf.pos(minimapX + minimapWidth + 5, minimapY - 5, 0).color(COL_LIGHT, COL_LIGHT, COL_LIGHT, 0xff).endVertex();
-        tess.draw();
-
-        GlStateManager.shadeModel(GL11.GL_FLAT);
-        GlStateManager.enableTexture2D();
-
         // Actual minimap content
         chunkgrid.draw(minimapX, minimapY, minimapWidth, minimapHeight);
     }
