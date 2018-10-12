@@ -372,7 +372,7 @@ public class Controller {
         if (chunk.wasLoadedInThePast()) {
             if (tag > 0) s += " : ";
             tag++;
-            s += "Loaded in previous GT";
+            s += "Loaded in previous gametick";
         } else if (chunk.wasLoaded()) {
             if (tag > 0) s += " : ";
             tag++;
