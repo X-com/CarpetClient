@@ -367,14 +367,15 @@ public class Controller {
             tag++;
             s += "Player Loaded";
         }
-        if (chunk.wasLoadedInThePast()) {
-            if (tag > 0) s += " : ";
-            tag++;
-            s += "Loaded in previous gametick";
-        } else if (chunk.wasLoaded()) {
+        if (chunk.wasLoaded()) {
             if (tag > 0) s += " : ";
             tag++;
             s += "Loaded";
+        }
+        else if (chunk.wasLoadedInThePast()) {
+            if (tag > 0) s += " : ";
+            tag++;
+            s += "Unloaded";
         }
         if (chunk.wasUnloadQueued()) {
             if (tag > 0) s += " : ";
