@@ -75,8 +75,13 @@ public abstract class GuiSubWindow extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        if (selectedButton == null)
-            mc.displayGuiScreen(parentScreen);
+        if (selectedButton == null) {
+            if (mouseButton == 0) {
+                mc.displayGuiScreen(parentScreen);
+            } else if (mouseButton == 1) {
+                
+            }
+        }
     }
 
     @Override

@@ -20,7 +20,7 @@ public class GuiChunkGrid extends GuiScreen {
 
     public static GuiChunkGrid instance;
 
-    public static ChunkGridStyle style = "Xcom6000".equals(Minecraft.getMinecraft().getSession().getUsername()) ? ChunkGridStyle.CHECKERBOARD_NOBG : ChunkGridStyle.GRADIENT;
+    public static ChunkGridStyle style = "Xcom6000".equals(Minecraft.getMinecraft().getSession().getUsername()) ? ChunkGridStyle.CHECKERBOARD : ChunkGridStyle.GRADIENT;
 
     private Controller controller;
     private ChunkGrid chunkgrid = new ChunkGrid();
@@ -63,6 +63,7 @@ public class GuiChunkGrid extends GuiScreen {
     private static final float MINIMAP_Y = 0.05f;
     private static final float MINIMAP_WIDTH = 0.25f;
     private static final float MINIMAP_HEIGHT = 0.45f;
+    private boolean showMinimap = false;
 
     public GuiChunkGrid() {
         this.controller = new Controller(this);
@@ -77,10 +78,9 @@ public class GuiChunkGrid extends GuiScreen {
         addButton(startStopButton = new GuiButton(0, getFooterX(0), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, controller.start ? "Stop" : "Start"));
 
         minimapVisibleCheckbox = new GuiCheckbox(1, getFooterX(1), getFooterY(0), "Show Minimap");
-        boolean minimapVisible = isMinimapVisible();
         minimapVisibleCheckbox.x += (getFooterColWidth() - minimapVisibleCheckbox.getButtonWidth()) / 2;
         minimapVisibleCheckbox.y += (FOOTER_ROW_HEIGHT - 8) / 2; // Hardcoded constant, no getter :(
-        minimapVisibleCheckbox.checked = minimapVisible;
+        minimapVisibleCheckbox.checked = showMinimap;
         addButton(minimapVisibleCheckbox);
 
         addButton(loadButton = new GuiButton(2, getFooterX(2), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Load"));
@@ -138,7 +138,8 @@ public class GuiChunkGrid extends GuiScreen {
                 }
                 break;
             case 1:
-                setMinimapVisible(!isMinimapVisible());
+                showMinimap = !showMinimap;
+                setMinimapVisible(showMinimap);
                 break;
             case 2:
                 controller.load();
@@ -298,6 +299,7 @@ public class GuiChunkGrid extends GuiScreen {
     // Minimap
 
     public void renderMinimap(int screenWidth, int screenHeight) {
+        if (mc.currentScreen == this) return;
         int minimapX = (int) (screenWidth * MINIMAP_X);
         int minimapY = (int) (screenHeight * MINIMAP_Y);
         int minimapWidth = (int) (screenWidth * MINIMAP_WIDTH);
@@ -385,7 +387,7 @@ public class GuiChunkGrid extends GuiScreen {
     }
 
     public boolean isMinimapVisible() {
-        return minimapVisibleCheckbox != null && minimapVisibleCheckbox.checked;
+        return showMinimap;
     }
 
     public void setMinimapVisible(boolean minimapVisible) {
