@@ -64,6 +64,8 @@ public class GuiChunkGrid extends GuiScreen {
     private static final float MINIMAP_WIDTH = 0.25f;
     private static final float MINIMAP_HEIGHT = 0.45f;
     private boolean showMinimap = false;
+    private int minimapWidth;
+    private int minimapHeight;
 
     public GuiChunkGrid() {
         this.controller = new Controller(this);
@@ -88,10 +90,10 @@ public class GuiChunkGrid extends GuiScreen {
         addButton(currentButton = new GuiButton(4, getFooterX(4), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Current"));
 
 
-        addButton(backButton = new GuiButton(5, getFooterX(0), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Back"));
-        addButton(forwardButton = new GuiButton(6, getFooterX(1), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Forward"));
+        addButton(backButton = new GuiButton(5, getFooterX(1), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Back"));
+        addButton(forwardButton = new GuiButton(6, getFooterX(2), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Forward"));
 
-        addButton(beginingButton = new GuiButton(7, getFooterX(2), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Begining"));
+        addButton(beginingButton = new GuiButton(7, getFooterX(0), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Begining"));
         addButton(endButton = new GuiButton(8, getFooterX(3), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, "End"));
         addButton(playButton = new GuiButton(9, getFooterX(4), getFooterY(1), getFooterColWidth(), FOOTER_ROW_HEIGHT, controller.play ? "Pause" : "Play"));
 
@@ -120,7 +122,7 @@ public class GuiChunkGrid extends GuiScreen {
         loadButton.enabled = saveButton.enabled = playButton.enabled = !controller.start;
         currentButton.enabled = controller.start;
 
-        controller.initGUI();
+        controller.updateGUI();
     }
 
     @Override
@@ -296,14 +298,19 @@ public class GuiChunkGrid extends GuiScreen {
         return false;
     }
 
+    @Override
+    public void onGuiClosed() {
+        controller.initMinimap();
+    }
+
     // Minimap
 
     public void renderMinimap(int screenWidth, int screenHeight) {
-        if (mc.currentScreen == this) return;
+        if (isChunkDebugWindowOpen()) return;
         int minimapX = (int) (screenWidth * MINIMAP_X);
         int minimapY = (int) (screenHeight * MINIMAP_Y);
-        int minimapWidth = (int) (screenWidth * MINIMAP_WIDTH);
-        int minimapHeight = (int) (screenHeight * MINIMAP_HEIGHT);
+        minimapWidth = (int) (screenWidth * MINIMAP_WIDTH);
+        minimapHeight = (int) (screenHeight * MINIMAP_HEIGHT);
 
         // Actual minimap content
         chunkgrid.draw(minimapX, minimapY, minimapWidth, minimapHeight);
@@ -330,6 +337,10 @@ public class GuiChunkGrid extends GuiScreen {
     }
 
     // Accessors
+
+    public boolean isChunkDebugWindowOpen() {
+        return mc.currentScreen == this;
+    }
 
     public ChunkGrid getChunkGrid() {
         return chunkgrid;
@@ -361,6 +372,22 @@ public class GuiChunkGrid extends GuiScreen {
 
     public void liveUpdate(int time) {
         controller.liveUpdate(time);
+    }
+
+    public int getMinimapWidth() {
+        return minimapWidth;
+    }
+
+    public int getMinimapHeight() {
+        return minimapHeight;
+    }
+
+    public int windowWidth() {
+        return width;
+    }
+
+    public int windowHeight() {
+        return height - HEADER_HEIGHT - FOOTER_HEIGHT;
     }
 
     public void setSelectedDimension(int dimension) {

@@ -28,6 +28,7 @@ public class Controller {
     private int selectionDimention;
     private Chunkdata chunkData;
     private Chunkdata.MapView mapView;
+    private Chunkdata.MapView mapViewMinimap;
 
     //    private Chunkdata.MapView chunkData;
     private Point mouseDown = new Point();
@@ -38,6 +39,7 @@ public class Controller {
         lastGametick = 0;
         chunkData = ZeroXstuff.data;
         mapView = chunkData.getChunkData();
+        mapViewMinimap = chunkData.getChunkData();
     }
 
     public boolean startStop() {
@@ -48,6 +50,7 @@ public class Controller {
             home();
             chunkData.clear();
             mapView = chunkData.getChunkData();
+            mapViewMinimap = chunkData.getChunkData();
             selectionBox = null;
             play = false;
         }
@@ -77,6 +80,7 @@ public class Controller {
                 ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
                 chunkData = (Chunkdata) in.readObject();
                 mapView = chunkData.getChunkData();
+                mapViewMinimap = chunkData.getChunkData();
                 view.setX(in.readInt());
                 view.setY(in.readInt());
                 debug.setXText(view.getX());
@@ -162,19 +166,19 @@ public class Controller {
         debug.setXText(view.getX());
         debug.setZText(view.getY());
 
-        changeDimentionTo(Minecraft.getMinecraft().player.dimension);
+        int dimention = minecraftDimentionToIndex(Minecraft.getMinecraft().player.dimension);
+        debug.setSelectedDimension(dimention);
 
         setTick(lastGametick);
     }
 
-    private void changeDimentionTo(int dimension) {
+    private int minecraftDimentionToIndex(int dimension) {
         if (dimension == -1) {
-            debug.setSelectedDimension(1);
+            return 1;
         } else if (dimension == 1) {
-            debug.setSelectedDimension(2);
-        } else if (dimension == 0) {
-            debug.setSelectedDimension(0);
+            return 2;
         }
+        return 0;
     }
 
     public void setTime(String text) {
@@ -214,19 +218,54 @@ public class Controller {
     }
 
     public void liveUpdate(int time) {
-        if (!live) return;
-        setTick(time);
+        if (debug.isMinimapVisible() && !debug.isChunkDebugWindowOpen()) {
+            setMinimap(time);
+        }
+        if (live && debug.isChunkDebugWindowOpen()) {
+            setTick(time);
+        }
     }
 
-    public void initGUI() {
-        setTick(lastGametick);
+    public void updateGUI() {
+        if (debug.isChunkDebugWindowOpen()) {
+            setTick(lastGametick);
+        } else if (debug.isMinimapVisible()) {
+            setMinimap(lastGametick);
+        }
     }
 
-    void setTick(int gametick) {
+    public void initMinimap() {
+        setMinimap(lastGametick);
+    }
+
+    private void setMinimap(int time) {
+        BlockPos pos = Minecraft.getMinecraft().player.getPosition();
+        ChunkGrid canvas = debug.getChunkGrid();
+        int playerX = pos.getX() >> 4;
+        int playerY = pos.getZ() >> 4;
+
+        int dimention = minecraftDimentionToIndex(Minecraft.getMinecraft().player.dimension);
+
+        int sizeX = canvas.size(debug.getMinimapWidth());
+        int sizeZ = canvas.size(debug.getMinimapHeight());
+
+        int minX = playerX - sizeX / 2;
+        int maxX = playerX + sizeX / 2;
+        int minZ = playerY - sizeZ / 2;
+        int maxZ = playerY + sizeZ / 2;
+
+        mapViewMinimap.seekSpace(dimention, minX, maxX, minZ, maxZ);
+        mapViewMinimap.seekTime(time);
+        canvas.setView(mapViewMinimap);
+
+        lastGametick = time;
+    }
+
+    private void setTick(int gametick) {
         int dimention = debug.getSelectedDimension();
         ChunkGrid canvas = debug.getChunkGrid();
-        int sizeX = canvas.sizeX();
-        int sizeZ = canvas.sizeZ();
+        int sizeX = canvas.size(debug.windowWidth());
+        int sizeZ = canvas.size(debug.windowHeight());
 
         int minX = view.getX() - sizeX / 2;
         int maxX = view.getX() + sizeX / 2;

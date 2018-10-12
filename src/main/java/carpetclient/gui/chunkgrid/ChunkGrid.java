@@ -196,4 +196,8 @@ public class ChunkGrid {
     public void setView(Chunkdata.MapView view) {
         this.view = view;
     }
+
+    public int size(int window) {
+        return (int) Math.ceil((float) window / scale);
+    }
 }
