@@ -81,8 +81,11 @@ public abstract class GuiSubWindow extends GuiScreen {
         if (selectedButton == null) {
             if (mouseButton == 0) {
                 mc.displayGuiScreen(parentScreen);
+                if (parentScreen instanceof GuiChunkGrid) {
+                    ((GuiChunkGrid) parentScreen).consumeLeftClick();
+                }
             } else if (mouseButton == 1) {
-                if (stackTrace != null) {
+                if (stackTrace != null && !(this instanceof GuiShowStackTrace)) {
                     mc.displayGuiScreen(new GuiShowStackTrace(this, backgroundScreen, stackTrace));
                 }
             }

@@ -273,7 +273,6 @@ public class Chunkdata implements Serializable {
         }
 
         public void seekSpace(int dimension, int minx, int maxx, int minz, int maxz) {
-            System.out.println("seekSpace in thrread " + Thread.currentThread().getId());
             if ((minx > maxx) || (minz > maxz)) {
                 throw new IllegalArgumentException("Inverted range");
             }

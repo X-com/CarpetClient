@@ -67,6 +67,7 @@ public class GuiChunkGrid extends GuiScreen {
     private static final float MINIMAP_HEIGHT = 0.45f;
     private int minimapWidth;
     private int minimapHeight;
+    private boolean consumeLeftClickOnes = false;
 
     public GuiChunkGrid() {
         this.controller = new Controller(this);
@@ -200,8 +201,9 @@ public class GuiChunkGrid extends GuiScreen {
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
         super.mouseReleased(mouseX, mouseY, mouseButton);
-        if (mouseY >= HEADER_HEIGHT && mouseY < height - FOOTER_HEIGHT)
+        if (mouseY >= HEADER_HEIGHT && mouseY < height - FOOTER_HEIGHT && !consumeLeftClickOnes)
             controller.buttonUp(mouseX, mouseY - HEADER_HEIGHT, mouseButton);
+        consumeLeftClickOnes = false;
     }
 
     @Override
@@ -394,6 +396,10 @@ public class GuiChunkGrid extends GuiScreen {
     public void setSelectedDimension(int dimension) {
         selectedDimension = dimension;
         dimensionButton.displayString = DIMENSION_NAMES[selectedDimension];
+    }
+
+    public void consumeLeftClick() {
+        consumeLeftClickOnes = true;
     }
 
     public int getMinimapType() {
