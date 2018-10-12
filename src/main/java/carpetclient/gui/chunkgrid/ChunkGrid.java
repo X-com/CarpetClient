@@ -96,7 +96,7 @@ public class ChunkGrid {
         int blue = (color & 0xff);
         float brightenFactor = GuiChunkGrid.style.isCheckerboard() ? 0.1f : 0.3f;
         if (red == 0 && green == 0 && blue == 0)
-            brightenFactor = 0.01f;
+            brightenFactor = 0.2f;
 
         if (GuiChunkGrid.style.isCheckerboard() && (x + z) % 2 == 0)
             color = brighten(color, brightenFactor);
@@ -197,15 +197,17 @@ public class ChunkGrid {
         int green = (col & 0xff00) >> 8;
         int blue = col & 0xff;
 
-        // redn't green't and bluen't are technical terms
-        int rednt = 255 - red, greent = 255 - green, bluent = 255 - blue;
-        rednt = (int) (rednt * (1 - factor));
-        greent = (int) (greent * (1 - factor));
-        bluent = (int) (bluent * (1 - factor));
-        red = 255 - rednt;
-        green = 255 - greent;
-        blue = 255 - bluent;
-
+        int mix = (int) ((red + green + blue) * factor/3);
+        red += mix;
+        green += mix;
+        blue += mix;
+        int redOverflow = Integer.max(red-255,0);
+        int greenOverflow = Integer.max(green-255,0);
+        int blueOverflow = Integer.max(blue-255,0);
+        int overflow = Integer.max(redOverflow,Integer.max(greenOverflow,blueOverflow))/2;
+        red = Integer.min(red + overflow,255);
+        green = Integer.min(green + overflow,255);
+        blue = Integer.min(blue + overflow,255);
         return (alpha << 24)
                 | (red << 16)
                 | (green << 8)
