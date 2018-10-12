@@ -344,19 +344,46 @@ public class Controller {
 
             Chunkdata.ChunkView chunk = mapView.pickChunk(cx, cz);
             if (chunk != null) {
+                String lastChunkString = getLastChunkState(chunk);
+                props.add(lastChunkString);
+                props.add("");
                 for (Chunkdata.EventView ev : chunk) {
                     String eventString = "Event: " + ev.getType().toString() + " Order: " + ev.getOrder() + " GT: " + ev.getGametick();
                     props.add(eventString);
-                    String s = ev.getStacktrace();
-                    if (s != null && s.length() != 0) {
+                    String stacktracestring = ev.getStacktrace();
+                    if (stacktracestring != null && stacktracestring.length() != 0) {
                         stacktrace.add("");
                         stacktrace.add(eventString);
-                        stacktrace.addAll(Splitter.onPattern("\\r?\\n").splitToList(s));
+                        stacktrace.addAll(Splitter.onPattern("\\r?\\n").splitToList(stacktracestring));
                     }
                 }
             }
             Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(cx, cz, debug, debug, props, stacktrace.size() != 0 ? stacktrace : null));
         }
+    }
+
+    private String getLastChunkState(Chunkdata.ChunkView chunk) {
+        String s = "";
+        int tag = 0;
+        if (chunk.wasPlayerLoaded()) {
+            tag++;
+            s += "Player Loaded";
+        }
+        if (chunk.wasLoadedInThePast()) {
+            if (tag > 0) s += " : ";
+            tag++;
+            s += "Loaded in previous GT";
+        } else if (chunk.wasLoaded()) {
+            if (tag > 0) s += " : ";
+            tag++;
+            s += "Loaded";
+        }
+        if (chunk.wasUnloadQueued()) {
+            if (tag > 0) s += " : ";
+            s += "Unloading Queued";
+        }
+
+        return s;
     }
 
     public void buttonUp(int x, int y, int mouseButton) {
