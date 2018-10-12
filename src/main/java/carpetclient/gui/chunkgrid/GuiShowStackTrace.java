@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
+import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,6 +23,7 @@ public class GuiShowStackTrace extends GuiSubWindow {
     private GuiButton copyToClipboardButton;
 
     private List<String> stackTrace;
+    int scrollIndex = 0;
 
     public GuiShowStackTrace(GuiScreen parentScreen, GuiScreen backgroundScreen, List<String> stackTrace) {
         super("Stack Trace", parentScreen, backgroundScreen, stackTrace);
@@ -52,6 +54,28 @@ public class GuiShowStackTrace extends GuiSubWindow {
     }
 
     @Override
+    public void handleMouseInput() throws IOException {
+        super.handleMouseInput();
+        int scroll = Mouse.getEventDWheel();
+        if (scroll != 0) {
+            scroll *= -1;
+            scroll /= 100;
+            int lineHeight = fontRenderer.FONT_HEIGHT + 1;
+            int y = getSubWindowTop() + 17;
+            int maxY = getSubWindowBottom() - getFooterHeight() - 2;
+            int maxLineCount = (maxY - y) / lineHeight;
+
+            scrollIndex += scroll;
+            if ((stackTrace.size() - maxLineCount) < scrollIndex) {
+                scrollIndex = stackTrace.size() - maxLineCount;
+            }
+            if (scrollIndex < 0) {
+                scrollIndex = 0;
+            }
+        }
+    }
+
+    @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -62,9 +86,9 @@ public class GuiShowStackTrace extends GuiSubWindow {
         int maxY = getSubWindowBottom() - getFooterHeight() - 2;
         int maxLineCount = (maxY - y) / lineHeight;
 
-        for (int lineInd = 0; lineInd < stackTrace.size() && lineInd < maxLineCount; lineInd++) {
+        for (int lineInd = scrollIndex; lineInd < stackTrace.size() && lineInd < scrollIndex + maxLineCount; lineInd++) {
             String line;
-            if (lineInd == maxLineCount - 1 && lineInd != stackTrace.size() - 1) {
+            if (lineInd == scrollIndex + maxLineCount - 1 && lineInd != stackTrace.size() - 1) {
                 line = "...";
             } else {
                 line = stackTrace.get(lineInd);
