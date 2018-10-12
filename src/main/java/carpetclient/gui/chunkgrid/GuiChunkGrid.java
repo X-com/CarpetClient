@@ -374,6 +374,10 @@ public class GuiChunkGrid extends GuiScreen {
         controller.liveUpdate(time);
     }
 
+    public void setPlayButtonText(String text) {
+        playButton.displayString = text;
+    }
+
     public int getMinimapWidth() {
         return minimapWidth;
     }

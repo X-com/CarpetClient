@@ -367,7 +367,6 @@ public class Controller {
     }
 
     private class Timer extends Thread {
-
         public void run() {
             int last = ZeroXstuff.data.getLastGametick();
             while (play) {
@@ -377,9 +376,11 @@ public class Controller {
                     e.printStackTrace();
                 }
                 int next = lastGametick + 1;
-                if (next >= last) return;
+                if (next >= last) break;
                 setTick(next);
             }
+            play = false;
+            debug.setPlayButtonText("Play");
         }
     }
 }
