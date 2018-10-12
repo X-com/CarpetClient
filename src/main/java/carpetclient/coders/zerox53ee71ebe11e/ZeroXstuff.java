@@ -58,6 +58,8 @@ public class ZeroXstuff {
     private static void unpackNBT(NBTTagCompound nbt) {
         NBTTagList list = nbt.getTagList("data", 10);
         int time = nbt.getInteger("time");
+        int offset = nbt.getInteger("offset");
+        boolean complete = nbt.getBoolean("complete");
         for (int index = 0; index < list.tagCount(); ++index) {
             NBTTagCompound chunk = list.getCompoundTagAt(index);
             int x = chunk.getInteger("x");
@@ -65,9 +67,11 @@ public class ZeroXstuff {
             int dimention = chunk.getInteger("d");
             int event = chunk.getInteger("event");
             int stacktrace = chunk.getInteger("trace");
-            data.addData(time, index, x, z, dimention, event, stacktrace);
+            data.addData(time, index + offset, x, z, dimention, event, stacktrace);
         }
-
-        GuiChunkGrid.instance.liveUpdate(time);
+        if(complete) {
+            data.completeData();
+            GuiChunkGrid.instance.liveUpdate(time);
+        }
     }
 }

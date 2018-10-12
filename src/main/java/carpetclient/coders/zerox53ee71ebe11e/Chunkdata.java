@@ -241,8 +241,8 @@ public class Chunkdata implements Serializable {
 
         // previous state of the chunks
         public boolean wasUnloadQueued(){
-            if(oldEvents[1] != null){
-                return oldEvents[1].e == Event.QUEUE_UNLOAD;
+            if(oldEvents[0] != null){
+                return oldEvents[0].e == Event.QUEUE_UNLOAD;
             }
             return false;
         }
@@ -279,6 +279,7 @@ public class Chunkdata implements Serializable {
         }
 
         public void seekSpace(int dimension, int minx, int maxx, int minz, int maxz) {
+            System.out.println("seekSpace in thrread " + Thread.currentThread().getId());
             if((minx > maxx) || (minz > maxz)){
                 throw new IllegalArgumentException("Inverted range");
             }
@@ -332,6 +333,7 @@ public class Chunkdata implements Serializable {
         }
 
         public void seekTime(int gametick) {
+            System.out.println("seekTime to " + gametick);
             if(gametick == this.gametick) {
                 return;
             }
@@ -416,16 +418,7 @@ public class Chunkdata implements Serializable {
 
     // called for each received stacktrace in order
     public void addStacktrace(String s, int id) {
-        try {
-            if(id != allStacktraces.size()){
-                throw new IllegalArgumentException(String.format("Stacktraces must get inserted in the correct order. Received ID: %d Expected ID: %d", id, allStacktraces.size()));
-            }
-            allStacktraces.add(s);
-        }
-        catch(RuntimeException e){
-            e.printStackTrace();
-            throw e;
-        }
+        allStacktraces.put(id,s);
     }
 
     // called for each event received in order
@@ -436,9 +429,24 @@ public class Chunkdata implements Serializable {
                 System.err.println(String.format("Warning: Referenced non-existant Stacktrace %d (All Stacktraces: %d)",traceid,allStacktraces.size()));
             }
             FullEvent event = new FullEvent(x, z, d, eventcode, traceid, gametick, eventNumber);
-            allEvents[event.e.categorizeEvent()].addEvent(event);
+            this.receiveBuffer.add(event);
         }
         catch (RuntimeException e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public void completeData() {
+        try {
+            System.out.println("completeData in thrread " + Thread.currentThread().getId());
+            for (FullEvent event : receiveBuffer) {
+                //System.out.println("received event:" + event.toString());
+                allEvents[event.e.categorizeEvent()].addEvent(event);
+            }
+            receiveBuffer.clear();
+        }
+        catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
         }
@@ -452,13 +460,13 @@ public class Chunkdata implements Serializable {
             }
         }
         if(first == Integer.MAX_VALUE){
-            return 0;
+            return -1;
         }
         return first;
     }
 
     public int getLastGametick() {
-        int last = 0;
+        int last = -1;
         for(EventCollection c:allEvents){
             if(!c.eventsForGametick.isEmpty()) {
                 last = Integer.max(last,c.eventsForGametick.lastKey());
@@ -525,11 +533,13 @@ public class Chunkdata implements Serializable {
             c.clear();
         }
         allStacktraces.clear();
+        receiveBuffer.clear();
     }
 
     private int clearCount = 0;
     private EventCollection allEvents[];
-    private ArrayList<String> allStacktraces;
+    private TreeMap<Integer,String> allStacktraces;
+    private ArrayList<FullEvent> receiveBuffer = new ArrayList<>();
 
     private class EventCollection {
         TreeMap<Integer,FullEvent[]> eventsForGametick = new TreeMap<Integer,FullEvent[]>();
@@ -779,7 +789,7 @@ public class Chunkdata implements Serializable {
         }
         @Override
         public String toString(){
-            return String.format("X: %d Z: %d t: %d O: %d event: %s stack: %d",x,z,t,o,e.toString(),s);
+            return String.format("X: %d Z: %d D: %d t: %d O: %d event: %s stack: %d",x,z,d,t,o,e.toString(),s);
         }
     }
 
@@ -793,7 +803,10 @@ public class Chunkdata implements Serializable {
             }
         }
         if(this.allStacktraces == null) {
-            this.allStacktraces = new ArrayList<>();
+            this.allStacktraces = new TreeMap();
+        }
+        if(this.receiveBuffer == null) {
+            this.receiveBuffer = new ArrayList<>();
         }
     }
 
@@ -802,7 +815,7 @@ public class Chunkdata implements Serializable {
 
         out.writeInt(allStacktraces.size());
 
-        for(String s: allStacktraces){
+        for(String s: allStacktraces.values()){
             out.writeObject(s);
         }
         int count = 0;
@@ -848,6 +861,7 @@ public class Chunkdata implements Serializable {
             int traceid = in.readInt();
             this.addData(tick, evnum, x, z, d, event, traceid);
         }
+        this.completeData();
     }
 
     private void readObjectNoData()
