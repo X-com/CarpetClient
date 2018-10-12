@@ -45,9 +45,9 @@ public class Chunkdata implements Serializable {
 
         static final int eventColors[] = {
                 0xff000000,//MISSED_EVENT_ERROR
-                0xffdd0000,//UNLOADING
-                0xff26BAD9,//LOADING
-                0xff1D9441,//PLAYER_ENTERS
+                0xffff0000,//UNLOADING
+                0xffffff00,//LOADING
+                0xff00D200,//PLAYER_ENTERS
                 0xffff8028,//PLAYER_LEAVES
                 0xffdddd00,//QUEUE_UNLOAD
                 0xffffff00,//CANCEL_UNLOAD
@@ -62,9 +62,9 @@ public class Chunkdata implements Serializable {
     }
 
     private static final int STATE_WAS_UNLOAD_QUEUED = 0xffEAEA00;
-    private static final int STATE_WAS_PLAYER_LOADED = 0xff00D200;
-    private static final int STATE_LOADED = 0xff3F48CC;
-    private static final int STATE_PAST_LOADED = 0xffC3C3C3;
+    private static final int STATE_WAS_PLAYER_LOADED = 0xff007000;
+    private static final int STATE_LOADED = 0xff2C6798;
+    private static final int STATE_PAST_LOADED = 0xff303030;
 
     private static final int categoryCount = 2;
 
