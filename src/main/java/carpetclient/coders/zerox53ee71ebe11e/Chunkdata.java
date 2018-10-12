@@ -64,7 +64,7 @@ public class Chunkdata implements Serializable {
     private static final int STATE_WAS_UNLOAD_QUEUED = 0xffEAEA00;
     private static final int STATE_WAS_PLAYER_LOADED = 0xff007000;
     private static final int STATE_LOADED = 0xff2C6798;
-    private static final int STATE_PAST_LOADED = 0xff202020;
+    private static final int STATE_PAST_LOADED = 0xff222222;
 
     private static final int categoryCount = 2;
 
