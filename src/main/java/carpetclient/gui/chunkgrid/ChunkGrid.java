@@ -1,6 +1,7 @@
 package carpetclient.gui.chunkgrid;
 
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -49,7 +50,7 @@ public class ChunkGrid {
         int originx = view.getLowerX();
         int origonz = view.getLowerZ();
 
-        if(view != null) {
+        if (view != null) {
             for (Chunkdata.ChunkView chunkdata : view) {
                 int x = chunkdata.getX() - originx;
                 int z = chunkdata.getZ() - origonz;
@@ -59,7 +60,7 @@ public class ChunkGrid {
                 int cellY = thisY + ry;
 
                 int colors[] = chunkdata.getColors();
-                int color = colors[colors.length-1];
+                int color = colors[colors.length - 1];
                 int alpha = (color & 0xff000000) >>> 24;
                 int red = (color & 0xff0000) >> 16;
                 int green = (color & 0xff00) >> 8;
@@ -97,18 +98,43 @@ public class ChunkGrid {
             }
         }
 
+        if (selection.getX() != Integer.MAX_VALUE) {
+            int alpha = 0xff;
+            int red = 0xf7;
+            int green = 0xf0;
+            int blue = 0x06;
+
+            int x = selection.getX();
+            int z = selection.getY();
+            int rx = x * scale;
+            int ry = z * scale;
+            int cellX = thisX + rx;
+            int cellY = thisY + ry;
+
+            buf.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+            buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
+            buf.pos(cellX, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+            buf.pos(cellX, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+            buf.pos(cellX + scale, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+            buf.pos(cellX + scale, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+            buf.pos(cellX + scale, cellY, 0).color(red, green, blue, alpha).endVertex();
+            buf.pos(cellX + scale, cellY, 0).color(red, green, blue, alpha).endVertex();
+            buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
+            tess.draw();
+        }
+
         GlStateManager.enableTexture2D();
         GlStateManager.shadeModel(GL11.GL_FLAT);
 
-        if (selection.getX() != Integer.MAX_VALUE) {
-            int rx = selection.getX() * cellSize;
-            int ry = selection.getY() * cellSize;
-            Gui.drawRect(thisX + rx,
-                    thisY + ry,
-                    thisX + rx + cellSize,
-                    thisY + ry + cellSize,
-                    0xff646245);
-        }
+//        if (selection.getX() != Integer.MAX_VALUE) {
+//            int rx = selection.getX() * cellSize;
+//            int ry = selection.getY() * cellSize;
+//            Gui.drawRect(thisX + rx,
+//                    thisY + ry,
+//                    thisX + rx + cellSize,
+//                    thisY + ry + cellSize,
+//                    0xff646245);
+//        }
     }
 
     public int getGridX(int pixelX) {
@@ -185,7 +211,7 @@ public class ChunkGrid {
         return screenWidth;
     }
 
-    public void setView(Chunkdata.MapView view){
+    public void setView(Chunkdata.MapView view) {
         this.view = view;
     }
 }
