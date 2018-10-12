@@ -260,6 +260,8 @@ public class Controller {
         mapViewMinimap.seekTime(time);
         canvas.setView(mapViewMinimap);
 
+        debug.getChunkGrid().playerChunk(playerX - minX, playerY - minZ);
+
         if (selectionBox != null && selectionDimention == dimention) {
             debug.getChunkGrid().setSelectionBox(selectionBox.getX() - minX, selectionBox.getY() - minZ);
         } else {
@@ -294,6 +296,13 @@ public class Controller {
             debug.setBackButtonText("Back");
             debug.setForwardButtonText("Forward");
             debug.selectedChunk(false, 0, 0);
+        }
+
+        if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null) {
+            BlockPos pos = Minecraft.getMinecraft().player.getPosition();
+            int playerX = pos.getX() >> 4;
+            int playerY = pos.getZ() >> 4;
+            debug.getChunkGrid().playerChunk(playerX - minX, playerY - minZ);
         }
 
         debug.setXText(view.getX());

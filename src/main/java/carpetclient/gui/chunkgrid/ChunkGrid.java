@@ -20,6 +20,7 @@ public class ChunkGrid {
     private int scale = 10;
 
     private Point selection = new Point(Integer.MAX_VALUE, 0);
+    private Point playerLocation = new Point(Integer.MAX_VALUE, 0);
 
     public void draw(int thisX, int thisY, int width, int height) {
         screenWidth = width;
@@ -57,6 +58,7 @@ public class ChunkGrid {
             }
         }
 
+        drawBox(tess, buf, playerLocation.getX() * scale + thisX, playerLocation.getY() * scale + thisY, 0, 0, 0xff804000, scale);
         if (selection.getX() != Integer.MAX_VALUE) {
             drawSelectionBox(tess, buf, thisX, thisY, 0xfff7f006);
         }
@@ -183,6 +185,10 @@ public class ChunkGrid {
 
     public void setSelectionBox(int x, int y) {
         selection.setLocation(x, y);
+    }
+
+    public void playerChunk(int x, int y) {
+        playerLocation.setLocation(x, y);
     }
 
     public int height() {
