@@ -1,7 +1,6 @@
 package carpetclient.gui.chunkgrid;
 
 import carpetclient.Util;
-import com.mumfrey.liteloader.client.gui.GuiCheckbox;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -16,6 +15,10 @@ import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 
+/**
+ * Extensive GUI clas used for Debug Chunk Window
+ * Minimap draw logic also included.
+ */
 public class GuiChunkGrid extends GuiScreen {
 
     public static GuiChunkGrid instance;
@@ -176,7 +179,7 @@ public class GuiChunkGrid extends GuiScreen {
             case 11:
                 selectedDimension = (selectedDimension + 1) % DIMENSION_NAMES.length;
                 dimensionButton.displayString = DIMENSION_NAMES[selectedDimension];
-                controller.comboBoxAction();
+                controller.dimentionUpdate();
                 break;
         }
     }
@@ -229,7 +232,7 @@ public class GuiChunkGrid extends GuiScreen {
         GlStateManager.disableTexture2D();
 
         // Chunk grid
-        chunkgrid.draw(controller.getView(),0, HEADER_HEIGHT, width, height - HEADER_HEIGHT - FOOTER_HEIGHT);
+        chunkgrid.draw(controller.getView(), 0, HEADER_HEIGHT, width, height - HEADER_HEIGHT - FOOTER_HEIGHT);
 
         mc.getTextureManager().bindTexture(OPTIONS_BACKGROUND);
         Tessellator tess = Tessellator.getInstance();
@@ -312,7 +315,7 @@ public class GuiChunkGrid extends GuiScreen {
         minimapHeight = (int) (screenHeight * MINIMAP_HEIGHT);
 
         // Actual minimap content
-        chunkgrid.draw(controller.getMinimapView(),minimapX, minimapY, minimapWidth, minimapHeight);
+        chunkgrid.draw(controller.getMinimapView(), minimapX, minimapY, minimapWidth, minimapHeight);
     }
 
     private int getFooterColWidth() {

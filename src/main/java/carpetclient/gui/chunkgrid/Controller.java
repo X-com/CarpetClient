@@ -15,6 +15,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller class for the chunk debug tool in carpet client. Controls all logic for GUI options.
+ */
 public class Controller {
     private GuiChunkGrid debug;
     boolean start = false;
@@ -29,10 +32,14 @@ public class Controller {
     private Chunkdata.MapView mapView;
     private Chunkdata.MapView mapViewMinimap;
 
-    //    private Chunkdata.MapView chunkData;
     private Point mouseDown = new Point();
     private boolean panning = false;
 
+    /**
+     * Main constroctor of the class.
+     *
+     * @param d Chunk Grid GUI for drawing the window after entering it with default F6 hotkey.
+     */
     public Controller(GuiChunkGrid d) {
         debug = d;
         lastGametick = 0;
@@ -41,6 +48,11 @@ public class Controller {
         mapViewMinimap = chunkData.getChunkData();
     }
 
+    /**
+     * Start stop logic for starting a recording from the server.
+     *
+     * @return returns true if retording is started.
+     */
     public boolean startStop() {
         start = !start;
 
@@ -64,10 +76,18 @@ public class Controller {
         return start;
     }
 
+    /**
+     * Sets the start or stop.
+     *
+     * @param s boolean setter for setting start.
+     */
     public void setStart(boolean s) {
         start = s;
     }
 
+    /**
+     * Loading a saved option from disk. Opens a GUI window to navigate too.
+     */
     public void load() {
         JFrame frame = new JFrame();
         JFileChooser fc = new JFileChooser();
@@ -95,6 +115,9 @@ public class Controller {
         setTick(chunkData.getFirstGametick());
     }
 
+    /**
+     * Saves a current recording to disk. Opens a window to navigate to for saving.
+     */
     public void save() {
         JFrame frame = new JFrame();
         JFileChooser fc = new JFileChooser();
@@ -114,6 +137,9 @@ public class Controller {
         }
     }
 
+    /**
+     * For going backward in time in the events captured from the server.
+     */
     public void back() {
         live = false;
         if (selectionBox != null) {
@@ -123,6 +149,9 @@ public class Controller {
         }
     }
 
+    /**
+     * For going forward in time in the events captured from the server.
+     */
     public void forward() {
         live = false;
         if (selectionBox != null) {
@@ -132,23 +161,38 @@ public class Controller {
         }
     }
 
+    /**
+     * Sets the display to the most recent events captured from the server.
+     */
     public void current() {
         live = true;
         setTick(chunkData.getLastGametick());
     }
 
-    public void comboBoxAction() {
+    /**
+     * Used after toggling the dimention button for showing different dimentions.
+     */
+    public void dimentionUpdate() {
         setTick(lastGametick);
     }
 
+    /**
+     * For going to the begining in time in the events captured from the server.
+     */
     public void begining() {
         setTick(chunkData.getFirstGametick());
     }
 
+    /**
+     * For going to the end in time in the events captured from the server.
+     */
     public void end() {
         setTick(chunkData.getLastGametick());
     }
 
+    /**
+     * Play button used to enable or disable a gametick display of the events captured from the server.
+     */
     public void play() {
         play = !play;
 
@@ -157,6 +201,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Home button to home back to the player location in the screen.
+     */
     public void home() {
         if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().player == null) return;
         BlockPos pos = Minecraft.getMinecraft().player.getPosition();
@@ -172,6 +219,15 @@ public class Controller {
         setTick(lastGametick);
     }
 
+    /**
+     * Converts minecraft dimention index to index used for dimentions in orders as follows.
+     * Overworld - 0
+     * Nether - 1
+     * End - 2
+     *
+     * @param dimension Minecraft dimetnion index.
+     * @return index of dimention listed above.
+     */
     private int minecraftDimentionToIndex(int dimension) {
         if (dimension == -1) {
             return 1;
@@ -181,6 +237,11 @@ public class Controller {
         return 0;
     }
 
+    /**
+     * Sets the time on the textbox displaying gameticks.
+     *
+     * @param text String representation of the gametick.
+     */
     public void setTime(String text) {
         try {
             int gt = Integer.parseInt(text);
@@ -197,6 +258,11 @@ public class Controller {
         }
     }
 
+    /**
+     * Sets the X value the view is at.
+     *
+     * @param text String representation of the X value the view is at.
+     */
     public void setX(String text) {
         try {
             int x = Integer.parseInt(text);
@@ -207,6 +273,11 @@ public class Controller {
         setTick(lastGametick);
     }
 
+    /**
+     * Sets the Z value the view is at.
+     *
+     * @param text String representation of the Z value the view is at.
+     */
     public void setZ(String text) {
         try {
             int z = Integer.parseInt(text);
@@ -217,6 +288,9 @@ public class Controller {
         setTick(lastGametick);
     }
 
+    /**
+     * Method used by the server to update when live updates is set and data is being recieved.
+     */
     public void liveUpdate() {
         int time = chunkData.getLastGametick();
         if (debug.getMinimapType() != 0 && !debug.isChunkDebugWindowOpen()) {
@@ -227,6 +301,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Updates the draw calculations with the last game tick.
+     */
     public void updateGUI() {
         if (debug.isChunkDebugWindowOpen()) {
             setTick(lastGametick);
@@ -235,10 +312,18 @@ public class Controller {
         }
     }
 
+    /**
+     * Update minimap calculations with the last game tick.
+     */
     public void initMinimap() {
         setMinimap(lastGametick);
     }
 
+    /**
+     * Sets the minimap to the specific game tick.
+     *
+     * @param time gametick in integer.
+     */
     private void setMinimap(int time) {
         ChunkGrid canvas = debug.getChunkGrid();
         int x = 0;
@@ -289,6 +374,11 @@ public class Controller {
         lastGametick = time;
     }
 
+    /**
+     * Sets the main window to the specific game tick.
+     *
+     * @param gametick gametick in integer.
+     */
     private void setTick(int gametick) {
         int dimention = debug.getSelectedDimension();
         ChunkGrid canvas = debug.getChunkGrid();
@@ -330,6 +420,13 @@ public class Controller {
         lastGametick = gametick;
     }
 
+    /**
+     * Button logic for pressing down.
+     *
+     * @param x      X pixel the mouse is pressing down at.
+     * @param y      Y pixel the mouse is pressing down at.
+     * @param button button type the mouse is pressing down with.
+     */
     public void buttonDown(int x, int y, int button) {
         if (button == 0) {
             mouseDown.setLocation(x, y);
@@ -360,6 +457,12 @@ public class Controller {
         }
     }
 
+    /**
+     * Gets the String descriptor of the last event in the chunk.
+     *
+     * @param chunk Chunk that is being used to get its last event descriptor.
+     * @return the string descriptor for the chunks status.
+     */
     private String getLastChunkState(Chunkdata.ChunkView chunk) {
         String s = "";
         int tag = 0;
@@ -384,6 +487,13 @@ public class Controller {
         return s;
     }
 
+    /**
+     * Button logic for releasing a button.
+     *
+     * @param x           X pixel the mouse is releasing at.
+     * @param y           Y pixel the mouse is releasing at.
+     * @param mouseButton button type the mouse is releasing with.
+     */
     public void buttonUp(int x, int y, int mouseButton) {
         if (mouseButton == 0 && !panning) {
             int cx = debug.getChunkGrid().getGridX(x) + view.getX() - debug.getChunkGrid().sizeX() / 2;
@@ -401,6 +511,13 @@ public class Controller {
         panning = false;
     }
 
+    /**
+     * Mouse draw logic.
+     *
+     * @param x      X pixel the mouse is at.
+     * @param y      Y pixel the mouse is at.
+     * @param button button type the mouse is draging with.
+     */
     public void mouseDrag(int x, int y, int button) {
         int dx = x - mouseDown.getX();
         int dy = y - mouseDown.getY();
@@ -421,20 +538,38 @@ public class Controller {
         }
     }
 
+    /**
+     * Scroll logic for when mouse is scrolling.
+     *
+     * @param scrollAmount scroll amount by the mouse.
+     */
     public void scroll(int scrollAmount) {
         ChunkGrid canvas = debug.getChunkGrid();
         canvas.setScale(canvas.width(), canvas.height(), scrollAmount);
         setTick(lastGametick);
     }
 
+    /**
+     * Map data that is used to draw squares on the debug chunk window.
+     *
+     * @return
+     */
     public Chunkdata.MapView getView() {
         return this.mapView;
     }
 
+    /**
+     * Minimap data that is used for drawing to the minimap.
+     *
+     * @return
+     */
     public Chunkdata.MapView getMinimapView() {
         return this.mapViewMinimap;
     }
 
+    /**
+     * Thread class used to update the ingame tick by tick representation of the events..
+     */
     private class Timer extends Thread {
         public void run() {
             int last = chunkData.getLastGametick();

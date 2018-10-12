@@ -1,5 +1,8 @@
 package carpetclient.gui.chunkgrid;
 
+/*
+Selection Class for choosing different draw options to apply to the chunk grid debug window.
+ */
 public enum ChunkGridStyle {
     GRADIENT("Gradient", "Earth's favorite style"),
     GRADIENT_NOBG("Transparent Gradient", "0x's favorite style", false),
@@ -26,10 +29,20 @@ public enum ChunkGridStyle {
         this.drawBackground = drawBackground;
     }
 
+    /**
+     * Returns if selection is of type gradiant.
+     *
+     * @return
+     */
     public boolean isGradient() {
         return this == GRADIENT || this == GRADIENT_NOBG;
     }
 
+    /**
+     * Returns if the selection is of type checkerboard.
+     *
+     * @return
+     */
     public boolean isCheckerboard() {
         return this == CHECKERBOARD || this == CHECKERBOARD_NOBG;
     }
@@ -40,14 +53,29 @@ public enum ChunkGridStyle {
     }
     */
 
+    /**
+     * Name of the selection.
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Description of the selection.
+     *
+     * @return
+     */
     public String getDesc() {
         return desc;
     }
 
+    /**
+     * Returns the default black background or transparent based on selection.
+     *
+     * @return
+     */
     public int getBackgroundColor() {
         return drawBackground ? 0xff000000 : 0;
     }

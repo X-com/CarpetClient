@@ -14,6 +14,9 @@ import org.lwjgl.opengl.GL11;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Window for displaying events selected by the user.
+ */
 public abstract class GuiSubWindow extends GuiScreen {
 
     protected String title;

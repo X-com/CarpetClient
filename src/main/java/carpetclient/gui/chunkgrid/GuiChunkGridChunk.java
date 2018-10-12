@@ -7,6 +7,9 @@ import net.minecraft.client.resources.I18n;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Display window for the events.
+ */
 public class GuiChunkGridChunk extends GuiSubWindow {
 
     private GuiButton doneButton;

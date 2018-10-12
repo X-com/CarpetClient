@@ -11,6 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Window for drawing stack traces.
+ */
 public class GuiShowStackTrace extends GuiSubWindow {
 
     private static final Pattern STACK_TRACE_ELEMENT_REGEX = Pattern.compile("(?:.+\\.)?(.+?\\..+?)\\(.+?(?::(\\d+))?\\)");

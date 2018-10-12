@@ -9,6 +9,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
 
+/**
+ * Chunk Grid draw method for drawing debug chunk grids.
+ */
 public class ChunkGrid {
 
     private int screenWidth = 0;
@@ -20,6 +23,15 @@ public class ChunkGrid {
     private Point selection = new Point(Integer.MAX_VALUE, 0);
     private Point playerLocation = new Point(Integer.MAX_VALUE, 0);
 
+    /**
+     * Main draw method for the squares representing chunks.
+     *
+     * @param view   The data that the chunks ares stored in.
+     * @param thisX  Draw area X position
+     * @param thisY  Draw area Y position
+     * @param width  Draw area width
+     * @param height Draw area height
+     */
     public void draw(Chunkdata.MapView view, int thisX, int thisY, int width, int height) {
         screenWidth = width;
         screenHeight = height;
@@ -65,6 +77,18 @@ public class ChunkGrid {
         GlStateManager.shadeModel(GL11.GL_FLAT);
     }
 
+    /**
+     * Draws a box representing a chunk by color and locaiton on screen
+     *
+     * @param tess
+     * @param buf
+     * @param cellX
+     * @param cellY
+     * @param x
+     * @param z
+     * @param color
+     * @param scal
+     */
     private void drawBox(Tessellator tess, BufferBuilder buf, int cellX, int cellY, int x, int z, int color, int scal) {
         int alpha = (color & 0xff000000) >>> 24;
         int red = (color & 0xff0000) >> 16;
@@ -102,6 +126,15 @@ public class ChunkGrid {
         tess.draw();
     }
 
+    /**
+     * Draws a selection box for the selected chunk.
+     *
+     * @param tess
+     * @param buf
+     * @param thisX
+     * @param thisY
+     * @param color
+     */
     private void drawSelectionBox(Tessellator tess, BufferBuilder buf, int thisX, int thisY, int color) {
         int alpha = (color & 0xff000000) >>> 24;
         int red = (color & 0xff0000) >> 16;
@@ -127,18 +160,37 @@ public class ChunkGrid {
         tess.draw();
     }
 
+    /**
+     * Screen pixel to grid x value.
+     *
+     * @param pixelX X pixel value.
+     * @return the grid Y value.
+     */
     public int getGridX(int pixelX) {
         if (scale == 0)
             return 0;
         return pixelX / scale;
     }
 
+    /**
+     * Screen pixel to grid y value.
+     *
+     * @param pixelY Y pixel value.
+     * @return the grid Y value.
+     */
     public int getGridY(int pixelY) {
         if (scale == 0)
             return 0;
         return pixelY / scale;
     }
 
+    /**
+     * Brigents any color for drawing on screen.
+     *
+     * @param col    Original color that needs brightened.
+     * @param factor brighten factor.
+     * @return the brightened color in integer number.
+     */
     private static int brighten(int col, float factor) {
         int alpha = (col & 0xff000000) >>> 24;
         int red = (col & 0xff0000) >> 16;
@@ -160,14 +212,31 @@ public class ChunkGrid {
                 | (blue);
     }
 
+    /**
+     * Size of the columns currently drawing on screens X value
+     *
+     * @return column numbers representing X chunk value.
+     */
     public int sizeX() {
         return columnCount;
     }
 
+    /**
+     * Size of the row currently drawing on screen Y value
+     *
+     * @return row numbers representing Z chunk value.
+     */
     public int sizeZ() {
         return rowCount;
     }
 
+    /**
+     * Sets the scale or zoom level of the drawing squares.
+     *
+     * @param width  width of the window in pixels.
+     * @param height height of the window in pixels.
+     * @param value  scrolling value added to old scroll value.
+     */
     public void setScale(int width, int height, int value) {
         scale += value;
         if (scale < 3 && !GuiScreen.isCtrlKeyDown()) {
@@ -181,22 +250,50 @@ public class ChunkGrid {
         columnCount = width / scale;
     }
 
+    /**
+     * Sets the selection box to draw lines around the selected rectangle.
+     *
+     * @param x X value for drawing on screen in square values.
+     * @param y Y value for drawing on screen in square values.
+     */
     public void setSelectionBox(int x, int y) {
         selection.setLocation(x, y);
     }
 
+    /**
+     * Set player location on the map.
+     *
+     * @param x X value for drawing on screen in square values.
+     * @param y Y value for drawing on screen in square values.
+     */
     public void playerChunk(int x, int y) {
         playerLocation.setLocation(x, y);
     }
 
+    /**
+     * Screen height in pixels.
+     *
+     * @return returns height pixel of this window.
+     */
     public int height() {
         return screenHeight;
     }
 
+    /**
+     * Screen width in pixels.
+     *
+     * @return returns width pixel of this window.
+     */
     public int width() {
         return screenWidth;
     }
 
+    /**
+     * Size conversion from window size to scaled value.
+     *
+     * @param window window size that is to be scaled.
+     * @return the scaled value after the scaling is applied to it.
+     */
     public int size(int window) {
         return (int) Math.ceil((float) window / scale);
     }
