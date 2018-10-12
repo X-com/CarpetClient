@@ -339,7 +339,7 @@ public class GuiChunkGrid extends GuiScreen {
     // Accessors
 
     public boolean isChunkDebugWindowOpen() {
-        return mc.currentScreen == this;
+        return mc.currentScreen == this || mc.currentScreen instanceof GuiSubWindow;
     }
 
     public ChunkGrid getChunkGrid() {
