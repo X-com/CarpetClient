@@ -260,6 +260,12 @@ public class Controller {
         mapViewMinimap.seekTime(time);
         canvas.setView(mapViewMinimap);
 
+        if (selectionBox != null && selectionDimention == dimention) {
+            debug.getChunkGrid().setSelectionBox(selectionBox.getX() - minX, selectionBox.getY() - minZ);
+        } else {
+            debug.getChunkGrid().setSelectionBox(Integer.MAX_VALUE, 0);
+        }
+
         lastGametick = time;
     }
 
