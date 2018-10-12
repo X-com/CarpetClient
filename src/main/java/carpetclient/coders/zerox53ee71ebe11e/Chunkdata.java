@@ -611,8 +611,7 @@ public class Chunkdata implements Serializable {
                     break;
                 }
                 int endindex;
-                for (endindex = startindex + 1; (endindex < thisGametick.length) && (spacialSorted.compare(thisGametick[endindex], event) == 0); ++endindex)
-                    ;
+                for (endindex = startindex + 1; (endindex < thisGametick.length) && (spacialSorted.compare(thisGametick[endindex], event) == 0); ++endindex);
 
                 int x = event.x;
                 int xi = x - minx;
@@ -931,17 +930,19 @@ public class Chunkdata implements Serializable {
 
         if (PACKET_EVENTS == type) {
             if(instance != null) {
-                instance.unpackNBT(nbt);
+                if(instance.unpackNBT(nbt)) {
+                    GuiChunkGrid.instance.liveUpdate();
+                }
             }
         }
         else if (PACKET_STACKTRACE == type) {
             if (instance != null) {
-                GuiChunkGrid.instance.liveUpdate();
                 instance.unpackNBTStackTrace(nbt);
             }
         }
         else if (PACKET_ACCESS_DENIED == type) {
             GuiChunkGrid.instance.disableDebugger();
+            instance.retire();
             instance = null;
         }
     }
