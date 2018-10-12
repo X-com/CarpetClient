@@ -241,8 +241,8 @@ public class Chunkdata implements Serializable {
 
         // previous state of the chunks
         public boolean wasUnloadQueued(){
-            if(oldEvents[1] != null){
-                return oldEvents[1].e == Event.QUEUE_UNLOAD;
+            if(oldEvents[0] != null){
+                return oldEvents[0].e == Event.QUEUE_UNLOAD;
             }
             return false;
         }
