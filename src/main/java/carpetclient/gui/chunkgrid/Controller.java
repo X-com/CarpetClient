@@ -219,7 +219,7 @@ public class Controller {
     }
 
     public void liveUpdate(int time) {
-        if (debug.isMinimapVisible() && !debug.isChunkDebugWindowOpen()) {
+        if (debug.getMinimapType() != 0 && !debug.isChunkDebugWindowOpen()) {
             setMinimap(time);
         }
         if (live && debug.isChunkDebugWindowOpen()) {
@@ -230,7 +230,7 @@ public class Controller {
     public void updateGUI() {
         if (debug.isChunkDebugWindowOpen()) {
             setTick(lastGametick);
-        } else if (debug.isMinimapVisible()) {
+        } else if (debug.getMinimapType() != 0) {
             setMinimap(lastGametick);
         }
     }
@@ -240,27 +240,46 @@ public class Controller {
     }
 
     private void setMinimap(int time) {
-        if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().player == null) return;
-        BlockPos pos = Minecraft.getMinecraft().player.getPosition();
         ChunkGrid canvas = debug.getChunkGrid();
-        int playerX = pos.getX() >> 4;
-        int playerY = pos.getZ() >> 4;
+        int x = 0;
+        int y = 0;
+        int playerX = 0;
+        int playerY = 0;
+        int dimention = 0;
+        boolean playerDrawn = false;
 
-        int dimention = minecraftDimentionToIndex(Minecraft.getMinecraft().player.dimension);
+        if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null) {
+            BlockPos pos = Minecraft.getMinecraft().player.getPosition();
+            playerX = x = pos.getX() >> 4;
+            playerY = y = pos.getZ() >> 4;
+            playerDrawn = true;
+        }
+
+        if (debug.getMinimapType() == 1) {
+            dimention = minecraftDimentionToIndex(Minecraft.getMinecraft().player.dimension);
+        } else if (debug.getMinimapType() == 2) {
+            x = view.getX();
+            y = view.getY();
+            dimention = debug.getSelectedDimension();
+        } else {
+            return;
+        }
 
         int sizeX = canvas.size(debug.getMinimapWidth());
         int sizeZ = canvas.size(debug.getMinimapHeight());
 
-        int minX = playerX - sizeX / 2;
-        int maxX = playerX + sizeX / 2;
-        int minZ = playerY - sizeZ / 2;
-        int maxZ = playerY + sizeZ / 2;
+        int minX = x - sizeX / 2;
+        int maxX = x + sizeX / 2;
+        int minZ = y - sizeZ / 2;
+        int maxZ = y + sizeZ / 2;
 
         mapViewMinimap.seekSpace(dimention, minX, maxX, minZ, maxZ);
         mapViewMinimap.seekTime(time);
         canvas.setView(mapViewMinimap);
 
-        debug.getChunkGrid().playerChunk(playerX - minX, playerY - minZ);
+        if (playerDrawn) {
+            debug.getChunkGrid().playerChunk(playerX - minX, playerY - minZ);
+        }
 
         if (selectionBox != null && selectionDimention == dimention) {
             debug.getChunkGrid().setSelectionBox(selectionBox.getX() - minX, selectionBox.getY() - minZ);

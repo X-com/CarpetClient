@@ -35,8 +35,6 @@ public class GuiChunkGrid extends GuiScreen {
     private GuiButton endButton;
     private GuiButton playButton;
 
-    private GuiCheckbox minimapVisibleCheckbox;
-
     private GuiNumericIntTextField textFieldX;
     private GuiNumericIntTextField textFieldZ;
     private GuiNumericIntTextField textFieldGT;
@@ -44,6 +42,10 @@ public class GuiChunkGrid extends GuiScreen {
     private int time;
     private int xText;
     private int zText;
+
+    private static final String[] MINIMAP_NAMES = {"Minimap OFF", "Follow", "Static"};
+    private int selectedMinimap = 0;
+    private GuiButton minimapButton;
 
     private static final String[] DIMENSION_NAMES = {"Overworld", "Nether", "End"};
     private int selectedDimension = 0;
@@ -63,7 +65,6 @@ public class GuiChunkGrid extends GuiScreen {
     private static final float MINIMAP_Y = 0.05f;
     private static final float MINIMAP_WIDTH = 0.25f;
     private static final float MINIMAP_HEIGHT = 0.45f;
-    private boolean showMinimap = false;
     private int minimapWidth;
     private int minimapHeight;
 
@@ -79,11 +80,7 @@ public class GuiChunkGrid extends GuiScreen {
 
         addButton(startStopButton = new GuiButton(0, getFooterX(0), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, controller.start ? "Stop" : "Start"));
 
-        minimapVisibleCheckbox = new GuiCheckbox(1, getFooterX(1), getFooterY(0), "Show Minimap");
-        minimapVisibleCheckbox.x += (getFooterColWidth() - minimapVisibleCheckbox.getButtonWidth()) / 2;
-        minimapVisibleCheckbox.y += (FOOTER_ROW_HEIGHT - 8) / 2; // Hardcoded constant, no getter :(
-        minimapVisibleCheckbox.checked = showMinimap;
-        addButton(minimapVisibleCheckbox);
+        addButton(minimapButton = new GuiButton(1, getFooterX(1), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, MINIMAP_NAMES[selectedMinimap]));
 
         addButton(loadButton = new GuiButton(2, getFooterX(2), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Load"));
         addButton(saveButton = new GuiButton(3, getFooterX(3), getFooterY(0), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Save"));
@@ -140,8 +137,8 @@ public class GuiChunkGrid extends GuiScreen {
                 }
                 break;
             case 1:
-                showMinimap = !showMinimap;
-                setMinimapVisible(showMinimap);
+                selectedMinimap = (selectedMinimap + 1) % MINIMAP_NAMES.length;
+                minimapButton.displayString = MINIMAP_NAMES[selectedMinimap];
                 break;
             case 2:
                 controller.load();
@@ -399,12 +396,8 @@ public class GuiChunkGrid extends GuiScreen {
         dimensionButton.displayString = DIMENSION_NAMES[selectedDimension];
     }
 
-    public boolean isMinimapVisible() {
-        return showMinimap;
-    }
-
-    public void setMinimapVisible(boolean minimapVisible) {
-        this.minimapVisibleCheckbox.checked = minimapVisible;
+    public int getMinimapType() {
+        return selectedMinimap;
     }
 
     public void selectedChunk(boolean cs, int x, int y) {

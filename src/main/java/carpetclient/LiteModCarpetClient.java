@@ -84,7 +84,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
     @Override
     public void onPostRenderHUD(int screenWidth, int screenHeight) {
-        if (GuiChunkGrid.instance.isMinimapVisible()) {
+        if (GuiChunkGrid.instance.getMinimapType() != 0) {
             GuiChunkGrid.instance.renderMinimap(screenWidth, screenHeight);
         }
     }
