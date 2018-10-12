@@ -162,8 +162,10 @@ public class ChunkGrid {
 
     public void setScale(int width, int height, int value) {
         scale += value;
-        if (scale < 5) {
-            scale = 5;
+        if (scale < 3 && !GuiScreen.isCtrlKeyDown()) {
+            scale = 3;
+        } else if (scale < 1) {
+            scale = 1;
         } else if (scale > 50) {
             scale = 50;
         }
