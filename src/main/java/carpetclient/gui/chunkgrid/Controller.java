@@ -363,6 +363,8 @@ public class Controller {
 
         if (playerDrawn) {
             debug.getChunkGrid().playerChunk(playerX - minX, playerY - minZ);
+        } else {
+            debug.getChunkGrid().playerChunk(Integer.MAX_VALUE, 0);
         }
 
         if (selectionBox != null && selectionDimention == dimention) {
@@ -405,12 +407,7 @@ public class Controller {
             debug.selectedChunk(false, 0, 0);
         }
 
-        if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null) {
-            BlockPos pos = Minecraft.getMinecraft().player.getPosition();
-            int playerX = pos.getX() >> 4;
-            int playerY = pos.getZ() >> 4;
-            debug.getChunkGrid().playerChunk(playerX - minX, playerY - minZ);
-        }
+        debug.getChunkGrid().playerChunk(Integer.MAX_VALUE, 0);
 
         debug.setXText(view.getX());
         debug.setZText(view.getY());
@@ -474,13 +471,11 @@ public class Controller {
             if (tag > 0) s += " : ";
             tag++;
             s += "Loaded";
-        }
-        else if (chunk.wasLoadedInThePast()) {
+        } else if (chunk.wasLoadedInThePast()) {
             if (tag > 0) s += " : ";
             tag++;
             s += "Recently Unloaded";
-        }
-        else {
+        } else {
             if (tag > 0) s += " : ";
             tag++;
             s += "Unloaded";

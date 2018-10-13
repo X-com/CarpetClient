@@ -68,9 +68,12 @@ public class ChunkGrid {
             }
         }
 
-        drawBox(tess, buf, playerLocation.getX() * scale + thisX, playerLocation.getY() * scale + thisY, 0, 0, 0xff804000, scale);
+//        drawBox(tess, buf, playerLocation.getX() * scale + thisX, playerLocation.getY() * scale + thisY, 0, 0, 0xff804000, scale);
         if (selection.getX() != Integer.MAX_VALUE) {
             drawSelectionBox(tess, buf, thisX, thisY, 0xfff7f006);
+        }
+        if (playerLocation.getX() != Integer.MAX_VALUE) {
+            drawPlayerCross(tess, buf, thisX, thisY, 0xfff7f006);
         }
 
         GlStateManager.enableTexture2D();
@@ -78,7 +81,7 @@ public class ChunkGrid {
     }
 
     /**
-     * Draws a box representing a chunk by color and locaiton on screen
+     * Draws a box representing a chunk by color and location on screen
      *
      * @param tess
      * @param buf
@@ -160,6 +163,27 @@ public class ChunkGrid {
         tess.draw();
     }
 
+    private void drawPlayerCross(Tessellator tess, BufferBuilder buf, int thisX, int thisY, int color) {
+        int alpha = (color & 0xff000000) >>> 24;
+        int red = (color & 0xff0000) >> 16;
+        int green = (color & 0xff00) >> 8;
+        int blue = (color & 0xff);
+
+        int x = playerLocation.getX();
+        int z = playerLocation.getY();
+        int rx = x * scale;
+        int ry = z * scale;
+        int cellX = thisX + rx;
+        int cellY = thisY + ry;
+
+        buf.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+        buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX + scale, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
+        buf.pos(cellX + scale, cellY, 0).color(red, green, blue, alpha).endVertex();
+        tess.draw();
+    }
+
     /**
      * Screen pixel to grid x value.
      *
@@ -197,17 +221,17 @@ public class ChunkGrid {
         int green = (col & 0xff00) >> 8;
         int blue = col & 0xff;
 
-        int mix = (int) ((red + green + blue) * factor/3);
+        int mix = (int) ((red + green + blue) * factor / 3);
         red += mix;
         green += mix;
         blue += mix;
-        int redOverflow = Integer.max(red-255,0);
-        int greenOverflow = Integer.max(green-255,0);
-        int blueOverflow = Integer.max(blue-255,0);
-        int overflow = Integer.max(redOverflow,Integer.max(greenOverflow,blueOverflow))/2;
-        red = Integer.min(red + overflow,255);
-        green = Integer.min(green + overflow,255);
-        blue = Integer.min(blue + overflow,255);
+        int redOverflow = Integer.max(red - 255, 0);
+        int greenOverflow = Integer.max(green - 255, 0);
+        int blueOverflow = Integer.max(blue - 255, 0);
+        int overflow = Integer.max(redOverflow, Integer.max(greenOverflow, blueOverflow)) / 2;
+        red = Integer.min(red + overflow, 255);
+        green = Integer.min(green + overflow, 255);
+        blue = Integer.min(blue + overflow, 255);
         return (alpha << 24)
                 | (red << 16)
                 | (green << 8)
