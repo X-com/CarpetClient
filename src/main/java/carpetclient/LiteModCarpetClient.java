@@ -10,10 +10,11 @@ import carpetclient.gui.chunkgrid.GuiChunkGrid;
 import com.mumfrey.liteloader.*;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.rules.CarpetRules;
+import com.mumfrey.liteloader.modconfig.ConfigPanel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 
-public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener, HUDRenderListener {
+public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener, HUDRenderListener, Configurable {
 
     private boolean gameRunnin = false;
     private boolean loggedOut = false;
@@ -25,6 +26,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
     @Override
     public void init(File configPath) {
+        Config.load();
         GuiChunkGrid.instance = new GuiChunkGrid();
         Hotkeys.init();
     }
@@ -89,5 +91,10 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
         if (GuiChunkGrid.instance.getMinimapType() != 0) {
             GuiChunkGrid.instance.renderMinimap(screenWidth, screenHeight);
         }
+    }
+
+    @Override
+    public Class<? extends ConfigPanel> getConfigPanelClass() {
+        return null;
     }
 }

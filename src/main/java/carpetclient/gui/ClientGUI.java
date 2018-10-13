@@ -75,6 +75,7 @@ public class ClientGUI {
                 display();
             }
         }
+        Config.save();
     }
 
     /**
