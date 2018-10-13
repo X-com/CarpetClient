@@ -23,7 +23,7 @@ public class GuiChunkGrid extends GuiScreen {
 
     public static GuiChunkGrid instance;
 
-    public static ChunkGridStyle style = "Xcom6000".equals(Minecraft.getMinecraft().getSession().getUsername()) ? ChunkGridStyle.CHECKERBOARD : ChunkGridStyle.GRADIENT;
+    public static ChunkGridStyle style = ChunkGridStyle.CHECKERBOARD;
 
     private Controller controller;
     private ChunkGrid chunkgrid = new ChunkGrid();
