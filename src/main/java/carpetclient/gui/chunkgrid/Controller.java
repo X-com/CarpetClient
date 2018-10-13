@@ -10,6 +10,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.util.Point;
 
+import javax.naming.ldap.Control;
 import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -195,10 +196,6 @@ public class Controller {
      */
     public void play() {
         play = !play;
-
-        if (play) {
-            new Timer().start();
-        }
     }
 
     /**
@@ -568,24 +565,19 @@ public class Controller {
         return this.mapViewMinimap;
     }
 
-    /**
-     * Thread class used to update the ingame tick by tick representation of the events..
-     */
-    private class Timer extends Thread {
-        public void run() {
-            int last = chunkData.getLastGametick();
-            while (play) {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+    public static void tick() {
+        if (Minecraft.getMinecraft().currentScreen instanceof GuiChunkGrid) {
+            Controller c = ((GuiChunkGrid) Minecraft.getMinecraft().currentScreen).getController();
+            if (c.play) {
+                int next = c.lastGametick + 1;
+                int last = c.chunkData.getLastGametick();
+                if (next <= last) {
+                    c.setTick(next);
+                } else {
+                    c.play = false;
+                    c.debug.setPlayButtonText("Play");
                 }
-                int next = lastGametick + 1;
-                if (next >= last) break;
-                setTick(next);
             }
-            play = false;
-            debug.setPlayButtonText("Play");
         }
     }
 }

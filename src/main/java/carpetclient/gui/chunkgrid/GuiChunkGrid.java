@@ -421,4 +421,8 @@ public class GuiChunkGrid extends GuiScreen {
         controller.setStart(false);
         Util.printToChat("Chunk Debug Tool disabled on the server, enable chunkDebugTool rule for use.");
     }
+
+    public Controller getController() {
+        return controller;
+    }
 }
