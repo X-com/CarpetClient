@@ -11,6 +11,10 @@ import java.util.*;
 import java.io.IOException;
 import java.util.Map.Entry;
 
+/**
+ * Class made by 0x53ee71ebe11e for the Chunk Debug tool. Don't ask me how it works.
+ * Contact 0x53ee71ebe11e for use of this class.
+ */
 public class Chunkdata implements Serializable {
 
     public static enum Event {
