@@ -67,6 +67,7 @@ public class Chunkdata implements Serializable {
 
     private static final int STATE_WAS_UNLOAD_QUEUED = 0xff999900;
     private static final int STATE_WAS_PLAYER_LOADED = 0xff007000;
+    private static final int STATE_PLAYER_REQUESTED = 0xff002200;
     private static final int STATE_LOADED = 0xff2C6798;
     private static final int STATE_PAST_LOADED = 0xff222222;
 
@@ -135,7 +136,11 @@ public class Chunkdata implements Serializable {
                 } else {
                     colors[0] = STATE_LOADED;
                 }
-            } else if (wasLoadedInThePast()) {
+            }
+            else if(wasPlayerLoaded()) {
+                colors[0] = STATE_PLAYER_REQUESTED;
+            }
+            else if (wasLoadedInThePast()) {
                 colors[0] = STATE_PAST_LOADED;
             } else {
                 colors[0] = GuiChunkGrid.style.getBackgroundColor();
