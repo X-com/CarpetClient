@@ -7,7 +7,7 @@ public enum ChunkGridStyle {
     GRADIENT("Gradient", "Earth's favorite style"),
     GRADIENT_NOBG("Transparent Gradient", "0x's favorite style", false),
     CHECKERBOARD("Checkerboard", "Xcom's favorite style"),
-    CHECKERBOARD_NOBG("Transparent Checkerboard"),
+    CHECKERBOARD_NOBG("Transparent Checkerboard", false),
     //FLAT_COLOR("Flat Color"),
     ;
 
@@ -15,8 +15,8 @@ public enum ChunkGridStyle {
     private final String desc;
     private final boolean drawBackground;
 
-    ChunkGridStyle(String name) {
-        this(name, null);
+    ChunkGridStyle(String name, boolean drawBackground) {
+        this(name, "", drawBackground);
     }
 
     ChunkGridStyle(String name, String desc) {

@@ -151,6 +151,10 @@ public class ChunkGrid {
         int cellX = thisX + rx;
         int cellY = thisY + ry;
 
+        if (cellX < thisX || cellY < thisY || cellX + scale > thisX + screenWidth || cellY + scale > thisY + screenHeight) {
+            return;
+        }
+
         buf.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
         buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
         buf.pos(cellX, cellY + scale, 0).color(red, green, blue, alpha).endVertex();
@@ -175,6 +179,10 @@ public class ChunkGrid {
         int ry = z * scale;
         int cellX = thisX + rx;
         int cellY = thisY + ry;
+
+        if (cellX < thisX || cellY < thisY || cellX + scale > thisX + screenWidth || cellY + scale > thisY + screenHeight) {
+            return;
+        }
 
         buf.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
         buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
