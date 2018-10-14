@@ -59,16 +59,15 @@ public class ChunkGrid {
                 int cellY = thisY + ry;
 
                 int colors[] = chunkdata.getColors();
-                int color = colors[colors.length - 1];
+                int color = getColorFromArray(colors, colors.length - 1);
                 drawBox(tess, buf, cellX, cellY, x, z, color, scale);
                 if (colors.length > 2) {
-                    int c = colors[colors.length - 2];
-                    drawBox(tess, buf, cellX + scale / 4, cellY + scale / 4, x, z, c, scale / 2);
+                    color = getColorFromArray(colors, colors.length - 2);
+                    drawBox(tess, buf, cellX + scale / 4, cellY + scale / 4, x, z, color, scale / 2);
                 }
             }
         }
 
-//        drawBox(tess, buf, playerLocation.getX() * scale + thisX, playerLocation.getY() * scale + thisY, 0, 0, 0xff804000, scale);
         if (selection.getX() != Integer.MAX_VALUE) {
             drawSelectionBox(tess, buf, thisX, thisY, 0xfff7f006);
         }
@@ -78,6 +77,13 @@ public class ChunkGrid {
 
         GlStateManager.enableTexture2D();
         GlStateManager.shadeModel(GL11.GL_FLAT);
+    }
+
+    private int getColorFromArray(int[] colors, int i) {
+        int color = colors[i];
+        if (color == Integer.MAX_VALUE)
+            color = GuiChunkGrid.style.getBackgroundColor(); // retarded hackfix to fix background color being changable
+        return color;
     }
 
     /**

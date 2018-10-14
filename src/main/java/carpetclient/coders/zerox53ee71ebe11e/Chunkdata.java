@@ -139,7 +139,7 @@ public class Chunkdata implements Serializable {
             else if (wasLoadedInThePast()) {
                 colors[0] = STATE_PAST_LOADED;
             } else {
-                colors[0] = GuiChunkGrid.style.getBackgroundColor();
+                colors[0] = Integer.MAX_VALUE; // Integer max converted to background color
             }
         }
 
