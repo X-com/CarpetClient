@@ -98,11 +98,7 @@ public class Chunkdata implements Serializable {
         }
 
         public String getStacktrace() {
-            int i = event.s;
-            if (i >= 0 && i < allStacktraces.size()) {
-                return allStacktraces.get(event.s);
-            }
-            return null;
+            return allStacktraces.get(event.s);
         }
     }
 
