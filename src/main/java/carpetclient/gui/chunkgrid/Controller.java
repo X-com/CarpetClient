@@ -462,9 +462,12 @@ public class Controller {
     private String getLastChunkState(Chunkdata.ChunkView chunk) {
         String s = "";
         int tag = 0;
-        if (chunk.wasPlayerLoaded()) {
+        if (chunk.wasLoaded() && chunk.wasPlayerLoaded()) {
             tag++;
             s += "Player-Loaded";
+        } else if (!chunk.wasLoaded() && chunk.wasPlayerLoaded()) {
+            tag++;
+            s += "Player-Requested";
         }
         if (chunk.wasLoaded()) {
             if (tag > 0) s += " : ";
