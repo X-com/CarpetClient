@@ -14,6 +14,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * Extensive GUI clas used for Debug Chunk Window
@@ -23,7 +24,7 @@ public class GuiChunkGrid extends GuiScreen {
 
     public static GuiChunkGrid instance;
 
-    public static ChunkGridStyle style = ChunkGridStyle.CHECKERBOARD;
+    public static ChunkGridStyle style = ChunkGridStyle.values()[new Random().nextInt(ChunkGridStyle.values().length)];
 
     private Controller controller;
     private ChunkGrid chunkgrid = new ChunkGrid();
@@ -71,7 +72,6 @@ public class GuiChunkGrid extends GuiScreen {
     private int minimapWidth;
     private int minimapHeight;
     private boolean consumeLeftClickOnes = false;
-    private boolean minimapUpdateHackfix = true;
 
     public GuiChunkGrid() {
         this.controller = new Controller(this);

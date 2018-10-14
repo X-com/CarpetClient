@@ -79,4 +79,11 @@ public enum ChunkGridStyle {
     public int getBackgroundColor() {
         return drawBackground ? 0xff000000 : 0;
     }
+
+    /**
+     * Selection method to change styles
+     */
+    public static void changeStyle() {
+        GuiChunkGrid.style = values()[(GuiChunkGrid.style.ordinal() + 1) % values().length];
+    }
 }

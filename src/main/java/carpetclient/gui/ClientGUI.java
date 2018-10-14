@@ -71,7 +71,7 @@ public class ClientGUI {
             ShowBoundingBoxes.guiBoudingBoxOptions(buttonID);
         } else if (displayLayer == CHUNK_DEBUG_MAP_OPTIONS) {
             if (buttonID == 0) {
-                GuiChunkGrid.style = ChunkGridStyle.values()[(GuiChunkGrid.style.ordinal() + 1) % ChunkGridStyle.values().length];
+                ChunkGridStyle.changeStyle();
                 display();
             }
         }
