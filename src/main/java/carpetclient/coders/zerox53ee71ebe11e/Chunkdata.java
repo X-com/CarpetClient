@@ -468,17 +468,17 @@ public class Chunkdata implements Serializable {
         if (first == Integer.MAX_VALUE) {
             return -1;
         }
-        return first;
+        return first >= 0 ? first : -first;
     }
 
     public int getLastGametick() {
-        int last = -1;
+        int last = Integer.MIN_VALUE;
         for (EventCollection c : allEvents) {
             if (!c.eventsForGametick.isEmpty()) {
                 last = Integer.max(last, c.eventsForGametick.lastKey());
             }
         }
-        return last;
+        return last >= 0 ? last : -last;
     }
 
     public int getNextGametick(int gametick) {
