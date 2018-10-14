@@ -71,6 +71,7 @@ public class GuiChunkGrid extends GuiScreen {
     private int minimapWidth;
     private int minimapHeight;
     private boolean consumeLeftClickOnes = false;
+    private boolean minimapUpdateHackfix = true;
 
     public GuiChunkGrid() {
         this.controller = new Controller(this);
@@ -122,6 +123,9 @@ public class GuiChunkGrid extends GuiScreen {
 
         loadButton.enabled = saveButton.enabled = playButton.enabled = !controller.start;
         currentButton.enabled = controller.start;
+
+        minimapWidth = (int) (mc.displayWidth * MINIMAP_WIDTH);
+        minimapHeight = (int) (mc.displayHeight * MINIMAP_HEIGHT);
 
         controller.updateGUI();
     }
