@@ -88,7 +88,7 @@ public class GuiShowStackTrace extends GuiSubWindow {
 
         for (int lineInd = scrollIndex; lineInd < stackTrace.size() && lineInd < scrollIndex + maxLineCount; lineInd++) {
             String line;
-            if (lineInd == scrollIndex + maxLineCount - 1 && lineInd != stackTrace.size() - 1) {
+            if ((lineInd == scrollIndex + maxLineCount - 1 && lineInd != stackTrace.size() - 1) || (scrollIndex == lineInd && scrollIndex != 0)) {
                 line = "...";
             } else {
                 line = stackTrace.get(lineInd);
