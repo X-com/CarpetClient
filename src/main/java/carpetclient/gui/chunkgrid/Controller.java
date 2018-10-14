@@ -181,6 +181,7 @@ public class Controller {
      * For going to the begining in time in the events captured from the server.
      */
     public void begining() {
+        live = false;
         setTick(chunkData.getFirstGametick());
     }
 
@@ -188,6 +189,7 @@ public class Controller {
      * For going to the end in time in the events captured from the server.
      */
     public void end() {
+        live = false;
         setTick(chunkData.getLastGametick());
     }
 
