@@ -99,9 +99,7 @@ public class Chunkdata implements Serializable {
 
         public String getStacktrace() {
             int i = event.s;
-            if (i >= 0 && i < allStacktraces.size()) {
-                return allStacktraces.get(event.s);
-            }
+            return allStacktraces.get(event.s);
             return null;
         }
     }
@@ -433,8 +431,7 @@ public class Chunkdata implements Serializable {
     // called for each event received in order
     public void addData(int gametick, int eventNumber, int x, int z, int d, int eventcode, int traceid) {
         try {
-            if ((allStacktraces.size() != 0) && (traceid >= allStacktraces.size())) {
-                //throw new IllegalArgumentException();
+            if (allStacktraces.get(traceid) == null) {
                 System.err.println(String.format("Warning: Referenced non-existant Stacktrace %d (All Stacktraces: %d)", traceid, allStacktraces.size()));
             }
             FullEvent event = new FullEvent(x, z, d, eventcode, traceid, gametick, eventNumber);
