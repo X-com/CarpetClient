@@ -439,7 +439,12 @@ public class Controller {
                 props.add(lastChunkString);
                 props.add("");
                 for (Chunkdata.EventView ev : chunk) {
-                    String eventString = "Event: " + ev.getType().toString() + " Order: " + ev.getOrder() + " GT: " + ev.getGametick();
+                    String eventString = "Event: " + ev.getType().toString() + " Order: " + ev.getOrder();
+                    if (ev.getReason() != null) {
+                        eventString += " Reason: " + ev.getReason();
+                    } else {
+                        eventString += " Reason: UNKNOWN (look at stacktrace)";
+                    }
                     props.add(eventString);
                     String stacktracestring = ev.getStacktrace();
                     if (stacktracestring != null && stacktracestring.length() != 0) {

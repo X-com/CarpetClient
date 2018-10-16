@@ -100,6 +100,10 @@ public class Chunkdata implements Serializable {
         public String getStacktrace() {
             return allStacktraces.get(event.s);
         }
+
+        public String getReason() {
+            return event.r;
+        }
     }
 
     public class ChunkView implements Iterable<EventView> {
@@ -132,11 +136,9 @@ public class Chunkdata implements Serializable {
                 } else {
                     colors[0] = STATE_LOADED;
                 }
-            }
-            else if(wasPlayerLoaded()) {
+            } else if (wasPlayerLoaded()) {
                 colors[0] = STATE_PLAYER_REQUESTED;
-            }
-            else if (wasLoadedInThePast()) {
+            } else if (wasLoadedInThePast()) {
                 colors[0] = STATE_PAST_LOADED;
             } else {
                 colors[0] = Integer.MAX_VALUE; // Integer max converted to background color
@@ -427,12 +429,12 @@ public class Chunkdata implements Serializable {
     }
 
     // called for each event received in order
-    public void addData(int gametick, int eventNumber, int x, int z, int d, int eventcode, int traceid) {
+    public void addData(int gametick, int eventNumber, int x, int z, int d, int eventcode, int traceid, String reason) {
         try {
             if (allStacktraces.get(traceid) == null) {
                 System.err.println(String.format("Warning: Referenced non-existant Stacktrace %d (All Stacktraces: %d)", traceid, allStacktraces.size()));
             }
-            FullEvent event = new FullEvent(x, z, d, eventcode, traceid, gametick, eventNumber);
+            FullEvent event = new FullEvent(x, z, d, eventcode, traceid, gametick, eventNumber, reason);
             this.receiveBuffer.add(event);
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -500,7 +502,7 @@ public class Chunkdata implements Serializable {
 
     public int getPreviousGametickForChunk(int gametick, int x, int z, int d) {
         int gametickMax = getFirstGametick();
-        FullEvent compare = new FullEvent(0, 0, 0, 0, 0, gametick, 0);
+        FullEvent compare = new FullEvent(0, 0, 0, 0, 0, gametick, 0, null);
         for (EventCollection c : allEvents) {
             FullEvent[] events = c.getAllEventsForChunk(x, z, d);
             if (events != null) {
@@ -515,7 +517,7 @@ public class Chunkdata implements Serializable {
 
     public int getNextGametickForChunk(int gametick, int x, int z, int d) {
         int gametickMin = getLastGametick();
-        FullEvent compare = new FullEvent(0, 0, 0, 0, 0, gametick, Integer.MAX_VALUE);
+        FullEvent compare = new FullEvent(0, 0, 0, 0, 0, gametick, Integer.MAX_VALUE, null);
         for (EventCollection c : allEvents) {
             FullEvent[] events = c.getAllEventsForChunk(x, z, d);
             if (events != null) {
@@ -557,7 +559,7 @@ public class Chunkdata implements Serializable {
         }
 
         FullEvent[] getAllEventsForChunk(int x, int z, int d) {
-            FullEvent compare = new FullEvent(x, z, d, 0, 0, 0, 0);
+            FullEvent compare = new FullEvent(x, z, d, 0, 0, 0, 0, null);
             return eventsForChunk.getOrDefault(compare, null);
         }
 
@@ -584,8 +586,8 @@ public class Chunkdata implements Serializable {
         FullEvent[] thisGametick = sortedEventsForGametick(gametick);
         for (int zi = 0; zi < zsize; ++zi) {
             int z = zi + minz;
-            FullEvent min = new FullEvent(minx, z, dimension, 0, 0, 0, 0);
-            FullEvent max = new FullEvent(maxx, z, dimension, 0, 0, 0, 0);
+            FullEvent min = new FullEvent(minx, z, dimension, 0, 0, 0, 0, null);
+            FullEvent max = new FullEvent(maxx, z, dimension, 0, 0, 0, 0, null);
             int startindex = findPreviousInArray(thisGametick, min, spacialSorted) + 1;
             while (startindex < thisGametick.length) {
                 FullEvent event = thisGametick[startindex];
@@ -593,7 +595,8 @@ public class Chunkdata implements Serializable {
                     break;
                 }
                 int endindex;
-                for (endindex = startindex + 1; (endindex < thisGametick.length) && (spacialSorted.compare(thisGametick[endindex], event) == 0); ++endindex);
+                for (endindex = startindex + 1; (endindex < thisGametick.length) && (spacialSorted.compare(thisGametick[endindex], event) == 0); ++endindex)
+                    ;
 
                 int x = event.x;
                 int xi = x - minx;
@@ -613,7 +616,7 @@ public class Chunkdata implements Serializable {
 
     private FullEvent[] getOldEventsForChunk(int x, int z, int d, int gametick) {
         FullEvent[] oldEvents = new FullEvent[categoryCount];
-        FullEvent compare = new FullEvent(0, 0, 0, 0, 0, gametick, 0);
+        FullEvent compare = new FullEvent(0, 0, 0, 0, 0, gametick, 0, null);
         for (int i = 0; i < categoryCount; ++i) {
             FullEvent events[] = allEvents[i].getAllEventsForChunk(x, z, d);
             if (events == null) {
@@ -756,8 +759,9 @@ public class Chunkdata implements Serializable {
         final int s;
         final int t;
         final int o;
+        final String r;
 
-        FullEvent(int x, int z, int d, int e, int s, int t, int o) {
+        FullEvent(int x, int z, int d, int e, int s, int t, int o, String r) {
             if (o < 0) {
                 throw new IllegalArgumentException();
             }
@@ -768,11 +772,12 @@ public class Chunkdata implements Serializable {
             this.s = s;
             this.t = t;
             this.o = o;
+            this.r = r;
         }
 
         @Override
         public String toString() {
-            return String.format("X: %d Z: %d D: %d t: %d O: %d event: %s stack: %d", x, z, d, t, o, e.toString(), s);
+            return String.format("X: %d Z: %d D: %d t: %d O: %d event: %s stack: %d reason: %s", x, z, d, t, o, e.toString(), s, r);
         }
     }
 
@@ -820,6 +825,7 @@ public class Chunkdata implements Serializable {
                     out.writeInt(event.o);
                     out.writeInt(event.e.ordinal());
                     out.writeInt(event.s);
+                    out.writeChars(event.r); // TODO check if this is correct
                 }
             }
         }
@@ -841,7 +847,8 @@ public class Chunkdata implements Serializable {
             int evnum = in.readInt();
             int event = in.readInt();
             int traceid = in.readInt();
-            this.addData(tick, evnum, x, z, d, event, traceid);
+            String reason = (String) in.readObject(); // TODO check if this is correct
+            this.addData(tick, evnum, x, z, d, event, traceid, reason);
         }
         this.completeData();
     }
@@ -862,9 +869,10 @@ public class Chunkdata implements Serializable {
             int dimension = chunk.getInteger("d");
             int event = chunk.getInteger("event");
             int stacktrace = chunk.getInteger("trace");
-            addData(time, index + offset, x, z, dimension, event, stacktrace);
+            String reason = chunk.getString("reason");
+            addData(time, index + offset, x, z, dimension, event, stacktrace, reason);
         }
-        if(complete) {
+        if (complete) {
             completeData();
             return true;
         }
@@ -878,7 +886,7 @@ public class Chunkdata implements Serializable {
             NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
             int id = nbttagcompound.getInteger("id");
             String stack = nbttagcompound.getString("stack");
-            addStacktrace(stack,id);
+            addStacktrace(stack, id);
         }
     }
 
@@ -899,8 +907,7 @@ public class Chunkdata implements Serializable {
         NBTTagCompound nbt;
         try {
             nbt = data.readCompoundTag();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return;
         }
@@ -908,18 +915,16 @@ public class Chunkdata implements Serializable {
         if (nbt == null) return;
 
         if (PACKET_EVENTS == type) {
-            if(instance != null) {
-                if(instance.unpackNBT(nbt)) {
+            if (instance != null) {
+                if (instance.unpackNBT(nbt)) {
                     GuiChunkGrid.instance.liveUpdate();
                 }
             }
-        }
-        else if (PACKET_STACKTRACE == type) {
+        } else if (PACKET_STACKTRACE == type) {
             if (instance != null) {
                 instance.unpackNBTStackTrace(nbt);
             }
-        }
-        else if (PACKET_ACCESS_DENIED == type) {
+        } else if (PACKET_ACCESS_DENIED == type) {
             GuiChunkGrid.instance.disableDebugger();
             instance = null;
         }
