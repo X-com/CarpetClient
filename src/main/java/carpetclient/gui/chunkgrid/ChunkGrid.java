@@ -50,6 +50,7 @@ public class ChunkGrid {
         int origonz = view.getLowerZ();
 
         if (view != null) {
+            buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
             for (Chunkdata.ChunkView chunkdata : view) {
                 int x = chunkdata.getX() - originx;
                 int z = chunkdata.getZ() - origonz;
@@ -60,12 +61,13 @@ public class ChunkGrid {
 
                 int colors[] = chunkdata.getColors();
                 int color = getColorFromArray(colors, colors.length - 1);
-                drawBox(tess, buf, cellX, cellY, x, z, color, scale);
+                drawBox(buf, cellX, cellY, x, z, color, scale);
                 if (colors.length > 2) {
                     color = getColorFromArray(colors, colors.length - 2);
-                    drawBox(tess, buf, cellX + scale / 4, cellY + scale / 4, x, z, color, scale / 2);
+                    drawBox(buf, cellX + scale / 4, cellY + scale / 4, x, z, color, scale / 2);
                 }
             }
+            tess.draw();
         }
 
         if (selection.getX() != Integer.MAX_VALUE) {
@@ -89,7 +91,6 @@ public class ChunkGrid {
     /**
      * Draws a box representing a chunk by color and location on screen
      *
-     * @param tess
      * @param buf
      * @param cellX
      * @param cellY
@@ -98,7 +99,7 @@ public class ChunkGrid {
      * @param color
      * @param scal
      */
-    private void drawBox(Tessellator tess, BufferBuilder buf, int cellX, int cellY, int x, int z, int color, int scal) {
+    private void drawBox(BufferBuilder buf, int cellX, int cellY, int x, int z, int color, int scal) {
         int alpha = (color & 0xff000000) >>> 24;
         int red = (color & 0xff0000) >> 16;
         int green = (color & 0xff00) >> 8;
@@ -127,12 +128,10 @@ public class ChunkGrid {
         int green2 = (color2 & 0xff00) >> 8;
         int blue2 = (color2 & 0xff);
 
-        buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
         buf.pos(cellX, cellY, 0).color(red, green, blue, alpha).endVertex();
         buf.pos(cellX, cellY + scal, 0).color(red1, green1, blue1, alpha1).endVertex();
         buf.pos(cellX + scal, cellY + scal, 0).color(red2, green2, blue2, alpha2).endVertex();
         buf.pos(cellX + scal, cellY, 0).color(red1, green1, blue1, alpha1).endVertex();
-        tess.draw();
     }
 
     /**
