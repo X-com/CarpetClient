@@ -290,7 +290,6 @@ public class ChunkGrid {
             scrollIndex = scrollValues.length - 1;
         }
         scale = scrollValues[scrollIndex];
-        System.out.println(scale);
         rowCount = height / scale;
         columnCount = width / scale;
     }
