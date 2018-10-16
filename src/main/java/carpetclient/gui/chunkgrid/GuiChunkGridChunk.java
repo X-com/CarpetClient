@@ -18,8 +18,8 @@ public class GuiChunkGridChunk extends GuiSubWindow {
     private List<String> properties;
     private List<String> stackTrace;
 
-    public GuiChunkGridChunk(int chunkX, int chunkZ, GuiScreen parentScreen, GuiScreen backgroundScreen, List<String> properties, List<String> stackTrace) {
-        super(String.format("Chunk (%d, %d)", chunkX, chunkZ), parentScreen, backgroundScreen, stackTrace);
+    public GuiChunkGridChunk(String header, GuiScreen parentScreen, GuiScreen backgroundScreen, List<String> properties, List<String> stackTrace) {
+        super(header, parentScreen, backgroundScreen, stackTrace);
         this.properties = properties;
         this.stackTrace = stackTrace;
     }

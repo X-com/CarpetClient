@@ -439,11 +439,11 @@ public class Controller {
                 props.add(lastChunkString);
                 props.add("");
                 for (Chunkdata.EventView ev : chunk) {
-                    String eventString = "Event: " + ev.getType().toString() + " Order: " + ev.getOrder();
+                    String eventString = "Event: " + ev.getType().toString() + "   Order: " + ev.getOrder();
                     if (ev.getReason() != null) {
-                        eventString += " Reason: " + ev.getReason();
+                        eventString += "   Reason: " + ev.getReason();
                     } else {
-                        eventString += " Reason: UNKNOWN (look at stacktrace)";
+                        eventString += "   Reason: UNKNOWN (look at stacktrace)";
                     }
                     props.add(eventString);
                     String stacktracestring = ev.getStacktrace();
@@ -454,7 +454,7 @@ public class Controller {
                     }
                 }
             }
-            Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(cx, cz, debug, debug, props, stacktrace.size() != 0 ? stacktrace : null));
+            Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(String.format("Chunk (%d, %d)  Gametick: %d", cx, cz, lastGametick), debug, debug, props, stacktrace.size() != 0 ? stacktrace : null));
         }
     }
 
