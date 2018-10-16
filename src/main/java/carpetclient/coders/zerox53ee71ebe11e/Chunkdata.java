@@ -914,6 +914,7 @@ public class Chunkdata implements Serializable {
     }
 
     public static void stopRecording() {
+        instance = null;
         startStopRecording(false);
     }
 
