@@ -436,7 +436,8 @@ public class Controller {
                 props.add("");
                 for (Chunkdata.EventView ev : chunk) {
                     String eventString = "Event: " + ev.getType().toString() + "   Order: " + ev.getOrder();
-                    if (ev.getReason() != null) {
+                    String reasonString = ev.getReason();
+                    if (reasonString != null && !reasonString.isEmpty()) {
                         eventString += "   Reason: " + ev.getReason();
                     } else {
                         eventString += "   Reason: UNKNOWN (look at stacktrace)";
