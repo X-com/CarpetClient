@@ -19,9 +19,12 @@ public class ChunkGrid {
     private int columnCount = 100;
     private int rowCount = 100;
     private int scale = 10;
+    private int scrollIndex = 8;
+    private int[] scrollValues = {1, 2, 3, 4, 6, 8, 10, 15, 20, 30, 40, 60, 100, 200};
 
     private Point selection = new Point(Integer.MAX_VALUE, 0);
     private Point playerLocation = new Point(Integer.MAX_VALUE, 0);
+
 
     /**
      * Main draw method for the squares representing chunks.
@@ -278,13 +281,16 @@ public class ChunkGrid {
      */
     public void setScale(int width, int height, int value) {
         scale += value;
-        if (scale < 3 && !GuiScreen.isCtrlKeyDown()) {
-            scale = 3;
-        } else if (scale < 1) {
-            scale = 1;
-        } else if (scale > 50) {
-            scale = 50;
+        scrollIndex += value;
+        if (scrollIndex < 2 && !GuiScreen.isCtrlKeyDown()) {
+            scrollIndex = 2;
+        } else if (scrollIndex < 0) {
+            scrollIndex = 0;
+        } else if (scrollIndex >= scrollValues.length) {
+            scrollIndex = scrollValues.length - 1;
         }
+        scale = scrollValues[scrollIndex];
+        System.out.println(scale);
         rowCount = height / scale;
         columnCount = width / scale;
     }

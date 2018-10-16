@@ -192,7 +192,7 @@ public class GuiChunkGrid extends GuiScreen {
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
         int scroll = Mouse.getEventDWheel();
-        if (scroll != 0) controller.scroll(scroll / 50);
+        if (scroll != 0) controller.scroll(scroll / 100);
     }
 
     @Override
