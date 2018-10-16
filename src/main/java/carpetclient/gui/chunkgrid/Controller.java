@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.chunk.Chunk;
 import org.lwjgl.util.Point;
 
 import javax.naming.ldap.Control;
@@ -44,7 +45,7 @@ public class Controller {
     public Controller(GuiChunkGrid d) {
         debug = d;
         lastGametick = 0;
-        chunkData = Chunkdata.restartRecording();
+        chunkData = new Chunkdata();
         mapView = chunkData.getChunkData();
         mapViewMinimap = chunkData.getChunkData();
     }
@@ -60,20 +61,15 @@ public class Controller {
         live = true;
         if (start) {
             home();
-            chunkData = Chunkdata.restartRecording();
+            chunkData = Chunkdata.startRecording();
             mapView = chunkData.getChunkData();
             mapViewMinimap = chunkData.getChunkData();
             selectionBox = null;
             play = false;
         }
-        PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
-        sender.writeInt(CarpetPluginChannel.CHUNK_LOGGER);
-        sender.writeBoolean(start); // this is the bit to turn on or off
-//        sender.writeBoolean(debug.areStackTracesEnabled()); // this is the bit to send stacktraces
-        sender.writeBoolean(true);
-
-        CarpetPluginChannel.packatSender(sender);
-
+        else {
+            Chunkdata.stopRecording();
+        }
         return start;
     }
 

@@ -1,6 +1,9 @@
 package carpetclient.coders.zerox53ee71ebe11e;
 
+import carpetclient.Util;
 import carpetclient.gui.chunkgrid.GuiChunkGrid;
+import carpetclient.pluginchannel.CarpetPluginChannel;
+import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
@@ -858,19 +861,24 @@ public class Chunkdata implements Serializable {
     }
 
     private boolean unpackNBT(NBTTagCompound nbt) {
-        NBTTagList list = nbt.getTagList("data", 10);
+        int [] data = nbt.getIntArray("data");
+        int size = nbt.getInteger("size");
         int time = nbt.getInteger("time");
         int offset = nbt.getInteger("offset");
         boolean complete = nbt.getBoolean("complete");
-        for (int index = 0; index < list.tagCount(); ++index) {
-            NBTTagCompound chunk = list.getCompoundTagAt(index);
-            int x = chunk.getInteger("x");
-            int z = chunk.getInteger("z");
-            int dimension = chunk.getInteger("d");
-            int event = chunk.getInteger("event");
-            int stacktrace = chunk.getInteger("trace");
-            int reason = chunk.getInteger("reason");
-            addData(time, index + offset, x, z, dimension, event, stacktrace, reason);
+        if(6*size != data.length){
+            throw new IllegalArgumentException("Expected array length doesn't match");
+        }
+        int i = 0;
+        int index = 0;
+        while(i < data.length) {
+            int x = data[i++];
+            int z = data[i++];
+            int dimension = data[i++];
+            int event = data[i++];
+            int stacktrace = data[i++];
+            int reason = data[i++];
+            addData(time, (index++) + offset, x, z, dimension, event, stacktrace, reason);
         }
         if (complete) {
             completeData();
@@ -892,9 +900,21 @@ public class Chunkdata implements Serializable {
 
     private static Chunkdata instance;
 
-    public static Chunkdata restartRecording() {
+    private static void startStopRecording(boolean start) {
+        PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
+        sender.writeInt(CarpetPluginChannel.CHUNK_LOGGER);
+        sender.writeBoolean(start);
+        CarpetPluginChannel.packatSender(sender);
+    }
+
+    public static Chunkdata startRecording() {
         instance = new Chunkdata();
+        startStopRecording(true);
         return instance;
+    }
+
+    public static void stopRecording() {
+        startStopRecording(false);
     }
 
     private static final int PACKET_EVENTS = 0;
