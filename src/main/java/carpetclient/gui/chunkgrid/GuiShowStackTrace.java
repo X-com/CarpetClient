@@ -59,7 +59,7 @@ public class GuiShowStackTrace extends GuiSubWindow {
         int scroll = Mouse.getEventDWheel();
         if (scroll != 0) {
             scroll *= -1;
-            scroll /= 100;
+            scroll /= 40;
             int lineHeight = fontRenderer.FONT_HEIGHT + 1;
             int y = getSubWindowTop() + 17;
             int maxY = getSubWindowBottom() - getFooterHeight() - 2;
