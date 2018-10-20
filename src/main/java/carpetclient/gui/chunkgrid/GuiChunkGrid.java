@@ -124,9 +124,6 @@ public class GuiChunkGrid extends GuiScreen {
         loadButton.enabled = saveButton.enabled = playButton.enabled = !controller.start;
         currentButton.enabled = controller.start;
 
-        minimapWidth = (int) (mc.displayWidth * MINIMAP_WIDTH);
-        minimapHeight = (int) (mc.displayHeight * MINIMAP_HEIGHT);
-
         controller.updateGUI();
     }
 
@@ -306,17 +303,17 @@ public class GuiChunkGrid extends GuiScreen {
 
     @Override
     public void onGuiClosed() {
-        controller.initMinimap();
+        controller.updateMinimap();
     }
 
     // Minimap
 
     public void renderMinimap(int screenWidth, int screenHeight) {
+        minimapWidth = (int) (screenWidth * MINIMAP_WIDTH);
+        minimapHeight = (int) (screenHeight * MINIMAP_HEIGHT);
         if (isChunkDebugWindowOpen()) return;
         int minimapX = (int) (screenWidth * MINIMAP_X);
         int minimapY = (int) (screenHeight * MINIMAP_Y);
-        minimapWidth = (int) (screenWidth * MINIMAP_WIDTH);
-        minimapHeight = (int) (screenHeight * MINIMAP_HEIGHT);
 
         // Actual minimap content
         chunkgrid.draw(controller.getMinimapView(), minimapX, minimapY, minimapWidth, minimapHeight);
