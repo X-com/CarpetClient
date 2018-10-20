@@ -55,7 +55,7 @@ public abstract class GuiSubWindow extends GuiScreen {
         backgroundScreen.drawScreen(-1, -1, partialTicks); // Spoof mouse coords so buttons don't highlight
         GlStateManager.clear(GL11.GL_DEPTH_BUFFER_BIT);
 
-        Gui.drawRect(getSubWindowLeft(), getSubWindowTop(), getSubWindowRight(), getSubWindowBottom(), 0xa0d0d0ff);
+        Gui.drawRect(getSubWindowLeft(), getSubWindowTop(), getSubWindowRight(), getSubWindowBottom(), 0xc0b0b0ff);
 
         GlStateManager.disableTexture2D();
         GlStateManager.glLineWidth(2);
