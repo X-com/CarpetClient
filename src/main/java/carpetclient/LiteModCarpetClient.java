@@ -12,9 +12,10 @@ import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.rules.CarpetRules;
 import com.mumfrey.liteloader.modconfig.ConfigPanel;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.network.PacketBuffer;
 
-public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener, HUDRenderListener, Configurable {
+public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener, HUDRenderListener, Configurable, ViewportListener{
 
     private boolean gameRunnin = false;
     private boolean loggedOut = false;
@@ -83,7 +84,6 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
     @Override
     public void onPreRenderHUD(int screenWidth, int screenHeight) {
-
     }
 
     @Override
@@ -96,5 +96,19 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
     @Override
     public Class<? extends ConfigPanel> getConfigPanelClass() {
         return null;
+    }
+
+    @Override
+    public void onViewportResized(ScaledResolution resolution, int displayWidth, int displayHeight) {
+        if (GuiChunkGrid.instance.getMinimapType() != 0) {
+            GuiChunkGrid.instance.getController().updateMinimap();
+        }
+    }
+
+    @Override
+    public void onFullScreenToggled(boolean fullScreen) {
+        if (GuiChunkGrid.instance.getMinimapType() != 0) {
+            GuiChunkGrid.instance.getController().updateMinimap();
+        }
     }
 }
