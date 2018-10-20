@@ -52,12 +52,12 @@ public class Chunkdata implements Serializable {
 
         static final int eventColors[] = {
                 0xff000000,//MISSED_EVENT_ERROR
-                0xffff0000,//UNLOADING
+                0xffdf1010,//UNLOADING
                 0xff00ffff,//LOADING
                 0xff00D200,//PLAYER_ENTERS
                 0xffff8028,//PLAYER_LEAVES
                 0xffdddd00,//QUEUE_UNLOAD
-                0xff0000ff,//CANCEL_UNLOAD
+                0xff2020e0,//CANCEL_UNLOAD
                 0xff804000,//GENERATING
                 0xffdd00dd,//POPULATING
                 0xff770077//GENERATING_STRUCTURES

@@ -111,8 +111,9 @@ public class ChunkGrid {
         if (red == 0 && green == 0 && blue == 0)
             brightenFactor = 0.2f;
 
-        if (GuiChunkGrid.style.isCheckerboard() && (x + z) % 2 == 0)
+        if (GuiChunkGrid.style.isCheckerboard() && (x + z) % 2 == 0) {
             color = brighten(color, brightenFactor);
+        }
 
         int color1, color2;
         if (GuiChunkGrid.style.isGradient()) {
@@ -225,7 +226,7 @@ public class ChunkGrid {
     }
 
     /**
-     * Brigents any color for drawing on screen.
+     * Brightens any color for drawing on screen.
      *
      * @param col    Original color that needs brightened.
      * @param factor brighten factor.
@@ -244,10 +245,9 @@ public class ChunkGrid {
         int redOverflow = Integer.max(red - 255, 0);
         int greenOverflow = Integer.max(green - 255, 0);
         int blueOverflow = Integer.max(blue - 255, 0);
-        int overflow = Integer.max(redOverflow, Integer.max(greenOverflow, blueOverflow)) / 2;
-        red = Integer.min(red + overflow, 255);
-        green = Integer.min(green + overflow, 255);
-        blue = Integer.min(blue + overflow, 255);
+        red = Integer.min(red - redOverflow*3, 255);
+        green = Integer.min(green - greenOverflow*3, 255);
+        blue = Integer.min(blue - blueOverflow*3, 255);
         return (alpha << 24)
                 | (red << 16)
                 | (green << 8)
