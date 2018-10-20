@@ -66,8 +66,7 @@ public class Controller {
             mapViewMinimap = chunkData.getChunkData();
             selectionBox = null;
             play = false;
-        }
-        else {
+        } else {
             Chunkdata.stopRecording();
         }
         return start;
@@ -310,7 +309,7 @@ public class Controller {
     /**
      * Update minimap calculations with the last game tick.
      */
-    public void initMinimap() {
+    public void updateMinimap() {
         setMinimap(lastGametick);
     }
 
@@ -320,6 +319,7 @@ public class Controller {
      * @param time gametick in integer.
      */
     private void setMinimap(int time) {
+        if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().player == null) return;
         ChunkGrid canvas = debug.getChunkGrid();
         int x = 0;
         int y = 0;
@@ -328,12 +328,10 @@ public class Controller {
         int dimention = 0;
         boolean playerDrawn = false;
 
-        if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null) {
-            BlockPos pos = Minecraft.getMinecraft().player.getPosition();
-            playerX = x = pos.getX() >> 4;
-            playerY = y = pos.getZ() >> 4;
-            playerDrawn = true;
-        }
+        BlockPos pos = Minecraft.getMinecraft().player.getPosition();
+        playerX = x = pos.getX() >> 4;
+        playerY = y = pos.getZ() >> 4;
+        playerDrawn = true;
 
         if (debug.getMinimapType() == 1) {
             dimention = minecraftDimentionToIndex(Minecraft.getMinecraft().player.dimension);
