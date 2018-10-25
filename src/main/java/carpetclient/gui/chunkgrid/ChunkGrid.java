@@ -107,7 +107,7 @@ public class ChunkGrid {
         int red = (color & 0xff0000) >> 16;
         int green = (color & 0xff00) >> 8;
         int blue = (color & 0xff);
-        float brightenFactor = GuiChunkGrid.style.isCheckerboard() ? 0.1f : 0.3f;
+        float brightenFactor = GuiChunkGrid.style.isCheckerboard() ? 0.14f : 0.3f;
         if (red == 0 && green == 0 && blue == 0)
             brightenFactor = 0.2f;
 
