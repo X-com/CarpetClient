@@ -119,11 +119,11 @@ public class MixinsItemBucket extends Item {
     public void tryPlaceContainedLiquidInject(EntityPlayer player, World worldIn, BlockPos posIn, CallbackInfoReturnable<Boolean> cir) {
         if(!Config.bucketGhostBlockFix) return;
 
-        if(this.containedBlock != null) {
+        if(this.containedBlock != null && player != null) {
             SoundEvent soundevent = this.containedBlock == Blocks.FLOWING_LAVA ? SoundEvents.ITEM_BUCKET_EMPTY_LAVA : SoundEvents.ITEM_BUCKET_EMPTY;
             player.playSound(soundevent, 1.0F, 1.0F);
+            if (worldIn.isRemote) cir.setReturnValue(true);
         }
-        if (worldIn.isRemote) cir.setReturnValue(true);
     }
 
 //    @Overwrite
