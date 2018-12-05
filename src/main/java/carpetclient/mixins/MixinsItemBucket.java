@@ -118,9 +118,11 @@ public class MixinsItemBucket extends Item {
     @Inject(method = "tryPlaceContainedLiquid", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSound(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/SoundEvent;Lnet/minecraft/util/SoundCategory;FF)V"), cancellable = true)
     public void tryPlaceContainedLiquidInject(EntityPlayer player, World worldIn, BlockPos posIn, CallbackInfoReturnable<Boolean> cir) {
         if(!Config.bucketGhostBlockFix) return;
-        
-        SoundEvent soundevent = this.containedBlock == Blocks.FLOWING_LAVA ? SoundEvents.ITEM_BUCKET_EMPTY_LAVA : SoundEvents.ITEM_BUCKET_EMPTY;
-        player.playSound(soundevent, 1.0F, 1.0F);
+
+        if(this.containedBlock != null) {
+            SoundEvent soundevent = this.containedBlock == Blocks.FLOWING_LAVA ? SoundEvents.ITEM_BUCKET_EMPTY_LAVA : SoundEvents.ITEM_BUCKET_EMPTY;
+            player.playSound(soundevent, 1.0F, 1.0F);
+        }
         if (worldIn.isRemote) cir.setReturnValue(true);
     }
 
