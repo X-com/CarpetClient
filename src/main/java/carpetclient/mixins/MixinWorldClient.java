@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(WorldClient.class)
 public abstract class MixinWorldClient {
-    @Inject(method = "invalidateRegionAndSetBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;invalidateBlockReceiveRegion(IIIIII)V"), cancellable = true)
+    @Inject(method = "invalidateRegionAndSetBlock", at = @At("HEAD"), cancellable = true)
     private void fixPistonBlinking(BlockPos pos, IBlockState state, CallbackInfoReturnable<Boolean> cir) {
         if(Config.clipThroughPistons && state.getBlock() == Blocks.PISTON_EXTENSION) {
             cir.setReturnValue(true);
