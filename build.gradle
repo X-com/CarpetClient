@@ -84,3 +84,7 @@ repositories {
 dependencies {
     compile 'org.jetbrains.java.decompiler:fernflower:sponge-SNAPSHOT'
 }
+runClient {
+    jvmArgs "-Dmixin.debug=true"
+//    jvmArgs "-Dmixin.debug.export=true"
+}
