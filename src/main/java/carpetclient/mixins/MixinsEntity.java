@@ -1,9 +1,11 @@
 package carpetclient.mixins;
 
 import carpetclient.Config;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,6 +28,10 @@ public abstract class MixinsEntity {
 
     @Shadow public World world;
     private float storedRotationYaw;
+
+    @Shadow public double motionX;
+    @Shadow public double motionY;
+    @Shadow public double motionZ;
 
 //    /*
 //    Override to change the behavior of player aiming.
@@ -55,6 +61,33 @@ public abstract class MixinsEntity {
         snapAim(this.ridingEntity, yaw);
     }
 
+    /*
+    Fixes snapaim inaccuracy when smapping to different angles.
+     */
+    @Inject(method = "moveRelative", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;sin(F)F"), cancellable = true)
+    public void snapFix(float strafe, float up, float forward, float friction, CallbackInfo ci) {
+        if(Config.snapAim && (Object)this instanceof EntityPlayerSP) {
+            float f1 = (float)Math.sin(this.rotationYaw * 0.01745329251994329576923690768489D);
+            float f2 = (float)Math.cos(this.rotationYaw * 0.01745329251994329576923690768489D);
+            f1 = round(f1, 8);
+            f2 = round(f2, 8);
+            this.motionX += (double)(strafe * f2 - forward * f1);
+            this.motionY += (double)up;
+            this.motionZ += (double)(forward * f2 + strafe * f1);
+            ci.cancel();
+        }
+    }
+
+    private float round(float value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = (int)Math.abs(value);
+        if(value < 0) tmp *= -1;
+        return (float) tmp / factor;
+    }
+
     /**
      * Updates the value stored rotation yaw so no jurking actions is done when turning on the rotation.
      */
@@ -68,6 +101,9 @@ public abstract class MixinsEntity {
      * @param yaw The angle in which the player will turn, sent in from the turn method.
      */
     private void snapAim(Entity riding, float yaw) {
+        if(!((Object)this instanceof EntityPlayerSP)){
+            return;
+        }
         boolean inBoat = false;
         
         if(riding != null && riding instanceof EntityBoat){
