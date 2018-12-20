@@ -24,5 +24,4 @@ public abstract class MixinEntityLivingBase extends Entity {
         else
             return world.isRemote;
     }
-    
 }
