@@ -29,6 +29,9 @@
     "MixinEntityRenderer",
     "MixinBootstrap",
     "MixinTileEntityStructure",
-    "MixinWorldClient"
+    "MixinWorldClient",
+    "MixinTileEntityPiston",
+    "MixinWorld",
+    "IMixinTileEntityPiston"
   ]
 }

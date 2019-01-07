@@ -2,6 +2,7 @@ package carpetclient.pluginchannel;
 
 
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
+import carpetclient.hack.PistonFix;
 import com.google.common.collect.ImmutableList;
 import com.mumfrey.liteloader.core.ClientPluginChannels;
 import com.mumfrey.liteloader.core.PluginChannels.ChannelPolicy;
@@ -30,6 +31,7 @@ public class CarpetPluginChannel {
     public static final int LARGE_BOUNDINGBOX_MARKERS_START = 7;
     public static final int LARGE_BOUNDINGBOX_MARKERS = 8;
     public static final int CHUNK_LOGGER = 9;
+    public static final int PISTON_UPDATES = 10;
 
     /**
      * Packate receiver method to handle incoming messages.
@@ -84,6 +86,9 @@ public class CarpetPluginChannel {
         }
         if (CHUNK_LOGGER == type) {
             Chunkdata.processPacket(data);
+        }
+        if (PISTON_UPDATES == type) {
+            PistonFix.processPacket(data);
         }
     }
 
