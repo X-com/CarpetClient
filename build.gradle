@@ -49,6 +49,7 @@ litemod {
         mcversion = "1.12"
         description = "Carpet Client for Carpet Server"
         mixinConfigs += "mixins.carpetclient.json"
+        mixinConfigs += "mixins.carpetclient.optifinecompat.json"
         version = project.version
     }
 }

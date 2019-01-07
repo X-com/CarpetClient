@@ -34,7 +34,7 @@ public class PistonFix {
      * @param data
      */
     public static void processPacket(PacketBuffer data) {
-        if (Config.clipThroughPistons) return;
+        if (!Config.clipThroughPistons) return;
 
         if (pistonFix) {
             instance.fixTileEntitys();

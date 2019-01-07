@@ -46,7 +46,7 @@ public class MixinTileEntityPiston extends TileEntity {
      */
     @Inject(method = "moveCollidedEntities", at = @At(value = "FIELD", target = "Lnet/minecraft/tileentity/TileEntityPiston;MOVING_ENTITY:Ljava/lang/ThreadLocal;", shift = At.Shift.AFTER, ordinal = 1), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void forceUpdate(float p_184322_1_, CallbackInfo ci, EnumFacing enumfacing, double d0, List<AxisAlignedBB> list, AxisAlignedBB axisalignedbb, List<Entity> list1, boolean flag, int i, Entity entity, double d1) {
-        if (Config.clipThroughPistons) return;
+        if (!Config.clipThroughPistons) return;
 
         world.updateEntityWithOptionalForce(entity, false);
     }
