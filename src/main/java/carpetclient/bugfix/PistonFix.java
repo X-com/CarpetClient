@@ -1,5 +1,7 @@
-package carpetclient.hack;
+package carpetclient.bugfix;
 
+import carpetclient.Config;
+import carpetclient.mixins.IMixinWorld;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
@@ -13,6 +15,9 @@ import net.minecraft.world.World;
 
 import java.util.Iterator;
 
+/*
+Class used to fix players glitching through moving piston blocks.
+ */
 public class PistonFix {
     private static PistonFix instance;
     private static boolean pushPlayersNow;
@@ -23,13 +28,23 @@ public class PistonFix {
         instance = new PistonFix();
     }
 
+    /**
+     * Process the packet received from the server. Used to synch packets form the server ticks relative to the client ticks.
+     *
+     * @param data
+     */
     public static void processPacket(PacketBuffer data) {
+        if (Config.clipThroughPistons) return;
+
         if (pistonFix) {
             instance.fixTileEntitys();
         }
         pistonFix = true;
     }
 
+    /**
+     * Updates player being moved to simulate regular game logic where players move before tile entitys.
+     */
     public static void movePlayer() {
         if (pushPlayersNow && firstPistonPush) {
             instance.move();
@@ -37,15 +52,25 @@ public class PistonFix {
         }
     }
 
+    /**
+     * Resets booleans used in packet synching.
+     */
     public static void resetBools() {
         firstPistonPush = true;
         pistonFix = false;
     }
 
+    /**
+     * Simulates moving the player
+     */
     private void move() {
         Minecraft.getMinecraft().player.onUpdate();
     }
 
+    /**
+     * Simulates tile entity's and fast updates them. As many packets can arrive on the client at the same time desynched
+     * tick wise relative to the server the only way to fix it is to simulate tile entity's moving within synching packet's.
+     */
     private void fixTileEntitys() {
         World world = Minecraft.getMinecraft().world;
         Iterator<TileEntity> iterator = world.tickableTileEntities.iterator();
@@ -59,8 +84,7 @@ public class PistonFix {
             if (!tileentity.isInvalid() && tileentity.hasWorld()) {
                 BlockPos blockpos = tileentity.getPos();
 
-//                if (world.isBlockLoaded(blockpos) && world.worldBorder.contains(blockpos))
-                if (world.isBlockLoaded(blockpos)) {
+                if (world.isBlockLoaded(blockpos) && ((IMixinWorld) world).getWorldBorder().contains(blockpos)) {
                     try {
                         ((ITickable) tileentity).update();
                     } catch (Throwable throwable) {

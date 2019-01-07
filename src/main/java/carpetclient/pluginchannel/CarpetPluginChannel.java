@@ -2,7 +2,7 @@ package carpetclient.pluginchannel;
 
 
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
-import carpetclient.hack.PistonFix;
+import carpetclient.bugfix.PistonFix;
 import com.google.common.collect.ImmutableList;
 import com.mumfrey.liteloader.core.ClientPluginChannels;
 import com.mumfrey.liteloader.core.PluginChannels.ChannelPolicy;
@@ -12,7 +12,6 @@ import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.rules.CarpetRules;
 import carpetclient.rules.TickRate;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.chunk.storage.ChunkLoader;
 
 /*
 Plugin channel class to implement a client server communication between carpet client and carpet server.
