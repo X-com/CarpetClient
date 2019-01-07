@@ -61,14 +61,14 @@ public abstract class MixinsBlockPistonBase extends BlockDirectional {
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         // rotate piston/sticky-piston based on hotkeys
 
-        if(Config.accurateBlockPlacement) {
+        if (Config.accurateBlockPlacement) {
             if (!Hotkeys.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
                 facing = EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite();
             }
             if (!Hotkeys.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
                 facing = facing.getOpposite();
             }
-        }else{
+        } else {
             facing = EnumFacing.getDirectionFromEntityLiving(pos, placer);
         }
         return this.getDefaultState().withProperty(FACING, facing).withProperty(EXTENDED, Boolean.valueOf(false));
@@ -96,12 +96,12 @@ public abstract class MixinsBlockPistonBase extends BlockDirectional {
                                     BlockPos pos1, Block blockIn, int eventID, int eventParam, // from addBlockEvent
                                     World worldIn2, BlockPos pos2, IBlockState state // from checkForMove
     ) {
-        worldIn1.addBlockEvent(pos1, this, 1, eventParam| ignoreMovingBlockMeta(worldIn1, pos1, EnumFacing.getFront(eventParam)));
+        worldIn1.addBlockEvent(pos1, this, 1, eventParam | ignoreMovingBlockMeta(worldIn1, pos1, EnumFacing.getFront(eventParam)));
     }
 
     /*
      * This if statement checks if the the pulling block (block that is 2 blocks infront of the extended piston)
-     * is a non-moving block and returns a meta value of 16 so it can tell the client to ignore pulling blocks 
+     * is a non-moving block and returns a meta value of 16 so it can tell the client to ignore pulling blocks
      * even if the client can pull them.
      */
     private int ignoreMovingBlockMeta(World worldIn, BlockPos pos, EnumFacing enumfacing) {
@@ -113,4 +113,5 @@ public abstract class MixinsBlockPistonBase extends BlockDirectional {
 
         return 0;
     }
+
 }
