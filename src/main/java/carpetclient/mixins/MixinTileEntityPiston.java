@@ -18,15 +18,8 @@ import java.util.List;
 @Mixin(TileEntityPiston.class)
 public class MixinTileEntityPiston extends TileEntity {
 
-    @Inject(method = "moveCollidedEntities", at = @At("HEAD"))
-    private void handleRecipeClickeddDD(float p_184322_1_, CallbackInfo ci) {
-        System.out.println(this + " " + p_184322_1_ + " " + world.getTotalWorldTime());
-    }
-
     @Inject(method = "moveCollidedEntities", at = @At(value = "FIELD", target = "Lnet/minecraft/tileentity/TileEntityPiston;MOVING_ENTITY:Ljava/lang/ThreadLocal;", shift = At.Shift.AFTER, ordinal = 0))
     private void handleRecipeClickedd(float p_184322_1_, CallbackInfo ci) {
-        System.out.println("----------- ======= " + PistonFix.pushPlayersNow + " " + this + " " + p_184322_1_ + " " + getPos());
-        System.out.println(Minecraft.getMinecraft().player.getEntityBoundingBox());
         PistonFix.movePlayer();
     }
 

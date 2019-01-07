@@ -1,9 +1,6 @@
 package carpetclient.hack;
 
-import carpetclient.mixins.IMixinTileEntityPiston;
-import carpetclient.mixins.MixinWorldClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.network.PacketBuffer;
@@ -18,7 +15,7 @@ import java.util.Iterator;
 
 public class PistonFix {
     private static PistonFix instance;
-    public static boolean pushPlayersNow;
+    private static boolean pushPlayersNow;
     private static boolean pistonFix;
     private static boolean firstPistonPush;
 
@@ -27,16 +24,14 @@ public class PistonFix {
     }
 
     public static void processPacket(PacketBuffer data) {
-        System.out.println("-------------------------------------------------------------------- " + pistonFix);
         if (pistonFix) {
-            System.out.println("packet clogging");
             instance.fixTileEntitys();
         }
         pistonFix = true;
     }
 
     public static void movePlayer() {
-        if (pushPlayersNow) {
+        if (pushPlayersNow && firstPistonPush) {
             instance.move();
             firstPistonPush = false;
         }
@@ -44,25 +39,10 @@ public class PistonFix {
 
     public static void resetBools() {
         firstPistonPush = true;
-        if(pistonFix) System.out.println("pistonFix " + pistonFix);
         pistonFix = false;
     }
 
-    public static void clearBlockLocation(BlockPos pos) {
-//        TileEntity tileentity = Minecraft.getMinecraft().world.getTileEntity(pos);
-//        if (tileentity != null && tileentity instanceof TileEntityPiston && ((IMixinTileEntityPiston) tileentity).getProgress() < 1.0) {
-//            int iter = 1;
-//
-//            if (((IMixinTileEntityPiston) tileentity).getProgress() == 0.0) iter = 2;
-//
-//            for (int i = 0; i < iter; i++) {
-//                ((TileEntityPiston) tileentity).update();
-//            }
-//        }
-    }
-
     private void move() {
-        System.out.println("move player");
         Minecraft.getMinecraft().player.onUpdate();
     }
 
