@@ -30,6 +30,7 @@
     "MixinBootstrap",
     "MixinTileEntityStructure",
     "MixinWorldClient",
-    "IMixinWorld"
+    "IMixinWorld",
+    "MixinPlayerMenuObject"
   ]
 }
