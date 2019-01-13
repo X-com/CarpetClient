@@ -16,10 +16,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /*
 Mixen class 
@@ -27,7 +29,7 @@ Mixen class
 2.ghost block fix for sticky pistons
  */
 @Mixin(BlockPistonBase.class)
-public abstract class MixinsBlockPistonBase extends BlockDirectional {
+public abstract class MixinBlockPistonBase extends BlockDirectional {
 
     @Shadow
     private void checkForMove(World worldIn, BlockPos pos, IBlockState state) {
@@ -42,25 +44,22 @@ public abstract class MixinsBlockPistonBase extends BlockDirectional {
         return false;
     }
 
-    protected MixinsBlockPistonBase(Material materialIn) {
+    protected MixinBlockPistonBase(Material materialIn) {
         super(materialIn);
     }
 
     // Override this method to comment out a useless line.
-    @Overwrite
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
-        //worldIn.setBlockState(pos, state.withProperty(FACING, EnumFacing.getDirectionFromEntityLiving(pos, placer)), 2);
-
+    @Inject(method = "onBlockPlacedBy", at = @At("HEAD"), cancellable = true)
+    public void canPlaceOnOver(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack, CallbackInfo ci) {
         if (!worldIn.isRemote) {
             this.checkForMove(worldIn, pos, state);
         }
+        ci.cancel();
     }
 
     // Override to fix a client side visual affect when placing blocks in a different orientation.
-    @Overwrite
-    public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
-        // rotate piston/sticky-piston based on hotkeys
-
+    @Inject(method = "getStateForPlacement", at = @At("HEAD"), cancellable = true)
+    public void canPlaceOnOver(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, CallbackInfoReturnable<IBlockState> cir) {
         if (Config.accurateBlockPlacement) {
             if (!Hotkeys.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
                 facing = EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite();
@@ -71,7 +70,7 @@ public abstract class MixinsBlockPistonBase extends BlockDirectional {
         } else {
             facing = EnumFacing.getDirectionFromEntityLiving(pos, placer);
         }
-        return this.getDefaultState().withProperty(FACING, facing).withProperty(EXTENDED, Boolean.valueOf(false));
+        cir.setReturnValue(this.getDefaultState().withProperty(FACING, facing).withProperty(EXTENDED, Boolean.valueOf(false)));
     }
 
     // ghost block fix
