@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 Mixen class to implement relaxed block placement, placement of pumpkins in mid air.
  */
 @Mixin(BlockPumpkin.class)
-public class MixinsBlockPumpkin extends BlockHorizontal {
+public class MixinBlockPumpkin extends BlockHorizontal {
 
-    protected MixinsBlockPumpkin(Material materialIn) {
+    protected MixinBlockPumpkin(Material materialIn) {
         super(materialIn);
     }
 

@@ -19,9 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 Mixen class to make observers properly rotate without visual glitches when doing "accurateBlockPlacement".
  */
 @Mixin(BlockObserver.class)
-public class MixinsBlockObserver extends BlockDirectional {
+public class MixinBlockObserver extends BlockDirectional {
 
-    protected MixinsBlockObserver(Material materialIn) {
+    protected MixinBlockObserver(Material materialIn) {
         super(materialIn);
     }
 

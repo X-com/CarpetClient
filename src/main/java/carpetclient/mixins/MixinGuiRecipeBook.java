@@ -24,7 +24,7 @@ Injecting code for click events for easier crafting using the recipe book.
  */
 
 @Mixin(GuiRecipeBook.class)
-public abstract class MixinsGuiRecipeBook extends Gui implements IRecipeUpdateListener {
+public abstract class MixinGuiRecipeBook extends Gui implements IRecipeUpdateListener {
     
     @Shadow private Minecraft mc;
     

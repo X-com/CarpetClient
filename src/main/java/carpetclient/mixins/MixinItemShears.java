@@ -4,27 +4,29 @@ import carpetclient.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemPickaxe;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Set;
 
-@Mixin(ItemPickaxe.class)
-public class MixinsItemPickaxe extends ItemTool {
-
-    protected MixinsItemPickaxe(float attackDamageIn, float attackSpeedIn, ToolMaterial materialIn, Set<Block> effectiveBlocksIn) {
-        super(attackDamageIn, attackSpeedIn, materialIn, effectiveBlocksIn);
-    }
+@Mixin(ItemShears.class)
+public class MixinItemShears extends Item {
 
     @Inject(method = "getDestroySpeed", at = @At("HEAD"), cancellable = true)
     public void canPlaceOnOver(ItemStack stack, IBlockState state, CallbackInfoReturnable<Float> cir) {
-        Material material = state.getMaterial();
-        cir.setReturnValue(material != Material.IRON && material != Material.ANVIL && material != Material.ROCK && (!Config.missingTools || (material != Material.PISTON && material != Material.GLASS)) ? super.getDestroySpeed(stack, state) : this.efficiency);
+        Block block = state.getBlock();
+
+        if (block != Blocks.WEB && state.getMaterial() != Material.LEAVES && (!Config.missingTools || state.getMaterial() != Material.SPONGE)) {
+            cir.setReturnValue(block == Blocks.WOOL ? 5.0F : super.getDestroySpeed(stack, state));
+        } else {
+            cir.setReturnValue(15.0F);
+        }
     }
 }

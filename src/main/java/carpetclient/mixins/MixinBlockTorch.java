@@ -23,9 +23,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 Mixen class to implement relaxed block placement, placement of torches on jack-o-lanterns.
 */
 @Mixin(BlockTorch.class)
-public class MixinsBlockTorch extends Block {
+public class MixinBlockTorch extends Block {
 
-    public MixinsBlockTorch(Material blockMaterialIn, MapColor blockMapColorIn) {
+    public MixinBlockTorch(Material blockMaterialIn, MapColor blockMapColorIn) {
         super(blockMaterialIn, blockMapColorIn);
     }
 

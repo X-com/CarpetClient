@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 A Mixins class to override a method to change the players aim.
  */
 @Mixin(Entity.class)
-public abstract class MixinsEntity {
+public abstract class MixinEntity {
 
     @Shadow
     public float rotationYaw;

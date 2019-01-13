@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 Mixins class to fix ghost block fix from mining
  */
 @Mixin(PlayerInteractionManager.class)
-public class MixinsPlayerInteractionManager {
+public class MixinPlayerInteractionManager {
     
     @Shadow public World world;
     @Shadow public EntityPlayerMP player;
