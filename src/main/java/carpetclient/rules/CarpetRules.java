@@ -53,6 +53,8 @@ public class CarpetRules {
             Config.missingTools = getRule("missingTools").getBoolean();
         if (hasRule("structureBlockLimit"))
             Config.structureBlockLimit = getRule("structureBlockLimit").integer;
+        if (hasRule("pushLimit"))
+            Config.pushLimit = getRule("pushLimit").integer;
         TickRate.setTickRate(Config.tickRate);
     }
 

@@ -25,6 +25,7 @@ public class Config {
     public static boolean boundingBoxMarkers = false;
     public static boolean villageMarkers = false;
     public static int structureBlockLimit = 32;
+    public static int pushLimit = 12;
     public static float tickRate;
 
     public static boolean setTickRate = false;
