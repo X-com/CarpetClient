@@ -15,7 +15,7 @@
     "MixinsEntity",
     "MixinEntityLivingBase",
     "MixinEntityPlayerSP",
-    "MixinsKeyBinding",
+    "MixinKeyBinding",
     "MixinsPlayerInteractionManager",
     "MixinRenderGlobal",
     "MixinNetworkManager$5",
