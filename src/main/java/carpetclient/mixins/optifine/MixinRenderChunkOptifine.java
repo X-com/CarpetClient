@@ -16,7 +16,7 @@ public class MixinRenderChunkOptifine {
      * @param ci
      */
     @Inject(method = "isPlayerUpdate", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
-    private void replayModCompat_disableIsPlayerUpdate(CallbackInfoReturnable<Boolean> ci) {
+    private void optifineDisablePlayerUpdatesBoolean(CallbackInfoReturnable<Boolean> ci) {
         if (!Config.clipThroughPistons) return;
         ci.setReturnValue(true);
     }
