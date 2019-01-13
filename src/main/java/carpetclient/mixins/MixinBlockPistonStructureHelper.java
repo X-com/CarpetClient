@@ -13,7 +13,7 @@ public class MixinBlockPistonStructureHelper {
     Edits the push limit of pistons to allow visually better
      */
     @ModifyConstant(method = "addBlockLine", constant = @Constant(intValue = 12), remap = false)
-    private static int pushLimit(int timeoutSeconds) {
+    private static int pushLimit(int pushlimit) {
         return Config.pushLimit;
     }
 }
