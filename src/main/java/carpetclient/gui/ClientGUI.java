@@ -163,6 +163,7 @@ public class ClientGUI {
         list.addNewRuleButton("Liquid ghost block fix", String.valueOf(Config.bucketGhostBlockFix), false, "Toggles the ghost block liquid option.", 1);
         list.addNewRuleButton("Elytra fix", String.valueOf(Config.elytraFix), false, "Earthcomputers hacky elytra fix.", 2);
         list.addNewRuleButton("Clip through pistons fix", String.valueOf(Config.clipThroughPistons), false, "Parcially fixes clipping through pistons, clipping can still happen but this helps.", 3);
+        list.addNewRuleButton("Render scoreboard", String.valueOf(Config.isScoreboardHidden), false, "Removes the scoreboard on the right.", 3);
     }
 
     /**
