@@ -33,6 +33,7 @@ public class Config {
     public static boolean elytraFix = false;
     public static boolean clipThroughPistons = true;
     public static boolean isScoreboardHidden = false;
+    public static boolean pistonVisualizer = false;
 
     public static void save() {
         String file = "config/carpetclient.cfg";
@@ -44,6 +45,7 @@ public class Config {
         obj.addProperty("elytraFix", elytraFix);
         obj.addProperty("clipThroughPistons", clipThroughPistons);
         obj.addProperty("isScoreboardHidden", isScoreboardHidden);
+        obj.addProperty("pistonVisualizer", pistonVisualizer);
 
         obj.addProperty("lines", VillageMarker.lines);
         obj.addProperty("golem", VillageMarker.golem);
@@ -86,6 +88,7 @@ public class Config {
                 elytraFix = jsonObject.get("elytraFix").getAsBoolean();
                 clipThroughPistons = jsonObject.get("clipThroughPistons").getAsBoolean();
                 isScoreboardHidden = jsonObject.get("isScoreboardHidden").getAsBoolean();
+                pistonVisualizer = jsonObject.get("pistonVisualizer").getAsBoolean();
 
                 VillageMarker.lines = jsonObject.get("lines").getAsBoolean();
                 VillageMarker.golem = jsonObject.get("golem").getAsBoolean();
