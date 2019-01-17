@@ -32,6 +32,7 @@
     "MixinWorldClient",
     "IMixinWorld",
     "MixinPlayerMenuObject",
-    "MixinBlockPistonStructureHelper"
+    "MixinBlockPistonStructureHelper",
+    "MixinGuiIngame"
   ]
 }
