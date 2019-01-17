@@ -128,6 +128,7 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
 
     /**
      * Add block activation to get piston update order, code provided by EDDxample.
+     *
      * @param worldIn
      * @param pos
      * @param state
@@ -140,51 +141,24 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
      * @return
      */
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-    {
-        if(!Config.pistonVisualizer) return false;
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        if (!Config.pistonVisualizer) return false;
 
         boolean flag = PistonHelper.isNecessary() && playerIn.getHeldItem(EnumHand.MAIN_HAND).isEmpty() && playerIn.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.AIR;
 
         if (worldIn.isRemote && flag) {
             boolean extending = !(Boolean) state.getValue(BlockPistonBase.EXTENDED);
             if ((!pos.equals(PistonHelper.pistonPos) || !PistonHelper.activated) && (extending || isSticky)) {
-                EnumFacing enumfacing = (EnumFacing) state.getValue(FACING);
-
-                IBlockState state1 = worldIn.getBlockState(pos.offset(enumfacing));
-
-                BlockPistonStructureHelper ph = null;
-
-                //Weird trick to remove the piston head
-                if (!extending) {
-                    worldIn.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 2);
-                    worldIn.setBlockToAir(pos);
-                    worldIn.setBlockToAir(pos.offset(enumfacing));
-                }
-
-                ph = new BlockPistonStructureHelper(worldIn, pos, enumfacing, extending);
-                boolean canMove = ph.canMove();
-                int storeLimit = Config.pushLimit;
-                Config.pushLimit = 10000;
-                ph.canMove();
-                PistonHelper.set(pos, ph.getBlocksToMove().toArray(new BlockPos[ph.getBlocksToMove().size()]), ph.getBlocksToDestroy().toArray(new BlockPos[ph.getBlocksToDestroy().size()]), canMove, extending);
-                Config.pushLimit = storeLimit;
-                PistonHelper.activated = true;
-
-                //Weird trick to add the piston head back
-                if (!extending) {
-                    worldIn.setBlockState(pos, state, 2);
-                    worldIn.setBlockState(pos.offset(enumfacing), state1, 2);
-                }
-            } else PistonHelper.activated = false;
+                PistonHelper.setPistonMovement(worldIn, state, pos, extending);
+            } else {
+                PistonHelper.activated = false;
+            }
         }
 
         if (worldIn.isRemote) {
-//            cir.setReturnValue(isSticky || !(Boolean) state.getValue(BlockPistonBase.EXTENDED) );
-            return isSticky || !(Boolean)state.getValue(BlockPistonBase.EXTENDED);
+            return isSticky || !(Boolean) state.getValue(BlockPistonBase.EXTENDED);
         }
 
-//        cir.setReturnValue(flag);
         return flag;
     }
 }
