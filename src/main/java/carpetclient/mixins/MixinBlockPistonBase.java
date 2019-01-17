@@ -144,7 +144,7 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (!Config.pistonVisualizer) return false;
 
-        boolean flag = PistonHelper.isNecessary() && playerIn.getHeldItem(EnumHand.MAIN_HAND).isEmpty() && playerIn.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.AIR;
+        boolean flag = playerIn.getHeldItem(EnumHand.MAIN_HAND).isEmpty() && playerIn.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.AIR;
 
         if (worldIn.isRemote && flag) {
             boolean extending = !(Boolean) state.getValue(BlockPistonBase.EXTENDED);
