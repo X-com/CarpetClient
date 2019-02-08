@@ -8,6 +8,7 @@ import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.gui.chunkgrid.Controller;
 import carpetclient.gui.chunkgrid.GuiChunkGrid;
+import carpetclient.random.RandomtickDisplay;
 import com.mumfrey.liteloader.*;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.rules.CarpetRules;
@@ -83,6 +84,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
         if (gameRunnin) {
             try {
                 PistonHelper.draw(partialTicks);
+                RandomtickDisplay.draw(partialTicks);
             } catch (Exception e) {
                 System.out.println(e);
             }

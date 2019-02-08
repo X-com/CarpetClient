@@ -165,6 +165,7 @@ public class ClientGUI {
         list.addNewRuleButton("Clip through pistons fix", String.valueOf(Config.clipThroughPistons), false, "Parcially fixes clipping through pistons, clipping can still happen but this helps.", 3);
         list.addNewRuleButton("Hide scoreboard", String.valueOf(Config.isScoreboardHidden), false, "Removes the scoreboard on the right.", 4);
         list.addNewRuleButton("Piston visualizer", String.valueOf(Config.pistonVisualizer), false, "Shows piston push and pull update order when right clicking with empty hand on pistons.", 5);
+        list.addNewRuleButton("Randomtickchunk Index", String.valueOf(Config.randomtickingChunksVisualizer), false, "Displays the index of randomticking chunks around the player.", 6);
     }
 
     /**
@@ -195,6 +196,8 @@ public class ClientGUI {
             Config.isScoreboardHidden = !Config.isScoreboardHidden;
         } else if (option == 5) {
             Config.pistonVisualizer = !Config.pistonVisualizer;
+        } else if (option == 6) {
+            Config.randomtickingChunksVisualizer = !Config.randomtickingChunksVisualizer;
         }
 
         display();

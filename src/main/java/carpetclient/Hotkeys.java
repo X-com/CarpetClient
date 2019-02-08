@@ -25,6 +25,7 @@ public class Hotkeys {
     public static KeyBinding toggleBlockFlip = new KeyBinding("Block Rotation Flip", Keyboard.KEY_LMENU, "Carpet Client");
     public static KeyBinding toggleBlockFacing = new KeyBinding("Block Rotation Face", Keyboard.KEY_LCONTROL, "Carpet Client");
     public static KeyBinding chunkDebug = new KeyBinding("Chunk debug", Keyboard.KEY_F6, "Carpet Client");
+    public static KeyBinding randomtickChunkUpdates = new KeyBinding("Randomtick display updates", Keyboard.KEY_U, "Carpet Client");
     
     public static void init() {
 //        LiteLoader.getInput().registerKeyBinding(toggleMainMenu);
@@ -36,6 +37,7 @@ public class Hotkeys {
         LiteLoader.getInput().registerKeyBinding(toggleBlockFlip);
         LiteLoader.getInput().registerKeyBinding(toggleBlockFacing);
         LiteLoader.getInput().registerKeyBinding(chunkDebug);
+        LiteLoader.getInput().registerKeyBinding(randomtickChunkUpdates);
     }
 
     public static void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
@@ -70,6 +72,8 @@ public class Hotkeys {
             CarpetPluginChannel.packatSender(sender);
         } else if (chunkDebug.isPressed()) {
             minecraft.displayGuiScreen(GuiChunkGrid.instance);
+        } else if (randomtickChunkUpdates.isPressed()) {
+            Config.randomtickChunkUpdates = !Config.randomtickChunkUpdates;
         }
     }
     
