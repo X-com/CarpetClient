@@ -1,6 +1,8 @@
 package carpetclient.random;
 
 import carpetclient.Config;
+import carpetclient.pluginchannel.CarpetPluginChannel;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.EntityRenderer;
@@ -41,7 +43,7 @@ public class RandomtickDisplay {
             NBTTagCompound chunkData = nbttaglist.getCompoundTagAt(i);
             int x = chunkData.getInteger("x");
             int z = chunkData.getInteger("z");
-            chunks.add(new BlockPos(x * 16, 0, z * 16));
+            chunks.add(new BlockPos(x * 16 + 8, 0, z * 16 + 8));
         }
     }
 
@@ -59,5 +61,12 @@ public class RandomtickDisplay {
             EntityRenderer.drawNameplate(Minecraft.getMinecraft().fontRenderer, gold + counter, (float) (pos.getX() + 0.5f - d0), (float) (player.posY + 0.2f - d1), (float) (pos.getZ() + 0.5f - d2), 0, rm.playerViewY, rm.playerViewX, rm.options.thirdPersonView == 2, false);
             counter++;
         }
+    }
+
+    public static void startStopRecording(boolean start) {
+        PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
+        sender.writeInt(CarpetPluginChannel.RANDOMTICK_DISPLAY);
+        sender.writeBoolean(start);
+        CarpetPluginChannel.packatSender(sender);
     }
 }

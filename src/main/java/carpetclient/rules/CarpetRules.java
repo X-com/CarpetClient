@@ -4,6 +4,7 @@ import carpetclient.Config;
 import carpetclient.coders.Pokechu22.ScrollGUI;
 import carpetclient.gui.ClientGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
+import carpetclient.random.RandomtickDisplay;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
 
@@ -197,6 +198,7 @@ public class CarpetRules {
     
     public static void resetToDefaults() {
         rules.values().forEach(rule -> rule.changeRule(rule.defaultOption));
+        Config.randomtickChunkUpdates = false;
     }
 
     /*

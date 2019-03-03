@@ -6,6 +6,7 @@ import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.coders.Pokechu22.ScrollGUI;
 import carpetclient.gui.chunkgrid.ChunkGridStyle;
 import carpetclient.gui.chunkgrid.GuiChunkGrid;
+import carpetclient.random.RandomtickDisplay;
 import carpetclient.rules.CarpetRules;
 import carpetclient.rules.TickRate;
 
@@ -198,6 +199,7 @@ public class ClientGUI {
             Config.pistonVisualizer = !Config.pistonVisualizer;
         } else if (option == 6) {
             Config.randomtickingChunksVisualizer = !Config.randomtickingChunksVisualizer;
+            RandomtickDisplay.startStopRecording(Config.randomtickingChunksVisualizer);
         }
 
         display();

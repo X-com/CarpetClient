@@ -48,7 +48,6 @@ public class Config {
         obj.addProperty("clipThroughPistons", clipThroughPistons);
         obj.addProperty("isScoreboardHidden", isScoreboardHidden);
         obj.addProperty("pistonVisualizer", pistonVisualizer);
-        obj.addProperty("randomtickingChunksVisualizer", randomtickingChunksVisualizer);
 
         obj.addProperty("lines", VillageMarker.lines);
         obj.addProperty("golem", VillageMarker.golem);
@@ -92,7 +91,6 @@ public class Config {
                 clipThroughPistons = jsonObject.get("clipThroughPistons").getAsBoolean();
                 isScoreboardHidden = jsonObject.get("isScoreboardHidden").getAsBoolean();
                 pistonVisualizer = jsonObject.get("pistonVisualizer").getAsBoolean();
-                randomtickingChunksVisualizer = jsonObject.get("randomtickingChunksVisualizer").getAsBoolean();
 
                 VillageMarker.lines = jsonObject.get("lines").getAsBoolean();
                 VillageMarker.golem = jsonObject.get("golem").getAsBoolean();
