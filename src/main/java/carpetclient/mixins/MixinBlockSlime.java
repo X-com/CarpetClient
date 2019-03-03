@@ -54,10 +54,6 @@ public class MixinBlockSlime extends BlockBreakable {
             }
         }
 
-        if (worldIn.isRemote) {
-            return isSticky || !(Boolean) state.getValue(BlockPistonBase.EXTENDED);
-        }
-
         return flag;
     }
 }
