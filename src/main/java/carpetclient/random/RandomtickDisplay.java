@@ -71,7 +71,6 @@ public class RandomtickDisplay {
     }
 
     public static void reset() {
-        Config.randomtickChunkUpdates = false;
         Config.randomtickingChunksVisualizer = false;
     }
 }
