@@ -69,4 +69,9 @@ public class RandomtickDisplay {
         sender.writeBoolean(start);
         CarpetPluginChannel.packatSender(sender);
     }
+
+    public static void reset() {
+        Config.randomtickChunkUpdates = false;
+        Config.randomtickingChunksVisualizer = false;
+    }
 }

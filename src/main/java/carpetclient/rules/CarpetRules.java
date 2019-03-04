@@ -198,7 +198,7 @@ public class CarpetRules {
     
     public static void resetToDefaults() {
         rules.values().forEach(rule -> rule.changeRule(rule.defaultOption));
-        Config.randomtickChunkUpdates = false;
+        RandomtickDisplay.reset();
     }
 
     /*
