@@ -56,6 +56,8 @@ public class CarpetRules {
             Config.structureBlockLimit = getRule("structureBlockLimit").integer;
         if (hasRule("pushLimit"))
             Config.pushLimit = getRule("pushLimit").integer;
+        if(hasRule("disablePlayerCollision"))
+            Config.playerCollisions = !getRule("disablePlayerCollision").getBoolean();
         TickRate.setTickRate(Config.tickRate);
     }
 

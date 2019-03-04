@@ -27,6 +27,7 @@ public class Config {
     public static int structureBlockLimit = 32;
     public static int pushLimit = 12;
     public static float tickRate;
+    public static boolean playerCollisions = true;
 
     public static boolean setTickRate = false;
     public static boolean bucketGhostBlockFix = true;

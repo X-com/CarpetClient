@@ -27,5 +27,9 @@ public class MixinEntityPlayerSP extends AbstractClientPlayer {
         if (Config.elytraFix)
             setFlag(7, true);
     }
-    
+
+    public boolean canBePushed()
+    {
+        return Config.playerCollisions;
+    }
 }
