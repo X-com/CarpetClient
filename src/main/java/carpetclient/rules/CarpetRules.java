@@ -58,6 +58,8 @@ public class CarpetRules {
             Config.pushLimit = getRule("pushLimit").integer;
         if(hasRule("disablePlayerCollision"))
             Config.playerCollisions = !getRule("disablePlayerCollision").getBoolean();
+        if(hasRule("ignoreEntityWhenPlacing"))
+            Config.ignoreEntityWhenPlacing = getRule("ignoreEntityWhenPlacing").getBoolean();
         TickRate.setTickRate(Config.tickRate);
     }
 

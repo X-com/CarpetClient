@@ -28,6 +28,7 @@ public class Config {
     public static int pushLimit = 12;
     public static float tickRate;
     public static boolean playerCollisions = true;
+    public static boolean ignoreEntityWhenPlacing = false;
 
     public static boolean setTickRate = false;
     public static boolean bucketGhostBlockFix = true;
@@ -37,7 +38,6 @@ public class Config {
     public static boolean pistonVisualizer = false;
     public static boolean randomtickingChunksVisualizer = false;
     public static boolean randomtickChunkUpdates = true;
-    public static boolean ignoreEntityWhenPlacing = false;
     public static boolean creativeModeNoClip = false;
 
     public static void save() {
