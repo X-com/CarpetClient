@@ -167,6 +167,7 @@ public class ClientGUI {
         list.addNewRuleButton("Hide scoreboard", String.valueOf(Config.isScoreboardHidden), false, "Removes the scoreboard on the right.", 4);
         list.addNewRuleButton("Piston visualizer", String.valueOf(Config.pistonVisualizer), false, "Shows piston push and pull update order when right clicking with empty hand on pistons.", 5);
         list.addNewRuleButton("Randomtickchunk Index", String.valueOf(Config.randomtickingChunksVisualizer), false, "Displays the index of randomticking chunks around the player.", 6);
+        list.addNewRuleButton("Creative No Clip", String.valueOf(Config.creativeModeNoClip), false, "Disables block collisions when in creative mode, needs server rule to be enabled to work.", 7);
     }
 
     /**
@@ -200,6 +201,8 @@ public class ClientGUI {
         } else if (option == 6) {
             Config.randomtickingChunksVisualizer = !Config.randomtickingChunksVisualizer;
             RandomtickDisplay.startStopRecording(Config.randomtickingChunksVisualizer);
+        } else if (option == 7) {
+            Config.creativeModeNoClip = !Config.creativeModeNoClip;
         }
 
         display();

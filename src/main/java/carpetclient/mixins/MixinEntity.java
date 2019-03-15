@@ -6,10 +6,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.lib.Opcodes;
@@ -38,6 +40,19 @@ public abstract class MixinEntity {
     public double motionY;
     @Shadow
     public double motionZ;
+
+    @Shadow
+    public void setEntityBoundingBox(AxisAlignedBB bb) {
+    }
+
+    @Shadow
+    public AxisAlignedBB getEntityBoundingBox() {
+        return null;
+    }
+
+    @Shadow
+    public void resetPositionToBB() {
+    }
 
 //    /*
 //    Override to change the behavior of player aiming.
@@ -149,6 +164,24 @@ public abstract class MixinEntity {
             return MoverType.SHULKER;
         }
         return MoverType.PISTON;
+    }
+
+    /**
+     * Added no clip mode for creative mode
+     *
+     * @param type
+     * @param x
+     * @param y
+     * @param z
+     * @param ci
+     */
+    @Inject(method = "move", at = @At(value = "HEAD"), cancellable = true)
+    public void addNoClip(MoverType type, double x, double y, double z, CallbackInfo ci) {
+        if (Config.creativeModeNoClip && (Object) this instanceof EntityPlayerSP && ((EntityPlayerSP) (Object) this).isCreative()) {
+            this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
+            this.resetPositionToBB();
+            ci.cancel();
+        }
     }
 
     /**
