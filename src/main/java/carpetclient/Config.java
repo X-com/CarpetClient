@@ -37,6 +37,7 @@ public class Config {
     public static boolean pistonVisualizer = false;
     public static boolean randomtickingChunksVisualizer = false;
     public static boolean randomtickChunkUpdates = true;
+    public static boolean ignoreEntityWhenPlacing = false;
 
     public static void save() {
         String file = "config/carpetclient.cfg";
