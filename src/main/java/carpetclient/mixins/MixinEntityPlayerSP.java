@@ -1,11 +1,13 @@
 package carpetclient.mixins;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.authlib.GameProfile;
@@ -73,11 +75,14 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer {
      * @param y
      * @param z
      * @return
+     *
+     * @author Xcom
+     * @reason needed for pushing player out of blocks in the head position
      */
     @SuppressWarnings("OverwriteAuthorRequired")
     @Overwrite
     protected boolean pushOutOfBlocks(double x, double y, double z) {
-        if (Config.creativeModeNoClip || this.noClip) {
+        if (this.noClip) {
             return false;
         } else {
             BlockPos blockpos = new BlockPos(x, y, z);

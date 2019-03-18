@@ -167,24 +167,6 @@ public abstract class MixinEntity {
     }
 
     /**
-     * Added no clip mode for creative mode
-     *
-     * @param type
-     * @param x
-     * @param y
-     * @param z
-     * @param ci
-     */
-    @Inject(method = "move", at = @At(value = "HEAD"), cancellable = true)
-    public void addNoClip(MoverType type, double x, double y, double z, CallbackInfo ci) {
-        if (Config.creativeModeNoClip && (Object) this instanceof EntityPlayerSP && ((EntityPlayerSP) (Object) this).isCreative()) {
-            this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
-            this.resetPositionToBB();
-            ci.cancel();
-        }
-    }
-
-    /**
      * Fixes step height being 1.0 instead of 0.6 when being pushed by pistons.
      *
      * @param owner

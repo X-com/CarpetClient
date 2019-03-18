@@ -1,8 +1,10 @@
 package carpetclient.mixins;
 
+import carpetclient.Config;
 import carpetclient.rules.TickRate;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.ClippingHelperImpl;
@@ -320,5 +322,13 @@ public class MixinEntityRenderer {
             GlStateManager.clear(256);
             this.renderHand(partialTicks, pass);
         }
+    }
+
+    /**
+     * fixes the world being culled while noclipping
+     */
+    @Redirect(method = "renderWorldPass(IFJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isSpectator()Z"))
+    private boolean fixSpectator(EntityPlayerSP player) {
+        return player.isSpectator() || (Config.creativeModeNoClip && player.isCreative());
     }
 }
