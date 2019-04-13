@@ -153,10 +153,9 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
             } else {
                 PistonHelper.activated = false;
             }
-        }
-
-        if (worldIn.isRemote) {
-            return isSticky || !(Boolean) state.getValue(BlockPistonBase.EXTENDED);
+            if (worldIn.isRemote) {
+                return isSticky || !(Boolean) state.getValue(BlockPistonBase.EXTENDED);
+            }
         }
 
         return flag;
