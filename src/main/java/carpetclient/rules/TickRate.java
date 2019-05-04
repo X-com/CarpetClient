@@ -28,7 +28,7 @@ public class TickRate {
      * Sets the game tick after the values are set.
      */
     public static void setTickClient() {
-        runTickRate = Config.setTickRate && (20.0f != Config.tickRate);
+        runTickRate = Config.setTickRate.getValue() && (20.0f != Config.tickRate);
         if(runTickRate) {
             ((IMixinTimer) timerWorld).setTickLength(1000.0F / Config.tickRate);
             ((IMixinTimer) timerWorld).setLastSyncSysClock(((IMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).getLastSyncSysClock());

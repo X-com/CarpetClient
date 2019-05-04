@@ -84,7 +84,7 @@ public class PistonHelper {
      * @param partialTicks tick sense last render
      */
     public static void draw(float partialTicks) {
-        if (Config.pistonVisualizer && activated) {
+        if (Config.pistonVisualizer.getValue() && activated) {
             final EntityPlayerSP player = Minecraft.getMinecraft().player;
             final double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
             final double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;

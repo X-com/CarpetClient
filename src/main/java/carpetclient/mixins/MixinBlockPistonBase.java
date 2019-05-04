@@ -142,7 +142,7 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
      */
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (!Config.pistonVisualizer) return false;
+        if (!Config.pistonVisualizer.getValue()) return false;
 
         boolean flag = playerIn.getHeldItem(EnumHand.MAIN_HAND).isEmpty() && playerIn.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.AIR;
 

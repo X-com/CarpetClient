@@ -160,7 +160,7 @@ public abstract class MixinEntity {
      */
     @Redirect(method = "move", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/MoverType;PISTON:Lnet/minecraft/entity/MoverType;", opcode = Opcodes.GETSTATIC))
     public MoverType redirectMoveType() {
-        if (world.isRemote && Config.clipThroughPistons) {
+        if (world.isRemote && Config.clipThroughPistons.getValue()) {
             return MoverType.SHULKER;
         }
         return MoverType.PISTON;
@@ -178,7 +178,7 @@ public abstract class MixinEntity {
      */
     @Redirect(method = "move", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;stepHeight:F", opcode = Opcodes.GETFIELD, ordinal = 4))
     private float getStepHeight1(Entity owner, MoverType type, double x, double y, double z) {
-        if (Config.clipThroughPistons && owner instanceof EntityPlayer && type == MoverType.PISTON) return 1.0f;
+        if (Config.clipThroughPistons.getValue() && owner instanceof EntityPlayer && type == MoverType.PISTON) return 1.0f;
         return owner.stepHeight;
     }
 }
