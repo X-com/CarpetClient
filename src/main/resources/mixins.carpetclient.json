@@ -36,6 +36,10 @@
     "MixinGuiIngame",
     "MixinBlockSlime",
     "MixinWorld",
-    "MixinEntityPlayer"
+    "MixinEntityPlayer",
+    "MixinTileEntityPiston",
+    "MixinTileEntityPistonRenderer",
+    "MixinTileEntityRenderDispatcher",
+    "MixinChunk"
   ]
 }

@@ -29,6 +29,7 @@ public class Config {
     public static float tickRate;
     public static boolean playerCollisions = true;
     public static boolean ignoreEntityWhenPlacing = false;
+    public static boolean movableTileEntities = false;
 
     public static boolean setTickRate = false;
     public static boolean bucketGhostBlockFix = true;

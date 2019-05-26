@@ -3,9 +3,12 @@ package carpetclient.mixins;
 import carpetclient.Config;
 import carpetclient.Hotkeys;
 import carpetclient.coders.EDDxample.PistonHelper;
+import carpetclient.util.ITileEntityPiston;
+import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.BlockPistonBase;
+import net.minecraft.block.BlockPistonMoving;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockPistonStructureHelper;
@@ -15,6 +18,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityPiston;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -27,6 +32,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*
 Mixen class 
@@ -35,6 +44,8 @@ Mixen class
  */
 @Mixin(BlockPistonBase.class)
 public abstract class MixinBlockPistonBase extends BlockDirectional {
+
+    private List<TileEntity> tileEntitiesList;
 
     @Shadow
     private void checkForMove(World worldIn, BlockPos pos, IBlockState state) {
@@ -160,4 +171,63 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
 
         return flag;
     }
+
+    // MovableTE
+    @Redirect(method = "canPush", at = @At(value="INVOKE", target = "Lnet/minecraft/block/Block;hasTileEntity()Z"))
+    private static boolean canPushTE(Block block)
+    {
+        if (!Config.movableTileEntities)
+            return block.hasTileEntity();
+
+        if (!block.hasTileEntity())
+            return !true;
+        else
+            return !(isPushableTileEntityBlock(block));
+    }
+
+    private static boolean isPushableTileEntityBlock(Block block)
+    {
+        //Making PISTON_EXTENSION (BlockPistonMoving) pushable would not work as its createNewTileEntity()-method returns null
+        return block != Blocks.ENDER_CHEST && block != Blocks.ENCHANTING_TABLE && block != Blocks.END_GATEWAY
+                && block != Blocks.END_PORTAL && block != Blocks.MOB_SPAWNER && block != Blocks.PISTON_EXTENSION;
+    }
+
+    @Inject(method = "doMove", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Ljava/util/List;size()I", ordinal = 4), locals = LocalCapture.CAPTURE_FAILHARD)
+    private void doMoveTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
+                          BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing, int var12)
+    {
+        if (!Config.movableTileEntities)
+            return;
+
+        tileEntitiesList = Lists.newArrayList();
+        for (int i = 0; i < list.size(); i++)
+        {
+            BlockPos blockPos = list.get(i);
+            TileEntity tileEntity = worldIn.getTileEntity(blockPos);
+            tileEntitiesList.add(tileEntity);
+            if (tileEntity != null)
+            {
+                worldIn.removeTileEntity(blockPos);
+                tileEntity.markDirty();
+            }
+        }
+    }
+
+    @Inject(method = "doMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setTileEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/tileentity/TileEntity;)V", ordinal = 0),
+            locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+    private void setTileEntityTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
+                          BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing,
+                          int l, BlockPos blockpos3, IBlockState iblockstate2)
+    {
+        if (!Config.movableTileEntities)
+            return;
+
+        TileEntityPiston tilePiston = (TileEntityPiston)BlockPistonMoving.createTilePiston(list1.get(l), direction, extending, false);
+        ((ITileEntityPiston) tilePiston).setCarriedBlockEntity(tileEntitiesList.get(l));
+        worldIn.setTileEntity(blockpos3, tilePiston);
+        cir.cancel();
+    }
+    // End MovableTE
 }
