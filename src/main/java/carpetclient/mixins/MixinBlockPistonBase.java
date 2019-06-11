@@ -30,6 +30,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Surrogate;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
@@ -195,8 +196,14 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
     @Inject(method = "doMove", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Ljava/util/List;size()I", ordinal = 4), locals = LocalCapture.CAPTURE_FAILHARD)
     private void doMoveTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
                           BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
-                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing, int var12)
-    {
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing, int var12) {
+        doMoveTE(worldIn, pos, direction, extending, cir, blockpistonstructurehelper, list, list1, list2, k, aiblockstate, var12);
+    }
+
+    @Surrogate // EnumFacing local var only present in recompiled Minecraft
+    private void doMoveTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
+                          BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, int var12) {
         if (!Config.movableTileEntities)
             return;
 
