@@ -46,6 +46,8 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
 
     private List<TileEntity> tileEntitiesList;
 
+    private BlockPos blockpos; // For movableTE
+
     @Shadow
     private void checkForMove(World worldIn, BlockPos pos, IBlockState state) {
     }
@@ -219,17 +221,41 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
         }
     }
 
+    @Inject(method = "doMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setTileEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/tileentity/TileEntity;)V", ordinal = 0),
+            locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+    private void setTileEntityTE_NoShift(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
+                                 BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
+                                 List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing,
+                                 int l, BlockPos blockpos3, IBlockState iblockstate2)
+    {
+        this.blockpos = blockpos3;
+    }
+
+    // Only For dev environment
     @Inject(method = "doMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setTileEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/tileentity/TileEntity;)V", shift = At.Shift.AFTER, ordinal = 0),
             locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     private void setTileEntityTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
-                          BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
-                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing,
-                          int l, BlockPos blockpos3, IBlockState iblockstate2)
+                                 BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
+                                 List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing,
+                                 int l, BlockPos blockpos3, IBlockState iblockstate2)
     {
         if (!Config.movableTileEntities)
             return;
 
-        TileEntity e = worldIn.getTileEntity(blockpos3);
+        this.blockpos = blockpos3;
+        setTileEntityTE(worldIn, pos, direction, extending, cir, blockpistonstructurehelper, list, list1, list2, k, aiblockstate, l);
+    }
+    // Only for dev environment
+
+    @Surrogate
+    private void setTileEntityTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
+                          BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, int l)
+    {
+        if (!Config.movableTileEntities)
+            return;
+
+        TileEntity e = worldIn.getTileEntity(this.blockpos);
         if (!(e instanceof TileEntityPiston))
             return;
 
