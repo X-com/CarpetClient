@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.BlockPistonBase;
-import net.minecraft.block.BlockPistonMoving;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockPistonStructureHelper;
@@ -35,7 +34,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -221,7 +219,7 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
         }
     }
 
-    @Inject(method = "doMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setTileEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/tileentity/TileEntity;)V", ordinal = 0),
+    @Inject(method = "doMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setTileEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/tileentity/TileEntity;)V", shift = At.Shift.AFTER, ordinal = 0),
             locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     private void setTileEntityTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
                           BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
@@ -231,10 +229,11 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
         if (!Config.movableTileEntities)
             return;
 
-        TileEntityPiston tilePiston = (TileEntityPiston)BlockPistonMoving.createTilePiston(list1.get(l), direction, extending, false);
-        ((ITileEntityPiston) tilePiston).setCarriedBlockEntity(tileEntitiesList.get(l));
-        worldIn.setTileEntity(blockpos3, tilePiston);
-        cir.cancel();
+        TileEntity e = worldIn.getTileEntity(blockpos3);
+        if (!(e instanceof TileEntityPiston))
+            return;
+
+        ((ITileEntityPiston) e).setCarriedBlockEntity(tileEntitiesList.get(l));
     }
     // End MovableTE
 }
