@@ -39,6 +39,7 @@ public class Hotkeys {
         LiteLoader.getInput().registerKeyBinding(toggleBlockFlip);
         LiteLoader.getInput().registerKeyBinding(toggleBlockFacing);
         LiteLoader.getInput().registerKeyBinding(chunkDebug);
+        LiteLoader.getInput().registerKeyBinding(bucketer);
     }
 
     public static void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
@@ -73,6 +74,8 @@ public class Hotkeys {
             CarpetPluginChannel.packatSender(sender);
         } else if (chunkDebug.isPressed()) {
             minecraft.displayGuiScreen(GuiChunkGrid.instance);
+        } else if (bucketer.isPressed()) {
+            new BucketHack(minecraft).useBucketer();
         }
     }
 
