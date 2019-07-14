@@ -1,0 +1,9 @@
+{
+  "required": false,
+  "package": "carpetclient.mixins",
+  "refmap": "mixins.carpetclient.refmap.json",
+  "plugin": "carpetclient.mixins.optifine.OptifinePlugin",
+  "mixins": [
+    "optifine.MixinRenderChunkOptifine"
+  ]
+}

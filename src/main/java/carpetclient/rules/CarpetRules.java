@@ -4,6 +4,7 @@ import carpetclient.Config;
 import carpetclient.coders.Pokechu22.ScrollGUI;
 import carpetclient.gui.ClientGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
+import carpetclient.random.RandomtickDisplay;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
 
@@ -53,6 +54,14 @@ public class CarpetRules {
             Config.missingTools = getRule("missingTools").getBoolean();
         if (hasRule("structureBlockLimit"))
             Config.structureBlockLimit = getRule("structureBlockLimit").integer;
+        if (hasRule("pushLimit"))
+            Config.pushLimit = getRule("pushLimit").integer;
+        if(hasRule("disablePlayerCollision"))
+            Config.playerCollisions = !getRule("disablePlayerCollision").getBoolean();
+        if(hasRule("ignoreEntityWhenPlacing"))
+            Config.ignoreEntityWhenPlacing = getRule("ignoreEntityWhenPlacing").getBoolean();
+        if (hasRule("movableTileEntities"))
+            Config.movableTileEntities = getRule("movableTileEntities").getBoolean();
         TickRate.setTickRate(Config.tickRate);
     }
 
@@ -195,6 +204,7 @@ public class CarpetRules {
     
     public static void resetToDefaults() {
         rules.values().forEach(rule -> rule.changeRule(rule.defaultOption));
+        RandomtickDisplay.reset();
     }
 
     /*

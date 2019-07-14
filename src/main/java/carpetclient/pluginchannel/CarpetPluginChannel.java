@@ -2,6 +2,8 @@ package carpetclient.pluginchannel;
 
 
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
+import carpetclient.bugfix.PistonFix;
+import carpetclient.random.RandomtickDisplay;
 import com.google.common.collect.ImmutableList;
 import com.mumfrey.liteloader.core.ClientPluginChannels;
 import com.mumfrey.liteloader.core.PluginChannels.ChannelPolicy;
@@ -11,7 +13,6 @@ import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.rules.CarpetRules;
 import carpetclient.rules.TickRate;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.chunk.storage.ChunkLoader;
 
 /*
 Plugin channel class to implement a client server communication between carpet client and carpet server.
@@ -30,6 +31,8 @@ public class CarpetPluginChannel {
     public static final int LARGE_BOUNDINGBOX_MARKERS_START = 7;
     public static final int LARGE_BOUNDINGBOX_MARKERS = 8;
     public static final int CHUNK_LOGGER = 9;
+    public static final int PISTON_UPDATES = 10;
+    public static final int RANDOMTICK_DISPLAY = 11;
 
     /**
      * Packate receiver method to handle incoming messages.
@@ -84,6 +87,12 @@ public class CarpetPluginChannel {
         }
         if (CHUNK_LOGGER == type) {
             Chunkdata.processPacket(data);
+        }
+        if (PISTON_UPDATES == type) {
+            PistonFix.processPacket(data);
+        }
+        if (RANDOMTICK_DISPLAY == type) {
+            RandomtickDisplay.processPacket(data);
         }
     }
 

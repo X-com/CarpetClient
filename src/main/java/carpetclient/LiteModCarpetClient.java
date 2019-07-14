@@ -3,10 +3,12 @@ package carpetclient;
 import java.io.File;
 import java.util.List;
 
+import carpetclient.coders.EDDxample.PistonHelper;
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.gui.chunkgrid.Controller;
 import carpetclient.gui.chunkgrid.GuiChunkGrid;
+import carpetclient.random.RandomtickDisplay;
 import com.mumfrey.liteloader.*;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.rules.CarpetRules;
@@ -15,7 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.network.PacketBuffer;
 
-public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener, HUDRenderListener, Configurable, ViewportListener{
+public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelListener, PostRenderListener, HUDRenderListener, Configurable, ViewportListener {
 
     private boolean gameRunnin = false;
     private boolean loggedOut = false;
@@ -79,7 +81,14 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
 
     @Override
     public void onPostRender(float partialTicks) {
-
+        if (gameRunnin) {
+            try {
+                PistonHelper.draw(partialTicks);
+                RandomtickDisplay.draw(partialTicks);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
     }
 
     @Override

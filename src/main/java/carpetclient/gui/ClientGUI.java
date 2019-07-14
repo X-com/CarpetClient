@@ -6,6 +6,7 @@ import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.coders.Pokechu22.ScrollGUI;
 import carpetclient.gui.chunkgrid.ChunkGridStyle;
 import carpetclient.gui.chunkgrid.GuiChunkGrid;
+import carpetclient.random.RandomtickDisplay;
 import carpetclient.rules.CarpetRules;
 import carpetclient.rules.TickRate;
 
@@ -163,6 +164,10 @@ public class ClientGUI {
         list.addNewRuleButton("Liquid ghost block fix", String.valueOf(Config.bucketGhostBlockFix), false, "Toggles the ghost block liquid option.", 1);
         list.addNewRuleButton("Elytra fix", String.valueOf(Config.elytraFix), false, "Earthcomputers hacky elytra fix.", 2);
         list.addNewRuleButton("Clip through pistons fix", String.valueOf(Config.clipThroughPistons), false, "Parcially fixes clipping through pistons, clipping can still happen but this helps.", 3);
+        list.addNewRuleButton("Hide scoreboard", String.valueOf(Config.isScoreboardHidden), false, "Removes the scoreboard on the right.", 4);
+        list.addNewRuleButton("Piston visualizer", String.valueOf(Config.pistonVisualizer), false, "Shows piston push and pull update order when right clicking with empty hand on pistons.", 5);
+        list.addNewRuleButton("Randomtickchunk Index", String.valueOf(Config.randomtickingChunksVisualizer), false, "Displays the index of randomticking chunks around the player.", 6);
+        list.addNewRuleButton("Creative No Clip", String.valueOf(Config.creativeModeNoClip), false, "Disables block collisions when in creative mode, needs server rule to be enabled to work.", 7);
     }
 
     /**
@@ -189,6 +194,15 @@ public class ClientGUI {
             Config.elytraFix = !Config.elytraFix;
         } else if (option == 3) {
             Config.clipThroughPistons = !Config.clipThroughPistons;
+        } else if (option == 4) {
+            Config.isScoreboardHidden = !Config.isScoreboardHidden;
+        } else if (option == 5) {
+            Config.pistonVisualizer = !Config.pistonVisualizer;
+        } else if (option == 6) {
+            Config.randomtickingChunksVisualizer = !Config.randomtickingChunksVisualizer;
+            RandomtickDisplay.startStopRecording(Config.randomtickingChunksVisualizer);
+        } else if (option == 7) {
+            Config.creativeModeNoClip = !Config.creativeModeNoClip;
         }
 
         display();

@@ -1,0 +1,240 @@
+package carpetclient.mixins;
+
+import carpetclient.Config;
+import carpetclient.Hotkeys;
+import carpetclient.coders.EDDxample.PistonHelper;
+import carpetclient.util.ITileEntityPiston;
+import com.google.common.collect.Lists;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockPistonBase;
+import net.minecraft.block.BlockPistonMoving;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockPistonStructureHelper;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityPiston;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Surrogate;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/*
+Mixen class 
+1.to make piston/sticky-piston properly rotate without visual glitches when doing "accurateBlockPlacement".
+2.ghost block fix for sticky pistons
+ */
+@Mixin(BlockPistonBase.class)
+public abstract class MixinBlockPistonBase extends BlockDirectional {
+
+    private List<TileEntity> tileEntitiesList;
+
+    @Shadow
+    private void checkForMove(World worldIn, BlockPos pos, IBlockState state) {
+    }
+
+    @Shadow
+    public static @Final
+    PropertyBool EXTENDED;
+
+    @Shadow
+    private @Final
+    boolean isSticky;
+
+    @Shadow
+    private boolean doMove(World worldIn, BlockPos pos, EnumFacing direction, boolean extending) {
+        return false;
+    }
+
+    protected MixinBlockPistonBase(Material materialIn) {
+        super(materialIn);
+    }
+
+    // Override this method to comment out a useless line.
+    @Inject(method = "onBlockPlacedBy", at = @At("HEAD"), cancellable = true)
+    public void canPlaceOnOver(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack, CallbackInfo ci) {
+        if (!worldIn.isRemote) {
+            this.checkForMove(worldIn, pos, state);
+        }
+        ci.cancel();
+    }
+
+    // Override to fix a client side visual affect when placing blocks in a different orientation.
+    @Inject(method = "getStateForPlacement", at = @At("HEAD"), cancellable = true)
+    public void canPlaceOnOver(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, CallbackInfoReturnable<IBlockState> cir) {
+        if (Config.accurateBlockPlacement) {
+            if (!Hotkeys.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
+                facing = EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite();
+            }
+            if (!Hotkeys.isKeyDown(Hotkeys.toggleBlockFlip.getKeyCode())) {
+                facing = facing.getOpposite();
+            }
+        } else {
+            facing = EnumFacing.getDirectionFromEntityLiving(pos, placer);
+        }
+        cir.setReturnValue(this.getDefaultState().withProperty(FACING, facing).withProperty(EXTENDED, Boolean.valueOf(false)));
+    }
+
+    // ghost block fix
+    @Redirect(method = "eventReceived", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockPistonBase;doMove(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;Z)Z", ordinal = 1))
+    public boolean eventReceivedMixins(BlockPistonBase obj,
+                                       World worldIn1, BlockPos pos1, EnumFacing enumfacing, boolean extending, // from doMove
+                                       IBlockState state, World worldIn2, BlockPos pos2, int id, int param // from eventReceived
+    ) {
+        // adding the meta check here and make sure the client only grabs blocks if the block in front isn't
+        // a moving block on the server even if its regular blocks that can be pulled on the client. both client 
+        // and server should behave the same by forcing the client to ignore blocks if the server can't pull the block in front.
+        if ((param & 16) == 0) {
+            return this.doMove(worldIn1, pos1, enumfacing, false);
+        }
+
+        return false;
+    }
+
+    // ghost block fix
+    @Redirect(method = "checkForMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;addBlockEvent(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;II)V", ordinal = 1))
+    public void eventReceivedMixins(World worldIn1,
+                                    BlockPos pos1, Block blockIn, int eventID, int eventParam, // from addBlockEvent
+                                    World worldIn2, BlockPos pos2, IBlockState state // from checkForMove
+    ) {
+        worldIn1.addBlockEvent(pos1, this, 1, eventParam | ignoreMovingBlockMeta(worldIn1, pos1, EnumFacing.getFront(eventParam)));
+    }
+
+    /*
+     * This if statement checks if the the pulling block (block that is 2 blocks infront of the extended piston)
+     * is a non-moving block and returns a meta value of 16 so it can tell the client to ignore pulling blocks
+     * even if the client can pull them.
+     */
+    private int ignoreMovingBlockMeta(World worldIn, BlockPos pos, EnumFacing enumfacing) {
+        BlockPos blockpos = pos.add(enumfacing.getFrontOffsetX() * 2, enumfacing.getFrontOffsetY() * 2, enumfacing.getFrontOffsetZ() * 2);
+        IBlockState iblockstate = worldIn.getBlockState(blockpos);
+        Block block = iblockstate.getBlock();
+
+        if (block == Blocks.PISTON_EXTENSION) return 16;
+
+        return 0;
+    }
+
+//    // Inject into block activated to show piston update order
+//    @Inject(method = "onBlockActivated", at = @At("HEAD"), cancellable = true)
+//    public void pistonUpdateOrder(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ, CallbackInfoReturnable<Boolean> cir) {
+
+    /**
+     * Add block activation to get piston update order, code provided by EDDxample.
+     *
+     * @param worldIn
+     * @param pos
+     * @param state
+     * @param playerIn
+     * @param hand
+     * @param facing
+     * @param hitX
+     * @param hitY
+     * @param hitZ
+     * @return
+     */
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        if (!Config.pistonVisualizer) return false;
+
+        boolean flag = playerIn.getHeldItem(EnumHand.MAIN_HAND).isEmpty() && playerIn.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.AIR;
+
+        if (worldIn.isRemote && flag) {
+            boolean extending = !(Boolean) state.getValue(BlockPistonBase.EXTENDED);
+            if ((!pos.equals(PistonHelper.pistonPos) || !PistonHelper.activated) && (extending || isSticky)) {
+                PistonHelper.setPistonMovement(worldIn, state, pos, extending);
+            } else {
+                PistonHelper.activated = false;
+            }
+            if (worldIn.isRemote) {
+                return isSticky || !(Boolean) state.getValue(BlockPistonBase.EXTENDED);
+            }
+        }
+
+        return flag;
+    }
+
+    // MovableTE
+    @Redirect(method = "canPush", at = @At(value="INVOKE", target = "Lnet/minecraft/block/Block;hasTileEntity()Z"))
+    private static boolean canPushTE(Block block)
+    {
+        if (!Config.movableTileEntities)
+            return block.hasTileEntity();
+
+        if (!block.hasTileEntity())
+            return !true;
+        else
+            return !(isPushableTileEntityBlock(block));
+    }
+
+    private static boolean isPushableTileEntityBlock(Block block)
+    {
+        //Making PISTON_EXTENSION (BlockPistonMoving) pushable would not work as its createNewTileEntity()-method returns null
+        return block != Blocks.ENDER_CHEST && block != Blocks.ENCHANTING_TABLE && block != Blocks.END_GATEWAY
+                && block != Blocks.END_PORTAL && block != Blocks.MOB_SPAWNER && block != Blocks.PISTON_EXTENSION;
+    }
+
+    @Inject(method = "doMove", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Ljava/util/List;size()I", ordinal = 4), locals = LocalCapture.CAPTURE_FAILHARD)
+    private void doMoveTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
+                          BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing, int var12) {
+        doMoveTE(worldIn, pos, direction, extending, cir, blockpistonstructurehelper, list, list1, list2, k, aiblockstate, var12);
+    }
+
+    @Surrogate // EnumFacing local var only present in recompiled Minecraft
+    private void doMoveTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
+                          BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, int var12) {
+        if (!Config.movableTileEntities)
+            return;
+
+        tileEntitiesList = Lists.newArrayList();
+        for (int i = 0; i < list.size(); i++)
+        {
+            BlockPos blockPos = list.get(i);
+            TileEntity tileEntity = worldIn.getTileEntity(blockPos);
+            tileEntitiesList.add(tileEntity);
+            if (tileEntity != null)
+            {
+                worldIn.removeTileEntity(blockPos);
+                tileEntity.markDirty();
+            }
+        }
+    }
+
+    @Inject(method = "doMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setTileEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/tileentity/TileEntity;)V", ordinal = 0),
+            locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+    private void setTileEntityTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
+                          BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing,
+                          int l, BlockPos blockpos3, IBlockState iblockstate2)
+    {
+        if (!Config.movableTileEntities)
+            return;
+
+        TileEntityPiston tilePiston = (TileEntityPiston)BlockPistonMoving.createTilePiston(list1.get(l), direction, extending, false);
+        ((ITileEntityPiston) tilePiston).setCarriedBlockEntity(tileEntitiesList.get(l));
+        worldIn.setTileEntity(blockpos3, tilePiston);
+        cir.cancel();
+    }
+    // End MovableTE
+}

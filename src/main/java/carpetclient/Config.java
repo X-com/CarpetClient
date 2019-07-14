@@ -25,12 +25,21 @@ public class Config {
     public static boolean boundingBoxMarkers = false;
     public static boolean villageMarkers = false;
     public static int structureBlockLimit = 32;
+    public static int pushLimit = 12;
     public static float tickRate;
+    public static boolean playerCollisions = true;
+    public static boolean ignoreEntityWhenPlacing = false;
+    public static boolean movableTileEntities = false;
 
     public static boolean setTickRate = false;
     public static boolean bucketGhostBlockFix = true;
     public static boolean elytraFix = false;
     public static boolean clipThroughPistons = true;
+    public static boolean isScoreboardHidden = false;
+    public static boolean pistonVisualizer = false;
+    public static boolean randomtickingChunksVisualizer = false;
+    public static boolean randomtickChunkUpdates = true;
+    public static boolean creativeModeNoClip = false;
 
     public static void save() {
         String file = "config/carpetclient.cfg";
@@ -41,6 +50,8 @@ public class Config {
         obj.addProperty("bucketGhostBlockFix", bucketGhostBlockFix);
         obj.addProperty("elytraFix", elytraFix);
         obj.addProperty("clipThroughPistons", clipThroughPistons);
+        obj.addProperty("isScoreboardHidden", isScoreboardHidden);
+        obj.addProperty("pistonVisualizer", pistonVisualizer);
 
         obj.addProperty("lines", VillageMarker.lines);
         obj.addProperty("golem", VillageMarker.golem);
@@ -82,6 +93,8 @@ public class Config {
                 bucketGhostBlockFix = jsonObject.get("bucketGhostBlockFix").getAsBoolean();
                 elytraFix = jsonObject.get("elytraFix").getAsBoolean();
                 clipThroughPistons = jsonObject.get("clipThroughPistons").getAsBoolean();
+                isScoreboardHidden = jsonObject.get("isScoreboardHidden").getAsBoolean();
+                pistonVisualizer = jsonObject.get("pistonVisualizer").getAsBoolean();
 
                 VillageMarker.lines = jsonObject.get("lines").getAsBoolean();
                 VillageMarker.golem = jsonObject.get("golem").getAsBoolean();

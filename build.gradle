@@ -18,14 +18,14 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
     }
 }
 
 apply plugin: 'java'
 
-version = "v0.7e"
-group = "Xcom"
+version = "v0.9"
+group = "Carpet Team"
 archivesBaseName = "Carpet Client"
 
 apply plugin: 'net.minecraftforge.gradle.liteloader'
@@ -45,10 +45,11 @@ litemod {
     json {
         name = "Carpet Client"
         displayName = "Carpet Client"
-        author = "Xcom"
+        author = "Carpet Team"
         mcversion = "1.12"
         description = "Carpet Client for Carpet Server"
         mixinConfigs += "mixins.carpetclient.json"
+        mixinConfigs += "mixins.carpetclient.optifinecompat.json"
         version = project.version
     }
 }

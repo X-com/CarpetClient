@@ -6,7 +6,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -20,7 +19,9 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -28,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import javax.annotation.Nullable;
 
 @Mixin(ItemBucket.class)
-public class MixinsItemBucket extends Item {
+public class MixinItemBucket extends Item {
 
     @Shadow
     private @Final
@@ -45,26 +46,26 @@ public class MixinsItemBucket extends Item {
     }
 
     /*
-     * Overrides to remove clientside placement or removal of world liquids to force the server to only do it fixing liquid ghost blocks.
+     * Inject at head to remove clientside placement or removal of world liquids to force the server to only do it fixing liquid ghost blocks.
      */
-    @Overwrite
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
+    @Inject(method = "onItemRightClick", at = @At("HEAD"), cancellable = true)
+    public void onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn, CallbackInfoReturnable<ActionResult<ItemStack>> cir) {
         boolean flag = this.containedBlock == Blocks.AIR;
         ItemStack itemstack = playerIn.getHeldItem(handIn);
         RayTraceResult raytraceresult = this.rayTrace(worldIn, playerIn, flag);
 
         if (raytraceresult == null) {
-            return new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
+            cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack));
         } else if (raytraceresult.typeOfHit != RayTraceResult.Type.BLOCK) {
-            return new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
+            cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack));
         } else {
             BlockPos blockpos = raytraceresult.getBlockPos();
 
             if (!worldIn.isBlockModifiable(playerIn, blockpos)) {
-                return new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
+                cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack));
             } else if (flag) {
                 if (!playerIn.canPlayerEdit(blockpos.offset(raytraceresult.sideHit), raytraceresult.sideHit, itemstack)) {
-                    return new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
+                    cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack));
                 } else {
                     IBlockState iblockstate = worldIn.getBlockState(blockpos);
                     Material material = iblockstate.getMaterial();
@@ -74,19 +75,21 @@ public class MixinsItemBucket extends Item {
                         if (!worldIn.isRemote || !Config.bucketGhostBlockFix) {
                             worldIn.setBlockState(blockpos, Blocks.AIR.getDefaultState(), 11);
                             playerIn.addStat(StatList.getObjectUseStats(this));
-                            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, this.fillBucket(itemstack, playerIn, Items.WATER_BUCKET));
+                            cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.SUCCESS, this.fillBucket(itemstack, playerIn, Items.WATER_BUCKET)));
+                            return;
                         }
-                        return new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
+                        cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack));
                     } else if (material == Material.LAVA && ((Integer) iblockstate.getValue(BlockLiquid.LEVEL)).intValue() == 0) {
                         playerIn.playSound(SoundEvents.ITEM_BUCKET_FILL_LAVA, 1.0F, 1.0F);
                         if (!worldIn.isRemote || !Config.bucketGhostBlockFix) {
                             worldIn.setBlockState(blockpos, Blocks.AIR.getDefaultState(), 11);
                             playerIn.addStat(StatList.getObjectUseStats(this));
-                            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, this.fillBucket(itemstack, playerIn, Items.LAVA_BUCKET));
+                            cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.SUCCESS, this.fillBucket(itemstack, playerIn, Items.LAVA_BUCKET)));
+                            return;
                         }
-                        return new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
+                        cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack));
                     } else {
-                        return new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
+                        cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack));
                     }
                 }
             } else {
@@ -94,7 +97,7 @@ public class MixinsItemBucket extends Item {
                 BlockPos blockpos1 = flag1 && raytraceresult.sideHit == EnumFacing.UP ? blockpos : blockpos.offset(raytraceresult.sideHit);
 
                 if (!playerIn.canPlayerEdit(blockpos1, raytraceresult.sideHit, itemstack)) {
-                    return new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
+                    cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack));
                 } else if (this.tryPlaceContainedLiquid(playerIn, worldIn, blockpos1)) {
                     if (!worldIn.isRemote) {
                         if (playerIn instanceof EntityPlayerMP) {
@@ -102,11 +105,12 @@ public class MixinsItemBucket extends Item {
                         }
 
                         playerIn.addStat(StatList.getObjectUseStats(this));
-                        return !playerIn.capabilities.isCreativeMode ? new ActionResult(EnumActionResult.SUCCESS, new ItemStack(Items.BUCKET)) : new ActionResult(EnumActionResult.SUCCESS, itemstack);
+                        cir.setReturnValue(!playerIn.capabilities.isCreativeMode ? new ActionResult(EnumActionResult.SUCCESS, new ItemStack(Items.BUCKET)) : new ActionResult(EnumActionResult.SUCCESS, itemstack));
+                        return;
                     }
-                    return new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
+                    cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack));
                 } else {
-                    return new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
+                    cir.setReturnValue(new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack));
                 }
             }
         }
@@ -117,9 +121,9 @@ public class MixinsItemBucket extends Item {
      */
     @Inject(method = "tryPlaceContainedLiquid", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSound(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/SoundEvent;Lnet/minecraft/util/SoundCategory;FF)V"), cancellable = true)
     public void tryPlaceContainedLiquidInject(EntityPlayer player, World worldIn, BlockPos posIn, CallbackInfoReturnable<Boolean> cir) {
-        if(!Config.bucketGhostBlockFix) return;
+        if (!Config.bucketGhostBlockFix) return;
 
-        if(this.containedBlock != null && player != null) {
+        if (this.containedBlock != null && player != null) {
             SoundEvent soundevent = this.containedBlock == Blocks.FLOWING_LAVA ? SoundEvents.ITEM_BUCKET_EMPTY_LAVA : SoundEvents.ITEM_BUCKET_EMPTY;
             player.playSound(soundevent, 1.0F, 1.0F);
             if (worldIn.isRemote) cir.setReturnValue(true);

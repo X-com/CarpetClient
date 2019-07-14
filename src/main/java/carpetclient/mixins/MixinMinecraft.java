@@ -1,6 +1,7 @@
 package carpetclient.mixins;
 
 import carpetclient.Config;
+import carpetclient.bugfix.PistonFix;
 import carpetclient.rules.TickRate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MusicTicker;
@@ -125,6 +126,16 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
                 worldTicks--;
             }
         }
+    }
+
+    /**
+     * Reset logic for clipping through pistons.
+     *
+     * @param ci
+     */
+    @Inject(method = "runTick", at = @At("HEAD"))
+    public void fixingPistons(CallbackInfo ci) {
+        PistonFix.resetBools();
     }
 
     /**
