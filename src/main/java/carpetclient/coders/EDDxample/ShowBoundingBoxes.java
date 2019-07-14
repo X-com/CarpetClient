@@ -1,6 +1,5 @@
 package carpetclient.coders.EDDxample;
 
-import carpetclient.gui.ClientGUI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -241,16 +240,6 @@ public class ShowBoundingBoxes {
     private static boolean isSlimeChunk(int x, int z, long seed) {
         randy.setSeed(seed + (long)(x * x * 4987142) + (long)(x * 5947611) + (long)(z * z) * 4392871L + (long)(z * 389711) ^ 987234911L);
         return randy.nextInt(10) == 0;
-    }
-
-    /**
-     * Display options method that the GUI uses to update what types of structures should be displayed.
-     *
-     * @param buttonID The id of the sturcture to be toggled.
-     */
-    public static void guiBoudingBoxOptions(int buttonID) {
-        show[buttonID] = !show[buttonID];
-        ClientGUI.display();
     }
     
     public static void clear(){

@@ -1,6 +1,6 @@
 package carpetclient.mixins.gui;
 
-import carpetclient.coders.Pokechu22.ScrollGUI;
+import carpetclient.gui.ConfigGUI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
@@ -47,7 +47,7 @@ public class GUICarpet extends GuiScreen {
                 return; // not available if in singleplayer or LAN server mode
             }
 
-            ScrollGUI.initGUI(guiIngameMenu);
+            Minecraft.getMinecraft().displayGuiScreen(new ConfigGUI(guiIngameMenu));
         }
     }
 

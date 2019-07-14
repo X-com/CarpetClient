@@ -1,8 +1,7 @@
 package carpetclient.rules;
 
 import carpetclient.Config;
-import carpetclient.coders.Pokechu22.ScrollGUI;
-import carpetclient.gui.ClientGUI;
+import carpetclient.gui.ConfigGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.random.RandomtickDisplay;
 import io.netty.buffer.Unpooled;
@@ -80,8 +79,6 @@ public class CarpetRules {
         } else if (REQUEST_RULE_TIP == infoType) {
             rules.get(rule).setRuleTip(text);
         }
-
-        ClientGUI.display();
     }
 
     /**
@@ -185,7 +182,7 @@ public class CarpetRules {
             rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
         }
 
-        ScrollGUI.setServerVersion(carpetServerVersion);
+        ConfigGUI.setServerVersion(carpetServerVersion);
     }
 
     /**

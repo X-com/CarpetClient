@@ -33,7 +33,7 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer {
                     + "START_FALL_FLYING:"
                     + "Lnet/minecraft/network/play/client/CPacketEntityAction$Action;"))
     public void onElytraDeploy(CallbackInfo ci) {
-        if (Config.elytraFix)
+        if (Config.elytraFix.getValue())
             setFlag(7, true);
     }
 

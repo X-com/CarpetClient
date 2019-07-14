@@ -48,7 +48,7 @@ public class RandomtickDisplay {
     }
 
     public static void draw(float partialTicks) {
-        if (!Config.randomtickingChunksVisualizer) return;
+        if (!Config.randomtickingChunksVisualizer.getValue()) return;
 
         final EntityPlayerSP player = Minecraft.getMinecraft().player;
         final double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
@@ -71,6 +71,6 @@ public class RandomtickDisplay {
     }
 
     public static void reset() {
-        Config.randomtickingChunksVisualizer = false;
+        Config.randomtickingChunksVisualizer.setValue(false);
     }
 }

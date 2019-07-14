@@ -329,6 +329,6 @@ public class MixinEntityRenderer {
      */
     @Redirect(method = "renderWorldPass(IFJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isSpectator()Z"))
     private boolean fixSpectator(EntityPlayerSP player) {
-        return player.isSpectator() || (Config.creativeModeNoClip && player.isCreative());
+        return player.isSpectator() || (Config.creativeModeNoClip.getValue() && player.isCreative());
     }
 }

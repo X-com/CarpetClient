@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinGuiIngame {
     @Inject(method = "renderScoreboard", at = @At("HEAD"), cancellable = true)
     private void toggleScoreboard(ScoreObjective objective, ScaledResolution scaledRes, CallbackInfo ci) {
-        if (Config.isScoreboardHidden) {
+        if (Config.isScoreboardHidden.getValue()) {
             ci.cancel();
         }
     }

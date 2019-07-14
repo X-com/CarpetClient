@@ -15,6 +15,6 @@ public class MixinEntityPlayer {
      */
     @Redirect(method = "onUpdate()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;isSpectator()Z"))
     private boolean updateNoClipping(EntityPlayer player) {
-        return player.isSpectator() || (Config.creativeModeNoClip && player.isCreative() && player.capabilities.isFlying);
+        return player.isSpectator() || (Config.creativeModeNoClip.getValue() && player.isCreative() && player.capabilities.isFlying);
     }
 }
