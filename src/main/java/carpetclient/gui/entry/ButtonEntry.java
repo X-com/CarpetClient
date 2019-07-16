@@ -1,6 +1,5 @@
 package carpetclient.gui.entry;
 
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 
@@ -40,6 +39,8 @@ public class ButtonEntry extends StandardRowEntry<ButtonEntry> {
     protected String getDisplayString() {
         return btnText;
     }
+
+    protected boolean isResetEnabled() { return true; }
 
     @Override
     protected boolean mouseDown(int x, int y, int button) {

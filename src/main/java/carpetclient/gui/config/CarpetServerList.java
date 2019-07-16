@@ -1,7 +1,6 @@
 package carpetclient.gui.config;
 
 import carpetclient.coders.Pokechu22.GuiConfigList;
-import carpetclient.gui.ConfigGUI;
 import carpetclient.gui.entry.ButtonEntry;
 import carpetclient.gui.entry.NumericTextEntry;
 import carpetclient.gui.entry.SimpleButtonEntry;
@@ -28,6 +27,9 @@ public class CarpetServerList extends GuiConfigList {
                     protected String getTooltip() {
                         return r.getRuleTip();
                     }
+
+                    @Override
+                    protected boolean isResetEnabled() { return r.isDefault(); }
                 })
                 .onAction((sender) -> {
                     //        System.out.println("text clicked " + title + " " + text);
@@ -46,6 +48,9 @@ public class CarpetServerList extends GuiConfigList {
                     protected String getTooltip() {
                         return r.getRuleTip();
                     }
+
+                    @Override
+                    protected boolean isResetEnabled() { return r.isDefault(); }
                 })
                 .onAction((sender) -> {
                     //        System.out.println("button clicked " + ruleName);

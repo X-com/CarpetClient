@@ -45,6 +45,7 @@ public abstract class StandardRowEntry<T> extends BaseEntry<T> implements IToolt
         if (this.reset) {
             this.resetButton.x = x + listWidth / 2 + 110;
             this.resetButton.y = y;
+            this.resetButton.enabled = this.isResetEnabled();
             this.resetButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
         }
 
@@ -65,6 +66,8 @@ public abstract class StandardRowEntry<T> extends BaseEntry<T> implements IToolt
     protected String getTooltip() {
         return infoStr;
     }
+
+    protected boolean isResetEnabled() { return true; }
 
     @Override
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY) {

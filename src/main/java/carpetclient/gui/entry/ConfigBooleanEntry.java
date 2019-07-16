@@ -26,9 +26,6 @@ public class ConfigBooleanEntry extends StandardRowEntry<ConfigBooleanEntry> {
         this.button.y = y;
         this.button.displayString = this.getDisplayString();
         this.button.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
-
-        if (this.reset)
-            this.resetButton.enabled = this.configOption.getValue() != this.configOption.getDefaultValue();
     }
 
     protected String getDisplayString() {
