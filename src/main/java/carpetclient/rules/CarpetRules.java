@@ -25,7 +25,7 @@ public class CarpetRules {
     private static final int REQUEST_RULE_TIP = 3;
 
     static {
-        rules = new HashMap<String, CarpetSettingEntry>();
+        rules = new HashMap<>();
     }
 
     /**
@@ -87,7 +87,7 @@ public class CarpetRules {
      * @return returns the list of all rules.
      */
     public static ArrayList<CarpetSettingEntry> getAllRules() {
-        ArrayList<CarpetSettingEntry> res = new ArrayList<CarpetSettingEntry>();
+        ArrayList<CarpetSettingEntry> res = new ArrayList<>();
         for (String rule : rules.keySet().stream().sorted().collect(Collectors.toList())) {
             res.add(rules.get(rule));
         }
@@ -179,7 +179,14 @@ public class CarpetRules {
 //                options[optionNum] = data.readString(100);{
 //            }
 
-            rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
+            if (hasRule(rule))
+            {
+                getRule(rule).update(current, null, def, isFloat);
+            }
+            else
+            {
+                rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
+            }
         }
 
         ConfigGUI.setServerVersion(carpetServerVersion);
@@ -198,7 +205,7 @@ public class CarpetRules {
     public static boolean hasRule(String rule) {
         return rules.containsKey(rule);
     }
-    
+
     public static void resetToDefaults() {
         rules.values().forEach(rule -> rule.changeRule(rule.defaultOption));
         RandomtickDisplay.reset();
@@ -221,32 +228,37 @@ public class CarpetRules {
         private float flt;
         private boolean bool;
 
-        public CarpetSettingEntry(String rule, String currentOption, String[] options, String defaultOption, boolean isFlt) {
+        public CarpetSettingEntry(String rule, String currentOption, String[] options, String defaultOption, boolean isFloat) {
             this.rule = rule;
+            this.ruleTip = "";
+            this.update(currentOption, options, defaultOption, isFloat);
+        }
+
+        public void update(String currentOption, String[] options, String defaultOption, boolean isFloat)
+        {
             this.currentOption = currentOption;
             this.options = options;
             this.defaultOption = defaultOption;
-            ruleTip = "";
-            isFloat = isFlt;
-            checkValues();
-            checkDefault();
+            this.isFloat = isFloat;
+            this.checkValues();
+            this.checkDefault();
         }
 
         private void checkValues() {
-            bool = Boolean.parseBoolean(currentOption);
+            this.bool = Boolean.parseBoolean(this.currentOption);
 
             try {
-                integer = Integer.parseInt(currentOption);
+                this.integer = Integer.parseInt(this.currentOption);
             } catch (NumberFormatException e) {
-                integer = 0;
+                this.integer = 0;
             }
 
             try {
-                flt = Float.parseFloat(currentOption);
-                isNumber = true;
+                this.flt = Float.parseFloat(this.currentOption);
+                this.isNumber = true;
             } catch (NumberFormatException e) {
-                isNumber = false;
-                flt = 0.0F;
+                this.isNumber = false;
+                this.flt = 0.0F;
             }
         }
 
@@ -313,8 +325,8 @@ public class CarpetRules {
 
         public void changeRule(String change) {
             this.currentOption = change;
-            checkValues();
-            checkDefault();
+            this.checkValues();
+            this.checkDefault();
             editClientRules();
         }
 
