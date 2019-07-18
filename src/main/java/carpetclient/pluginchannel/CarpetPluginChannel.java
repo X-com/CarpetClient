@@ -1,6 +1,7 @@
 package carpetclient.pluginchannel;
 
 
+import carpetclient.coders.skyrising.PacketSplitter;
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 import carpetclient.bugfix.PistonFix;
 import carpetclient.random.RandomtickDisplay;
@@ -26,13 +27,9 @@ public class CarpetPluginChannel {
     public static final int VILLAGE_MARKERS = 2;
     public static final int BOUNDINGBOX_MARKERS = 3;
     public static final int TICKRATE_CHANGES = 4;
-    public static final int LARGE_VILLAGE_MARKERS_START = 5;
-    public static final int LARGE_VILLAGE_MARKERS = 6;
-    public static final int LARGE_BOUNDINGBOX_MARKERS_START = 7;
-    public static final int LARGE_BOUNDINGBOX_MARKERS = 8;
-    public static final int CHUNK_LOGGER = 9;
-    public static final int PISTON_UPDATES = 10;
-    public static final int RANDOMTICK_DISPLAY = 11;
+    public static final int CHUNK_LOGGER = 5;
+    public static final int PISTON_UPDATES = 6;
+    public static final int RANDOMTICK_DISPLAY = 7;
 
     /**
      * Packate receiver method to handle incoming messages.
@@ -41,9 +38,9 @@ public class CarpetPluginChannel {
      * @param data    incoming data from server.
      */
     public static void packatReceiver(String channel, PacketBuffer data) {
-        if (CARPET_CHANNEL_NAME.contains(channel)) {
-//          System.out.println("Package Echoed properly + " + data.readString(1000));
-            handleData(data);
+        PacketBuffer buffer = PacketSplitter.receive(CARPET_CHANNEL_NAME, data);
+        if(buffer != null) {
+            handleData(buffer);
         }
     }
 
@@ -69,21 +66,6 @@ public class CarpetPluginChannel {
         }
         if (TICKRATE_CHANGES == type) {
             TickRate.setTickRate(data);
-        }
-        if (LARGE_VILLAGE_MARKERS_START == type) {
-            int villageCount = data.readVarInt();
-            if (villageCount >= 10000)
-                villageCount = 10000;
-            VillageMarker.clearLists(villageCount);
-        }
-        if (LARGE_VILLAGE_MARKERS == type) {
-            VillageMarker.largeVillageUpdate(data);
-        }
-        if (LARGE_BOUNDINGBOX_MARKERS_START == type) {
-            ShowBoundingBoxes.largeBoundingBoxStructuresStart(data);
-        }
-        if (LARGE_BOUNDINGBOX_MARKERS == type) {
-            ShowBoundingBoxes.largeBoundingBoxStructures(data);
         }
         if (CHUNK_LOGGER == type) {
             Chunkdata.processPacket(data);
