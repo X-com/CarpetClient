@@ -13,10 +13,22 @@ public class BoundingBoxList extends GuiConfigList {
     }
 
     @Override
+    public void onClose()
+    {
+        Config.save();
+    }
+
+    @Override
     public void initGui() {
         for (ConfigBase opt : Config.BOUNDINGBOXES) {
             if (opt.getType() == ConfigBase.ConfigType.BOOLEAN)
-                addEntry(new ConfigBooleanEntry((ConfigBase<Boolean>)opt, true));
+                addEntry(new ConfigBooleanEntry((ConfigBase<Boolean>)opt, true) {
+                    @Override
+                    protected boolean isResetEnabled()
+                    {
+                        return opt.getValue() != opt.getDefaultValue();
+                    }
+                });
         }
     }
 }

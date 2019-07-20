@@ -13,7 +13,6 @@ public class ConfigGUI extends GuiScreen {
     public static void setServerVersion(String version) { carpetServerVersion = version;}
 
     private final GuiScreen parent;
-
     private GuiConfigList list = null;
 
     public ConfigGUI(GuiScreen parent) {
@@ -36,6 +35,7 @@ public class ConfigGUI extends GuiScreen {
     @Override
     protected void actionPerformed(GuiButton button) {
         if (button.id == 100) {
+            list.onClose();
             if (list instanceof ClientRootList) {
                 this.mc.displayGuiScreen(this.parent);
             } else {

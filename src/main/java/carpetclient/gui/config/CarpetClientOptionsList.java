@@ -13,6 +13,12 @@ public class CarpetClientOptionsList extends GuiConfigList {
     }
 
     @Override
+    public void onClose()
+    {
+        Config.save();
+    }
+
+    @Override
     public void initGui() {
         for (ConfigBase opt : Config.CLIENTSETTINGS) {
             if (opt.getType() == ConfigBase.ConfigType.BOOLEAN)
