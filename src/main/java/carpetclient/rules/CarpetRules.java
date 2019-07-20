@@ -6,8 +6,11 @@ import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.random.RandomtickDisplay;
 import carpetclient.util.BiObservable;
 import io.netty.buffer.Unpooled;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,9 +59,9 @@ public class CarpetRules {
             Config.structureBlockLimit = getRule("structureBlockLimit").integer;
         if (hasRule("pushLimit"))
             Config.pushLimit = getRule("pushLimit").integer;
-        if(hasRule("disablePlayerCollision"))
+        if (hasRule("disablePlayerCollision"))
             Config.playerCollisions = !getRule("disablePlayerCollision").getBoolean();
-        if(hasRule("ignoreEntityWhenPlacing"))
+        if (hasRule("ignoreEntityWhenPlacing"))
             Config.ignoreEntityWhenPlacing = getRule("ignoreEntityWhenPlacing").getBoolean();
         if (hasRule("movableTileEntities"))
             Config.movableTileEntities = getRule("movableTileEntities").getBoolean();
@@ -164,32 +167,30 @@ public class CarpetRules {
      * Decoder for the packet into rules.
      */
     private static void decodeData() {
-        String carpetServerVersion = data.readString(1000);
-        Config.tickRate = data.readFloat();
-        int ruleListSize = data.readInt();
+        NBTTagCompound nbt;
+        try {
+            nbt = data.readCompoundTag();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        String carpetServerVersion = nbt.getString("carpetVersion");
+        Config.tickRate = nbt.getFloat("tickrate");
+        NBTTagList nbttaglist = nbt.getTagList("ruleList", 10);
+        for (int i = 0; i < nbttaglist.tagCount(); i++) {
+            NBTTagCompound ruleNBT = (NBTTagCompound) nbttaglist.get(i);
 
-        for (int ruleNum = 0; ruleNum < ruleListSize; ruleNum++) {
-            String rule = data.readString(100);
-            String current = data.readString(100);
-            String def = data.readString(100);
-            boolean isFloat = data.readBoolean();
-//            int optionsSize = data.readInt();
-//
-//            String[] options = new String[optionsSize];
-//            for (int optionNum = 0; optionNum < optionsSize; optionNum++) 
-//                options[optionNum] = data.readString(100);{
-//            }
+            String rule = ruleNBT.getString("rule");
+            String current = ruleNBT.getString("current");
+            String def = ruleNBT.getString("default");
+            boolean isFloat = ruleNBT.getBoolean("isfloat");
 
-            if (hasRule(rule))
-            {
+            if (hasRule(rule)) {
                 getRule(rule).update(current, null, def, isFloat);
-            }
-            else
-            {
+            } else {
                 rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
             }
         }
-
         ConfigGUI.setServerVersion(carpetServerVersion);
     }
 
@@ -202,7 +203,7 @@ public class CarpetRules {
     public static CarpetSettingEntry getRule(String rule) {
         return rules.get(rule);
     }
-    
+
     public static boolean hasRule(String rule) {
         return rules.containsKey(rule);
     }
@@ -236,8 +237,7 @@ public class CarpetRules {
             this.update(currentOption, options, defaultOption, isFloat);
         }
 
-        public void update(String currentOption, String[] options, String defaultOption, boolean isFloat)
-        {
+        public void update(String currentOption, String[] options, String defaultOption, boolean isFloat) {
             this.currentOption = currentOption;
             this.options = options;
             this.defaultOption = defaultOption;
