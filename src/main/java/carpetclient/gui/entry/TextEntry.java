@@ -7,6 +7,8 @@ import org.lwjgl.input.Keyboard;
 import javax.annotation.Nonnull;
 
 public class TextEntry extends StandardRowEntry<TextEntry> implements IKeyboardEntry {
+    private static final int TEXTFIELD_HEIGHT = 20;
+
     private GuiTextField field;
 
     public TextEntry(String title, String text, boolean reset) {
@@ -30,10 +32,6 @@ public class TextEntry extends StandardRowEntry<TextEntry> implements IKeyboardE
 
     @Override
     public void draw(int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, float partialTicks) {
-        if (!this.isFocused()) {
-            field.setFocused(false);
-        }
-
         field.x = x + listWidth / 2;
         field.y = y;
         field.drawTextBox();
@@ -65,6 +63,22 @@ public class TextEntry extends StandardRowEntry<TextEntry> implements IKeyboardE
 
             field.setFocused(false);
         }
+    }
+
+    @Override
+    protected boolean onFocusChanged(int mouseX, int mouseY)
+    {
+        if (mouseX >= this.field.x && mouseX <= this.field.x + this.field.getWidth())
+        {
+            if (mouseY >= this.field.y && mouseY <= this.field.y + TEXTFIELD_HEIGHT)
+            {
+                this.getTextField().setFocused(true);
+                return true;
+            }
+        }
+
+        this.getTextField().setFocused(false);
+        return super.onFocusChanged(mouseX, mouseY);
     }
 
         /*protected void performTextAction() {

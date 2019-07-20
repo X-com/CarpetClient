@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class StandardRowEntry<T> extends BaseEntry<T> implements ITooltipEntry {
+    private static final int BUTTON_HEIGHT = 20;
+
     protected String infoStr;
 
     protected GuiButton resetButton;
@@ -30,11 +32,11 @@ public abstract class StandardRowEntry<T> extends BaseEntry<T> implements IToolt
         this.infoStr = infoStr;
 
         if (this.reset) {
-            this.resetButton = new GuiButton(0, 0, 0, 50, 20, "reset");
+            this.resetButton = new GuiButton(0, 0, 0, 50, BUTTON_HEIGHT, "reset");
         }
 
         if (this.info) {
-            this.infoButton = new GuiButton(0, 0, 0, 14, 15, "i");
+            this.infoButton = new GuiButton(0, 0, 0, 14, BUTTON_HEIGHT, "i");
         }
     }
 
@@ -93,6 +95,28 @@ public abstract class StandardRowEntry<T> extends BaseEntry<T> implements IToolt
             this.resetButton.mouseReleased(mouseX, mouseY);
 
         mouseUp(mouseX, mouseY, mouseEvent);
+    }
+
+    @Override
+    protected boolean onFocusChanged(int mouseX, int mouseY)
+    {
+        if (mouseX >= this.resetButton.x && mouseX <= this.resetButton.x + this.resetButton.getButtonWidth())
+        {
+            if (mouseY >= this.resetButton.y && mouseY <= this.resetButton.y + BUTTON_HEIGHT)
+            {
+                return true;
+            }
+        }
+
+        if (mouseX >= this.infoButton.x && mouseX <= this.infoButton.x + this.resetButton.getButtonWidth())
+        {
+            if (mouseY >= this.infoButton.y && mouseY <= this.infoButton.y + BUTTON_HEIGHT)
+            {
+                return true;
+            }
+        }
+
+        return super.onFocusChanged(mouseX, mouseY);
     }
 
     public T onInfo(Consumer<T> action) {

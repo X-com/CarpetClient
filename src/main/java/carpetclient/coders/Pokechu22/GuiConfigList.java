@@ -83,9 +83,9 @@ public abstract class GuiConfigList extends GuiListExtended {
 
     @Override
     protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY) {
-        if (getSelectedElement() != -1)
-            ((BaseEntry)this.getListEntry(getSelectedElement())).setFocused(false);
+        if (getSelectedElement() != -1 && getSelectedElement() != slotIndex)
+            ((BaseEntry)this.getListEntry(getSelectedElement())).testFocused(mouseX, mouseY);
 
-        ((BaseEntry)this.getListEntry(slotIndex)).setFocused(true);
+        ((BaseEntry)this.getListEntry(slotIndex)).testFocused(mouseX, mouseY);
     }
 }

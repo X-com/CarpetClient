@@ -13,8 +13,6 @@ public abstract class BaseEntry<T> implements GuiListExtended.IGuiListEntry {
     @Nullable
     protected String title;
 
-    private boolean hasFocus;
-
     private List<Consumer<T>> actions;
 
     public BaseEntry(@Nullable String title) {
@@ -45,16 +43,11 @@ public abstract class BaseEntry<T> implements GuiListExtended.IGuiListEntry {
     public void updatePosition(int slotIndex, int x, int y, float partialTicks) {
     }
 
-    public boolean isFocused() {
-        return this.hasFocus;
+    public void testFocused(int mouseX, int mouseY) {
+        this.onFocusChanged(mouseX, mouseY);
     }
 
-    public void setFocused(boolean focus) {
-        this.hasFocus = focus;
-        this.onFocusChanged();
-    }
-
-    protected void onFocusChanged() {}
+    protected boolean onFocusChanged(int mouseX, int mouseY) { return false; }
 
     public T onAction(Consumer<T> action) {
         if (actions == null)
