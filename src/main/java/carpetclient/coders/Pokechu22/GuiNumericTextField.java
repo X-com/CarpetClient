@@ -19,7 +19,7 @@ public class GuiNumericTextField extends GuiTextField {
     public GuiNumericTextField(int id, FontRenderer fontRenderer, int x, int y, int width, int height, boolean useInt) {
         super(id, fontRenderer, x, y, width, height);
         setText("0");
-        useInteger = useInt;
+        this.useInteger = useInt;
     }
 
     /**
@@ -30,7 +30,7 @@ public class GuiNumericTextField extends GuiTextField {
      */
     public void setValue(int value) {
         String text = String.valueOf(value);
-        lastSafeText = text;
+        this.lastSafeText = text;
         setText(text);
     }
 
@@ -40,16 +40,16 @@ public class GuiNumericTextField extends GuiTextField {
 
         try {
             if (text.contains("d") || text.contains("f"))
-                return lastSafeText;
+                return this.lastSafeText;
 
-            if (useInteger) {
+            if (this.useInteger) {
                 return String.valueOf(Integer.parseInt(text));
             } else {
                 return String.valueOf(Float.parseFloat(text));
             }
         } catch (NumberFormatException e) {
-            setText(lastSafeText);
-            return lastSafeText;
+            setText(this.lastSafeText);
+            return this.lastSafeText;
         }
     }
 
@@ -58,29 +58,29 @@ public class GuiNumericTextField extends GuiTextField {
         String value;
 
         try {
-            if (useInteger) {
+            if (this.useInteger) {
                 value = String.valueOf(Integer.parseInt(text));
             } else {
                 value = String.valueOf(Float.parseFloat(text));
             }
         } catch (NumberFormatException e) {
-            value = lastSafeText;
+            value = this.lastSafeText;
         }
 
         super.setText(value);
-        lastSafeText = value;
+        this.lastSafeText = value;
     }
 
     // ===== Events ===== //
     public void keyDown(char typedChar, int keyCode) {
         if (this.textboxKeyTyped(typedChar, keyCode)) {
-            lastSafeText = getText();
+            this.lastSafeText = getText();
         } else if (keyCode == Keyboard.KEY_RETURN && isFocused()) {
             if (super.getText().length() == 0 || super.getText().equals("-")) {
                 setText("0");
             }
-            performTextAction();
-            setFocused(false);
+            this.performTextAction();
+            this.setFocused(false);
         }
     }
 
