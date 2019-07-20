@@ -22,7 +22,7 @@ public class CarpetServerList extends GuiConfigList {
 
         for (CarpetRules.CarpetSettingEntry r : rules) {
             if (r.isNumber()) {
-                addEntry(new NumericTextEntry(r.getRule(), r.getCurrentOption(), true, r.getRuleTip(), r.useInteger()) {
+                NumericTextEntry entry = addEntry(new NumericTextEntry(r.getRule(), r.getCurrentOption(), true, r.getRuleTip(), r.useInteger()) {
                     @Override
                     protected String getTooltip() {
                         return r.getRuleTip();
@@ -37,13 +37,10 @@ public class CarpetServerList extends GuiConfigList {
                 })
                 .onReset((sender) -> CarpetRules.resetRule(sender.getTitle()))
                 .onInfo((sender) -> CarpetRules.ruleTipRequest(sender.getTitle()));
-            } else {
-                addEntry(new ButtonEntry(r.getRule(), "", true, "") {
-                    @Override
-                    protected String getDisplayString() {
-                        return r.getCurrentOption();
-                    }
 
+                r.subscribe((rule, value) -> entry.getTextField().setText(value));
+            } else {
+                ButtonEntry entry = addEntry(new ButtonEntry(r.getRule(), r.getCurrentOption(), true, "") {
                     @Override
                     protected String getTooltip() {
                         return r.getRuleTip();
@@ -58,6 +55,8 @@ public class CarpetServerList extends GuiConfigList {
                 })
                 .onReset((sender) -> CarpetRules.resetRule(sender.getTitle()))
                 .onInfo((sender) -> CarpetRules.ruleTipRequest(sender.getTitle()));
+
+                r.subscribe((rule, value) -> entry.setDisplayString(value));
             }
         }
     }

@@ -16,8 +16,10 @@ public class ChunkDebugMapList extends GuiConfigList {
     public void initGui() {
         addEntry(new ButtonEntry("Chunk Grid Style", "", false, "") {
             @Override
-            protected String getDisplayString() {
-                return GuiChunkGrid.style.getName();
+            protected void draw(int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, float partialTicks)
+            {
+                this.setDisplayString( GuiChunkGrid.style.getName());
+                super.draw(x, y, listWidth, slotHeight, mouseX, mouseY, partialTicks);
             }
 
             @Override

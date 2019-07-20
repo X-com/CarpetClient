@@ -32,11 +32,15 @@ public class ButtonEntry extends StandardRowEntry<ButtonEntry> {
     protected void draw(int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, float partialTicks) {
         this.button.x = x + listWidth / 2;
         this.button.y = y;
-        this.button.displayString = getDisplayString();
         this.button.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
     }
 
-    protected String getDisplayString() {
+    public void setDisplayString(String value)
+    {
+        this.button.displayString = value;
+    }
+
+    public String getDisplayString() {
         return btnText;
     }
 
