@@ -1,10 +1,9 @@
 package carpetclient.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiConsumer;
+import carpetclient.util.BiObservable;
 
-public class ConfigBase<T> implements IObservable<ConfigBase<T>, BiConsumer<ConfigBase<T>, T>> {
+public class ConfigBase<T> extends BiObservable<ConfigBase<T>, T>
+{
     public enum ConfigType {
         BOOLEAN,
         INTEGER,
@@ -18,8 +17,6 @@ public class ConfigBase<T> implements IObservable<ConfigBase<T>, BiConsumer<Conf
 
     private T defaultValue;
     private T value;
-
-    private List<BiConsumer<ConfigBase<T>, T>> subscribers;
 
     public ConfigBase(ConfigType type, String name, T value, String description) {
         this.type = type;
@@ -43,25 +40,6 @@ public class ConfigBase<T> implements IObservable<ConfigBase<T>, BiConsumer<Conf
 
     public void setValue(T value) {
         this.value = value;
-
-        if (subscribers != null)
-            subscribers.forEach((r) -> r.accept(this, value));
-    }
-
-    @Override
-    public ConfigBase<T> subscribe(BiConsumer<ConfigBase<T>, T> subscriber) {
-        if ( subscribers == null)
-            subscribers = new ArrayList<>();
-
-        subscribers.add(subscriber);
-        return this;
-    }
-
-    @Override
-    public ConfigBase<T> unsubscribe(BiConsumer<ConfigBase<T>, T> subscriber) {
-        if (subscribers.contains(subscriber))
-            subscribers.remove(subscriber);
-
-        return this;
+        this.notifySubscribers(value);
     }
 }

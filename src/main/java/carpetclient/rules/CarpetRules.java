@@ -4,6 +4,7 @@ import carpetclient.Config;
 import carpetclient.gui.ConfigGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.random.RandomtickDisplay;
+import carpetclient.util.BiObservable;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
 
@@ -75,9 +76,9 @@ public class CarpetRules {
         String text = data.readString(10000);
 
         if (CHANGE_RULE == infoType) {
-            rules.get(rule).changeRule(text);
+            getRule(rule).changeRule(text);
         } else if (REQUEST_RULE_TIP == infoType) {
-            rules.get(rule).setRuleTip(text);
+            getRule(rule).setRuleTip(text);
         }
     }
 
@@ -214,7 +215,8 @@ public class CarpetRules {
     /*
      * Class that stores the detailed rules.
      */
-    public static class CarpetSettingEntry {
+    public static class CarpetSettingEntry extends BiObservable<CarpetSettingEntry, String>
+    {
         private String rule;
         private String currentOption;
         private boolean isNumber;
@@ -242,6 +244,9 @@ public class CarpetRules {
             this.isFloat = isFloat;
             this.checkValues();
             this.checkDefault();
+            editClientRules();
+
+            this.notifySubscribers(this.currentOption);
         }
 
         private void checkValues() {
@@ -328,6 +333,8 @@ public class CarpetRules {
             this.checkValues();
             this.checkDefault();
             editClientRules();
+
+            this.notifySubscribers(this.currentOption);
         }
 
         /**

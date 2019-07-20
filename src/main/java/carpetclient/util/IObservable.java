@@ -1,4 +1,4 @@
-package carpetclient.config;
+package carpetclient.util;
 
 public interface IObservable<T, U> {
     T subscribe(U subscriber);
