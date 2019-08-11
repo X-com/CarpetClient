@@ -21,7 +21,7 @@ import net.minecraft.network.PacketBuffer;
 Plugin channel class to implement a client server communication between carpet client and carpet server.
  */
 public class CarpetPluginChannel {
-    public static final String CARPET_CHANNEL_NAME = "CarpetClient";
+    public static final String CARPET_CHANNEL_NAME = "carpet:client";
     public static final ImmutableList CARPET_PLUGIN_CHANNEL = ImmutableList.of(CARPET_CHANNEL_NAME);
 
     public static final int GUI_ALL_DATA = 0;
