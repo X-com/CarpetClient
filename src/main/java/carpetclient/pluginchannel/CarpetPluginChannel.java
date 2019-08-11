@@ -7,12 +7,14 @@ import carpetclient.bugfix.PistonFix;
 import carpetclient.random.RandomtickDisplay;
 import com.google.common.collect.ImmutableList;
 import com.mumfrey.liteloader.core.ClientPluginChannels;
+import com.mumfrey.liteloader.core.PluginChannels;
 import com.mumfrey.liteloader.core.PluginChannels.ChannelPolicy;
 
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
 import carpetclient.rules.CarpetRules;
 import carpetclient.rules.TickRate;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.PacketBuffer;
 
 /*
@@ -84,6 +86,6 @@ public class CarpetPluginChannel {
      * @param data The data that is being sent to the server.
      */
     public static void packatSender(PacketBuffer data) {
-        ClientPluginChannels.sendMessage(CARPET_CHANNEL_NAME, data, ChannelPolicy.DISPATCH_ALWAYS);
+        PacketSplitter.send(CARPET_CHANNEL_NAME, data, ChannelPolicy.DISPATCH_IF_REGISTERED);
     }
 }
