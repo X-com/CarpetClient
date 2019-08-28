@@ -1,6 +1,6 @@
 {
 	"name": "carpetclient",
-	"mcversion": "1.12",
+	"mcversion": "1.12.2",
 	"mixinConfigs": [
 		"mixins.carpetclient.json",
 		"mixins.carpetclient.optifinecompat.json"

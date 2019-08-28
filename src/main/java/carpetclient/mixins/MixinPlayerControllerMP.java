@@ -4,11 +4,15 @@ import carpetclient.Config;
 import carpetclient.Hotkeys;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.EnumFacing;
@@ -20,7 +24,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /*
 Injecting code for block rotation. Editing the x value when sending the package "CPacketPlayerTryUseItemOnBlock" to be decoded by carpet.
@@ -187,5 +194,14 @@ public class MixinPlayerControllerMP {
     private boolean isGlazedTerracotta(ItemStack itemstack){
         int id = Item.getIdFromItem(itemstack.getItem());
         return id >= 235 && id <= 250;
+    }
+
+    @Inject(method = "func_194338_a", at = @At("RETURN"))
+    private void ups(int window, IRecipe recipe, boolean makeAll, EntityPlayer p_194338_4_, CallbackInfo ci) {
+        if (GuiScreen.isShiftKeyDown() && GuiScreen.isAltKeyDown() ){
+            this.mc.playerController.windowClick(0, 0, 1, ClickType.QUICK_MOVE, this.mc.player);
+        } else if(GuiScreen.isShiftKeyDown() && GuiScreen.isCtrlKeyDown() && Config.controlQCrafting) {
+            this.mc.playerController.windowClick(0, 0, 1, ClickType.THROW, this.mc.player);
+        }
     }
 }

@@ -158,16 +158,16 @@ public class MixinEntityRenderer {
         ParticleManager particlemanager = this.mc.effectRenderer;
         boolean flag = this.isDrawBlockOutline();
         GlStateManager.enableCull();
-        this.mc.mcProfiler.endStartSection("clear");
+        this.mc.profiler.endStartSection("clear");
         GlStateManager.viewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
         this.updateFogColor(partialTicks);
         GlStateManager.clear(16640);
-        this.mc.mcProfiler.endStartSection("camera");
+        this.mc.profiler.endStartSection("camera");
         this.setupCameraTransform(partialTicks, pass);
         ActiveRenderInfo.updateRenderInfo(this.mc.player, this.mc.gameSettings.thirdPersonView == 2);
-        this.mc.mcProfiler.endStartSection("frustum");
+        this.mc.profiler.endStartSection("frustum");
         ClippingHelperImpl.getInstance();
-        this.mc.mcProfiler.endStartSection("culling");
+        this.mc.profiler.endStartSection("culling");
         ICamera icamera = new Frustum();
         Entity entity = this.mc.getRenderViewEntity();
         double d0 = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) partialTicks;
@@ -181,7 +181,7 @@ public class MixinEntityRenderer {
 
         if (this.mc.gameSettings.renderDistanceChunks >= 4) {
             this.setupFog(-1, partialTicks);
-            this.mc.mcProfiler.endStartSection("sky");
+            this.mc.profiler.endStartSection("sky");
             GlStateManager.matrixMode(5889);
             GlStateManager.loadIdentity();
             Project.gluPerspective(this.getFOVModifier(partialTicks, true), (float) this.mc.displayWidth / (float) this.mc.displayHeight, 0.05F, this.farPlaneDistance * 2.0F);
@@ -200,19 +200,19 @@ public class MixinEntityRenderer {
             this.renderCloudsCheck(renderglobal, partialTicks, pass, d0, d1, d2);
         }
 
-        this.mc.mcProfiler.endStartSection("prepareterrain");
+        this.mc.profiler.endStartSection("prepareterrain");
         this.setupFog(0, partialTicks);
         this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         RenderHelper.disableStandardItemLighting();
-        this.mc.mcProfiler.endStartSection("terrain_setup");
+        this.mc.profiler.endStartSection("terrain_setup");
         renderglobal.setupTerrain(entity, (double) partialTicks, icamera, this.frameCount++, this.mc.player.isSpectator());
 
         if (pass == 0 || pass == 2) {
-            this.mc.mcProfiler.endStartSection("updatechunks");
+            this.mc.profiler.endStartSection("updatechunks");
             this.mc.renderGlobal.updateChunks(finishTimeNano);
         }
 
-        this.mc.mcProfiler.endStartSection("terrain");
+        this.mc.profiler.endStartSection("terrain");
         GlStateManager.matrixMode(5888);
         GlStateManager.pushMatrix();
         GlStateManager.disableAlpha();
@@ -230,7 +230,7 @@ public class MixinEntityRenderer {
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
             RenderHelper.enableStandardItemLighting();
-            this.mc.mcProfiler.endStartSection("entities");
+            this.mc.profiler.endStartSection("entities");
 
             entity.lastTickPosX = entity.posX - (entity.posX - lx) * (1.0 - partialTicks) / (1.0 - worldTicks);
             entity.lastTickPosY = entity.posY - (entity.posY - ly) * (1.0 - partialTicks) / (1.0 - worldTicks);
@@ -252,7 +252,7 @@ public class MixinEntityRenderer {
         if (flag && this.mc.objectMouseOver != null && !entity.isInsideOfMaterial(Material.WATER)) {
             EntityPlayer entityplayer = (EntityPlayer) entity;
             GlStateManager.disableAlpha();
-            this.mc.mcProfiler.endStartSection("outline");
+            this.mc.profiler.endStartSection("outline");
             renderglobal.drawSelectionBox(entityplayer, this.mc.objectMouseOver, 0, partialTicks);
             GlStateManager.enableAlpha();
         }
@@ -265,7 +265,7 @@ public class MixinEntityRenderer {
             this.mc.debugRenderer.renderDebug(partialTicks, finishTimeNano);
         }
 
-        this.mc.mcProfiler.endStartSection("destroyProgress");
+        this.mc.profiler.endStartSection("destroyProgress");
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
@@ -275,11 +275,11 @@ public class MixinEntityRenderer {
 
         if (!this.debugView) {
             this.enableLightmap();
-            this.mc.mcProfiler.endStartSection("litParticles");
+            this.mc.profiler.endStartSection("litParticles");
             particlemanager.renderLitParticles(entity, worldTicks);
             RenderHelper.disableStandardItemLighting();
             this.setupFog(0, worldTicks);
-            this.mc.mcProfiler.endStartSection("particles");
+            this.mc.profiler.endStartSection("particles");
             particlemanager.renderParticles(entity, worldTicks);
             this.disableLightmap();
         }
@@ -290,7 +290,7 @@ public class MixinEntityRenderer {
 
         GlStateManager.depthMask(false);
         GlStateManager.enableCull();
-        this.mc.mcProfiler.endStartSection("weather");
+        this.mc.profiler.endStartSection("weather");
         this.renderRainSnow(worldTicks);
         GlStateManager.depthMask(true);
         renderglobal.renderWorldBorder(entity, partialTicks);
@@ -303,7 +303,7 @@ public class MixinEntityRenderer {
         GlStateManager.depthMask(false);
         this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         GlStateManager.shadeModel(7425);
-        this.mc.mcProfiler.endStartSection("translucent");
+        this.mc.profiler.endStartSection("translucent");
         renderglobal.renderBlockLayer(BlockRenderLayer.TRANSLUCENT, (double) partialTicks, pass, entity);
         GlStateManager.shadeModel(7424);
         GlStateManager.depthMask(true);
@@ -312,11 +312,11 @@ public class MixinEntityRenderer {
         GlStateManager.disableFog();
 
         if (entity.posY + (double) entity.getEyeHeight() >= 128.0D) {
-            this.mc.mcProfiler.endStartSection("aboveClouds");
+            this.mc.profiler.endStartSection("aboveClouds");
             this.renderCloudsCheck(renderglobal, partialTicks, pass, d0, d1, d2);
         }
 
-        this.mc.mcProfiler.endStartSection("hand");
+        this.mc.profiler.endStartSection("hand");
 
         if (this.renderHand) {
             GlStateManager.clear(256);

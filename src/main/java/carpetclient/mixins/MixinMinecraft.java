@@ -46,7 +46,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     public WorldClient world;
     @Shadow
     public @Final
-    Profiler mcProfiler;
+    Profiler profiler;
     @Shadow
     public EntityPlayerSP player;
     @Shadow
@@ -56,16 +56,16 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     @Shadow
     public RenderGlobal renderGlobal;
     @Shadow
-    private SoundHandler mcSoundHandler;
+    private SoundHandler soundHandler;
     @Shadow
-    private MusicTicker mcMusicTicker;
+    private MusicTicker musicTicker;
     @Shadow
     private @Final
     Tutorial tutorial;
     @Shadow
     public ParticleManager effectRenderer;
     @Shadow
-    private NetworkManager myNetworkManager;
+    private NetworkManager networkManager;
     @Shadow
     long systemTime;
     @Shadow
@@ -112,7 +112,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     /**
      * Inject after the runTick method have looped to update world and player entities differently. Disabled when tick speeds are synched.
      */
-    @Inject(method = "runGameLoop", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;mcProfiler:Lnet/minecraft/profiler/Profiler;", ordinal = 3, shift = At.Shift.BEFORE))
+    @Inject(method = "runGameLoop", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;profiler:Lnet/minecraft/profiler/Profiler;", ordinal = 3, shift = At.Shift.BEFORE))
     public void injectPlayerWorldLoops(CallbackInfo ci) {
         if (TickRate.runTickRate) {
             int playerTicks = this.timer.elapsedTicks;
@@ -176,7 +176,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
                 }
             }
 
-            this.mcProfiler.endStartSection("gameRenderer");
+            this.profiler.endStartSection("gameRenderer");
 
             if (!this.isGamePaused) {
                 this.entityRenderer.updateRenderer();
@@ -200,19 +200,19 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
                 }
             }
 
-            this.mcProfiler.endStartSection("gameRenderer");
+            this.profiler.endStartSection("gameRenderer");
 
             if (!this.isGamePaused) {
                 this.entityRenderer.updateRenderer();
             }
 
-            this.mcProfiler.endStartSection("levelRenderer");
+            this.profiler.endStartSection("levelRenderer");
 
             if (!this.isGamePaused) {
                 this.renderGlobal.updateClouds();
             }
 
-            this.mcProfiler.endStartSection("level");
+            this.profiler.endStartSection("level");
 
             if (!this.isGamePaused) {
                 if (this.world.getLastLightningBolt() > 0) {
@@ -228,8 +228,8 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         }
 
         if (!this.isGamePaused) {
-            this.mcMusicTicker.update();
-            this.mcSoundHandler.update();
+            this.musicTicker.update();
+            this.soundHandler.update();
         }
 
         if (this.world != null) {
@@ -253,23 +253,23 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
                 }
             }
 
-            this.mcProfiler.endStartSection("animateTick");
+            this.profiler.endStartSection("animateTick");
 
             if (!this.isGamePaused && this.world != null) {
                 this.world.doVoidFogParticles(MathHelper.floor(this.player.posX), MathHelper.floor(this.player.posY), MathHelper.floor(this.player.posZ));
             }
 
-            this.mcProfiler.endStartSection("particles");
+            this.profiler.endStartSection("particles");
 
             if (!this.isGamePaused) {
                 this.effectRenderer.updateEffects();
             }
-        } else if (this.myNetworkManager != null) {
-            this.mcProfiler.endStartSection("pendingConnection");
-            this.myNetworkManager.processReceivedPackets();
+        } else if (this.networkManager != null) {
+            this.profiler.endStartSection("pendingConnection");
+            this.networkManager.processReceivedPackets();
         }
 
-        this.mcProfiler.endSection();
+        this.profiler.endSection();
         this.systemTime = Minecraft.getSystemTime();
     }
 }

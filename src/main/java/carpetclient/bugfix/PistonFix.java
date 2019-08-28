@@ -101,7 +101,7 @@ public class PistonFix {
                 world.loadedTileEntityList.remove(tileentity);
 
                 if (world.isBlockLoaded(tileentity.getPos())) {
-                    world.getChunkFromBlockCoords(tileentity.getPos()).removeTileEntity(tileentity.getPos());
+                    world.getChunk(tileentity.getPos()).removeTileEntity(tileentity.getPos());
                 }
             }
         }

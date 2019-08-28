@@ -116,7 +116,7 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
                                     BlockPos pos1, Block blockIn, int eventID, int eventParam, // from addBlockEvent
                                     World worldIn2, BlockPos pos2, IBlockState state // from checkForMove
     ) {
-        worldIn1.addBlockEvent(pos1, this, 1, eventParam | ignoreMovingBlockMeta(worldIn1, pos1, EnumFacing.getFront(eventParam)));
+        worldIn1.addBlockEvent(pos1, this, 1, eventParam | ignoreMovingBlockMeta(worldIn1, pos1, EnumFacing.byHorizontalIndex(eventParam)));
     }
 
     /*
@@ -125,7 +125,7 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
      * even if the client can pull them.
      */
     private int ignoreMovingBlockMeta(World worldIn, BlockPos pos, EnumFacing enumfacing) {
-        BlockPos blockpos = pos.add(enumfacing.getFrontOffsetX() * 2, enumfacing.getFrontOffsetY() * 2, enumfacing.getFrontOffsetZ() * 2);
+        BlockPos blockpos = pos.add(enumfacing.getXOffset() * 2, enumfacing.getYOffset() * 2, enumfacing.getZOffset() * 2);
         IBlockState iblockstate = worldIn.getBlockState(blockpos);
         Block block = iblockstate.getBlock();
 
@@ -193,17 +193,17 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
                 && block != Blocks.END_PORTAL && block != Blocks.MOB_SPAWNER && block != Blocks.PISTON_EXTENSION;
     }
 
-    @Inject(method = "doMove", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Ljava/util/List;size()I", ordinal = 4), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "doMove", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Ljava/util/List;size()I", remap = false, ordinal = 4), locals = LocalCapture.CAPTURE_FAILHARD)
     private void doMoveTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
                           BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
-                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing, int var12) {
-        doMoveTE(worldIn, pos, direction, extending, cir, blockpistonstructurehelper, list, list1, list2, k, aiblockstate, var12);
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, EnumFacing enumfacing) {
+        doMoveTE(worldIn, pos, direction, extending, cir, blockpistonstructurehelper, list, list1, list2, k, aiblockstate);
     }
 
     @Surrogate // EnumFacing local var only present in recompiled Minecraft
     private void doMoveTE(World worldIn, BlockPos pos, EnumFacing direction, boolean extending, CallbackInfoReturnable<Boolean> cir,
                           BlockPistonStructureHelper blockpistonstructurehelper, List<BlockPos> list, List<IBlockState> list1,
-                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate, int var12) {
+                          List<BlockPos> list2, int k,  IBlockState[] aiblockstate) {
         if (!Config.movableTileEntities)
             return;
 
