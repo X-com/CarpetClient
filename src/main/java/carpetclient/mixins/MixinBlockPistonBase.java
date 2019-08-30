@@ -110,14 +110,14 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
         return false;
     }
 
-    // ghost block fix
-    @Redirect(method = "checkForMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;addBlockEvent(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;II)V", ordinal = 1))
-    public void eventReceivedMixins(World worldIn1,
-                                    BlockPos pos1, Block blockIn, int eventID, int eventParam, // from addBlockEvent
-                                    World worldIn2, BlockPos pos2, IBlockState state // from checkForMove
-    ) {
-        worldIn1.addBlockEvent(pos1, this, 1, eventParam | ignoreMovingBlockMeta(worldIn1, pos1, EnumFacing.byHorizontalIndex(eventParam)));
-    }
+//    // ghost block fix
+//    @Redirect(method = "checkForMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;addBlockEvent(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;II)V", ordinal = 1))
+//    public void eventReceivedMixins(World worldIn1,
+//                                    BlockPos pos1, Block blockIn, int eventID, int eventParam, // from addBlockEvent
+//                                    World worldIn2, BlockPos pos2, IBlockState state // from checkForMove
+//    ) {
+//        worldIn1.addBlockEvent(pos1, this, 1, eventParam | ignoreMovingBlockMeta(worldIn1, pos1, EnumFacing.byHorizontalIndex(eventParam)));
+//    }
 
     /*
      * This if statement checks if the the pulling block (block that is 2 blocks infront of the extended piston)
