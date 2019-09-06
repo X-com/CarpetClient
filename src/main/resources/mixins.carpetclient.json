@@ -38,6 +38,7 @@
     "MixinEntityPlayer",
     "MixinTileEntityPiston",
     "MixinTileEntityPistonRenderer",
-    "MixinTileEntityRenderDispatcher"
+    "MixinTileEntityRenderDispatcher",
+    "MixinTabCompleter"
   ]
 }
