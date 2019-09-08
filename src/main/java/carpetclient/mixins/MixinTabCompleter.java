@@ -41,7 +41,7 @@ public class MixinTabCompleter {
     public void tabCompleteHelper(String prefix, CallbackInfo ci){
         if(prefix.length() >= 1 && inExistingCommand(prefix)) {
             List<String> list = getTabCompletions(Minecraft.getMinecraft().player, prefix, this.getTargetBlockPos(), this.hasTargetBlock);
-            if(list != null) {
+            if(list != null && list.size() > 0) {
                 this.requestedCompletions = true;
                 Minecraft.getMinecraft().getConnection().handleTabComplete(new SPacketTabComplete((String[])list.toArray(new String[list.size()])));
                 ci.cancel();
