@@ -26,6 +26,8 @@ public class MixinTabCompleter {
 
     @Shadow protected boolean requestedCompletions;
 
+    @Shadow protected int completionIdx;
+
     @Shadow @Final protected boolean hasTargetBlock;
 
     @Shadow public BlockPos getTargetBlockPos(){ return null; }
@@ -43,7 +45,9 @@ public class MixinTabCompleter {
             List<String> list = getTabCompletions(Minecraft.getMinecraft().player, prefix, this.getTargetBlockPos(), this.hasTargetBlock);
             if(list != null && list.size() > 0) {
                 this.requestedCompletions = true;
+                int temp = this.completionIdx;
                 Minecraft.getMinecraft().getConnection().handleTabComplete(new SPacketTabComplete((String[])list.toArray(new String[list.size()])));
+                this.completionIdx = temp;
                 ci.cancel();
             }
         }
