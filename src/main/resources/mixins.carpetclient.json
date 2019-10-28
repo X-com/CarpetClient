@@ -39,6 +39,8 @@
     "MixinTileEntityPiston",
     "MixinTileEntityPistonRenderer",
     "MixinTileEntityRenderDispatcher",
-    "MixinTabCompleter"
+    "MixinTabCompleter",
+    "MixinNettyCompressionDecoder",
+    "MixinNettyVarint21FrameDecoder"
   ]
 }
