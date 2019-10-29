@@ -13,12 +13,12 @@ public abstract class MixinTileEntityStructure extends TileEntity {
 
     @ModifyConstant(method = "readFromNBT", constant = @Constant(intValue = -32) , expect = 3)
     public int modifyNeg32(int orig) {
-        return -Config.structureBlockLimit;
+        return Integer.MAX_VALUE;
     }
 
     @ModifyConstant(method = "readFromNBT", constant = @Constant(intValue = 32) , expect = 6)
     public int modify32(int orig) {
-        return Config.structureBlockLimit;
+        return Integer.MAX_VALUE;
     }
 
 }
