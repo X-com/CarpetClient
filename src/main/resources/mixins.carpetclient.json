@@ -41,6 +41,7 @@
     "MixinTileEntityRenderDispatcher",
     "MixinTabCompleter",
     "MixinNettyCompressionDecoder",
-    "MixinNettyVarint21FrameDecoder"
+    "MixinNettyVarint21FrameDecoder",
+    "MixinRegistryNamespaced"
   ]
 }

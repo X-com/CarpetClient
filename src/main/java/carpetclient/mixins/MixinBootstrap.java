@@ -1,7 +1,10 @@
 package carpetclient.mixins;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 
+import carpetclient.util.CustomCrafting;
+import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,13 +20,19 @@ import net.minecraft.item.crafting.IRecipe;
 public class MixinBootstrap {
 
     @Inject(method = "register", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/crafting/CraftingManager;init()Z", shift = At.Shift.AFTER))
-    private static void addExtraCraftingRecipes(CallbackInfo ci) {
-        NewCrafting.createRockets();
-        registerRecipe("rocket1", NewCrafting.rocketOne);
-        registerRecipe("rocket2", NewCrafting.rocketTwo);
-        registerRecipe("rocket3", NewCrafting.rocketThree);
+    private static void addExtraCraftingRecipes(CallbackInfo ci) throws IOException {
+//        CustomCrafting.createRockets();
+//        registerRecipe("rocket1", CustomCrafting.rocketOne);
+//        registerRecipe("rocket2", CustomCrafting.rocketTwo);
+//        registerRecipe("rocket3", CustomCrafting.rocketThree);
+//        CustomCrafting.registerCustomRecipes();
+
+//        for (ResourceLocation irecipe : CraftingManager.REGISTRY.getKeys())
+//        {
+//            System.out.println(irecipe);
+//        }
     }
-    
+
     private static void registerRecipe(String name, IRecipe recipe) {
         try {
             CraftingManager.register(name, recipe);
@@ -38,5 +47,4 @@ public class MixinBootstrap {
             }
         }
     }
-    
 }
