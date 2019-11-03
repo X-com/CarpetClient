@@ -24,8 +24,16 @@ import net.minecraft.util.JsonUtils;
 
 import java.io.IOException;
 
+/**
+ * Recipe bridge class for Carpet servers synching custom recipes with carpet servers.
+ */
 public class CustomCrafting {
 
+    /**
+     * Main custom recipe method created to recieve custom recipes from carpet servers.
+     *
+     * @param data
+     */
     public static void addCustomRecipes(PacketBuffer data) {
         NBTTagCompound nbt;
         try {
@@ -56,12 +64,31 @@ public class CustomCrafting {
         sendConfirmationPacketThatUpdatesCanBeReceived();
     }
 
+    /**
+     * Confirmation method that recipes where recieved requesting an update from the server.
+     * Packets can't be sent at the same time or they will create issues in the packet reader, this system is in place to create artificial delay.
+     */
     private static void sendConfirmationPacketThatUpdatesCanBeReceived() {
         PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
         sender.writeInt(CarpetPluginChannel.CUSTOM_RECIPES);
         CarpetPluginChannel.packatSender(sender);
     }
 
+    /**
+     * Resets recipe book to vanilla as it might be cluttered with custom recipes.
+     */
+    public static void resetCraftingRecipes() {
+        ((AMixinRegistryNamespaced) CraftingManager.REGISTRY).clear();
+        IMixinCraftingManager.setNextAvailableId(0);
+        if (!CraftingManager.init()) {
+            return;
+        }
+        resetRecipeBook();
+    }
+
+    /**
+     * Private reset method for reseting to vanilla recipes.
+     */
     private static void resetRecipeBook() {
         RecipeBookClient.ALL_RECIPES.clear();
         RecipeBookClient.RECIPES_BY_TAB.clear();
@@ -90,15 +117,12 @@ public class CustomCrafting {
         }
     }
 
-    public static void resetCraftingRecipes() {
-        ((AMixinRegistryNamespaced) CraftingManager.REGISTRY).clear();
-        IMixinCraftingManager.setNextAvailableId(0);
-        if (!CraftingManager.init()) {
-            return;
-        }
-        resetRecipeBook();
-    }
-
+    /**
+     * Helper method grabed from recipe parser.
+     *
+     * @param json
+     * @return
+     */
     private static IRecipe parseRecipeJson(JsonObject json) {
         String s = JsonUtils.getString(json, "type");
 
