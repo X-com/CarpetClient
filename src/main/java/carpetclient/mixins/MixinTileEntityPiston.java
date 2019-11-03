@@ -30,6 +30,9 @@ import java.util.List;
 public class MixinTileEntityPiston extends TileEntity implements ITileEntityPiston
 {
     @Shadow private IBlockState pistonState;
+    
+    @Shadow private float lastProgress;
+    
     private TileEntity carriedTileEntity;
 
     public TileEntity getCarriedBlockEntity()
@@ -42,6 +45,26 @@ public class MixinTileEntityPiston extends TileEntity implements ITileEntityPist
         this.carriedTileEntity = tileEntity;
         if (this.carriedTileEntity != null)
             this.carriedTileEntity.setPos(this.pos);
+    }
+    
+    private long lastTicked;
+    
+    @Inject(method = "update", at = @At("HEAD"))
+    private void setLastTicked(CallbackInfo ci)
+    {
+        this.lastTicked = this.world.getTotalWorldTime();
+    }
+    
+    @Override
+    public long getLastTicked()
+    {
+        return this.lastTicked;
+    }
+    
+    @Override
+    public float getLastProgress()
+    {
+        return this.lastProgress;
     }
 
     /**
