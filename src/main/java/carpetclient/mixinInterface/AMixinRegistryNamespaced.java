@@ -1,4 +1,4 @@
-package carpetclient.mixins;
+package carpetclient.mixinInterface;
 
 public interface AMixinRegistryNamespaced {
     public void clear();
