@@ -2,6 +2,7 @@
   "required": true,
   "package": "carpetclient.mixins",
   "refmap": "mixins.carpetclient.refmap.json",
+  "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinBlockFenceGate",
     "MixinBlockPumpkin",
@@ -41,6 +42,9 @@
     "MixinTileEntityRenderDispatcher",
     "MixinTabCompleter",
     "MixinNettyCompressionDecoder",
-    "MixinNettyVarint21FrameDecoder"
+    "MixinNettyVarint21FrameDecoder",
+    "MixinRegistryNamespaced",
+    "IMixinCraftingManager",
+    "IMixinRecipeBookClient"
   ]
 }

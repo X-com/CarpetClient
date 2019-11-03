@@ -5,6 +5,7 @@ import carpetclient.coders.skyrising.PacketSplitter;
 import carpetclient.coders.zerox53ee71ebe11e.Chunkdata;
 import carpetclient.bugfix.PistonFix;
 import carpetclient.random.RandomtickDisplay;
+import carpetclient.util.CustomCrafting;
 import com.google.common.collect.ImmutableList;
 import com.mumfrey.liteloader.core.ClientPluginChannels;
 import com.mumfrey.liteloader.core.PluginChannels;
@@ -32,6 +33,7 @@ public class CarpetPluginChannel {
     public static final int CHUNK_LOGGER = 5;
     public static final int PISTON_UPDATES = 6;
     public static final int RANDOMTICK_DISPLAY = 7;
+    public static final int CUSTOM_RECIPES = 8;
 
     /**
      * Packate receiver method to handle incoming messages.
@@ -77,6 +79,9 @@ public class CarpetPluginChannel {
         }
         if (RANDOMTICK_DISPLAY == type) {
             RandomtickDisplay.processPacket(data);
+        }
+        if (CUSTOM_RECIPES == type) {
+            CustomCrafting.addCustomRecipes(data);
         }
     }
 
