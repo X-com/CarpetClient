@@ -45,6 +45,7 @@
     "MixinNettyVarint21FrameDecoder",
     "MixinRegistryNamespaced",
     "IMixinCraftingManager",
-    "IMixinRecipeBookClient"
+    "IMixinRecipeBookClient",
+    "MixinWorldServer"
   ]
 }

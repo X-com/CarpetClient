@@ -65,6 +65,8 @@ public class CarpetRules {
             Config.ignoreEntityWhenPlacing = getRule("ignoreEntityWhenPlacing").getBoolean();
         if (hasRule("movableTileEntities"))
             Config.movableTileEntities = getRule("movableTileEntities").getBoolean();
+        if (hasRule("pistonGhostBlocksFix"))
+            Config.pistonGhostBlocksFix = getRule("pistonGhostBlocksFix").getCurrentOption();
         TickRate.setTickRate(Config.tickRate);
     }
 
