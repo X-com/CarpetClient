@@ -3,15 +3,12 @@ package carpetclient.mixins;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import carpetclient.util.CustomCrafting;
-import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import carpetclient.NewCrafting;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;

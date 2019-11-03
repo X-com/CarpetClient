@@ -1,5 +1,6 @@
 package carpetclient.mixins;
 
+import carpetclient.mixinInterface.AMixinRegistryNamespaced;
 import net.minecraft.util.IObjectIntIterable;
 import net.minecraft.util.IntIdentityHashBiMap;
 import net.minecraft.util.registry.RegistryNamespaced;
@@ -11,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.Map;
 
 @Mixin(RegistryNamespaced.class)
-public class MixinRegistryNamespaced<K, V> extends RegistrySimple<K, V> implements IObjectIntIterable<V>, AMixinRegistryNamespaced{
+public class MixinRegistryNamespaced<K, V> extends RegistrySimple<K, V> implements IObjectIntIterable<V>, AMixinRegistryNamespaced {
 
     @Shadow
     @Final
