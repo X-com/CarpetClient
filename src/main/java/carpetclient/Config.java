@@ -10,7 +10,6 @@ import carpetclient.gui.chunkgrid.GuiChunkGrid;
 import carpetclient.random.RandomtickDisplay;
 import carpetclient.rules.TickRate;
 import com.google.gson.*;
-import javafx.geometry.BoundingBox;
 
 import java.io.File;
 import java.io.FileNotFoundException;
