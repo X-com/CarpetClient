@@ -55,8 +55,8 @@ public class CarpetRules {
             Config.controlQCrafting = getRule("ctrlQCrafting").getBoolean();
         if (hasRule("missingTools"))
             Config.missingTools = getRule("missingTools").getBoolean();
-        if (hasRule("structureBlockLimit"))
-            Config.structureBlockLimit = getRule("structureBlockLimit").integer;
+        //if (hasRule("structureBlockLimit"))
+        //    Config.structureBlockLimit = getRule("structureBlockLimit").integer;
         if (hasRule("pushLimit"))
             Config.pushLimit = getRule("pushLimit").integer;
         if (hasRule("disablePlayerCollision"))
@@ -65,6 +65,8 @@ public class CarpetRules {
             Config.ignoreEntityWhenPlacing = getRule("ignoreEntityWhenPlacing").getBoolean();
         if (hasRule("movableTileEntities"))
             Config.movableTileEntities = getRule("movableTileEntities").getBoolean();
+        if (hasRule("pistonGhostBlocksFix"))
+            Config.pistonGhostBlocksFix = getRule("pistonGhostBlocksFix").getCurrentOption();
         TickRate.setTickRate(Config.tickRate);
     }
 

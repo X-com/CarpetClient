@@ -10,7 +10,6 @@ import carpetclient.gui.chunkgrid.GuiChunkGrid;
 import carpetclient.random.RandomtickDisplay;
 import carpetclient.rules.TickRate;
 import com.google.gson.*;
-import javafx.geometry.BoundingBox;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,12 +29,13 @@ public class Config {
     public static boolean missingTools = false;
     public static boolean boundingBoxMarkers = false;
     public static boolean villageMarkers = false;
-    public static int structureBlockLimit = 32;
+//    public static int structureBlockLimit = 32;
     public static int pushLimit = 12;
     public static float tickRate;
     public static boolean playerCollisions = true;
     public static boolean ignoreEntityWhenPlacing = false;
     public static boolean movableTileEntities = false;
+    public static String pistonGhostBlocksFix;
 
     public static ConfigBoolean setTickRate =                     new ConfigBoolean("Tick Rate", false, "Toggles if the client should slow the game down (Forge integrated clients might want to turn this off as the tick rate slowdown is not compatible with forge yet).");
     public static ConfigBoolean bucketGhostBlockFix =             new ConfigBoolean("Liquid ghost block fix", false, "Toggles the ghost block liquid option.");

@@ -4,6 +4,7 @@ import carpetclient.Config;
 import carpetclient.Hotkeys;
 import carpetclient.coders.EDDxample.PistonHelper;
 import carpetclient.util.ITileEntityPiston;
+import carpetclient.util.IWorldServer;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
@@ -26,10 +27,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.Surrogate;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
@@ -47,6 +45,8 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
     private List<TileEntity> tileEntitiesList;
 
     private BlockPos blockpos; // For movableTE
+    
+    private int mixinEventParam; // For ghost blocks fix
 
     @Shadow
     private void checkForMove(World worldIn, BlockPos pos, IBlockState state) {
@@ -93,31 +93,6 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
         }
         cir.setReturnValue(this.getDefaultState().withProperty(FACING, facing).withProperty(EXTENDED, Boolean.valueOf(false)));
     }
-
-    // ghost block fix
-    @Redirect(method = "eventReceived", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockPistonBase;doMove(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;Z)Z", ordinal = 1))
-    public boolean eventReceivedMixins(BlockPistonBase obj,
-                                       World worldIn1, BlockPos pos1, EnumFacing enumfacing, boolean extending, // from doMove
-                                       IBlockState state, World worldIn2, BlockPos pos2, int id, int param // from eventReceived
-    ) {
-        // adding the meta check here and make sure the client only grabs blocks if the block in front isn't
-        // a moving block on the server even if its regular blocks that can be pulled on the client. both client 
-        // and server should behave the same by forcing the client to ignore blocks if the server can't pull the block in front.
-        if ((param & 16) == 0) {
-            return this.doMove(worldIn1, pos1, enumfacing, false);
-        }
-
-        return false;
-    }
-
-//    // ghost block fix
-//    @Redirect(method = "checkForMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;addBlockEvent(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;II)V", ordinal = 1))
-//    public void eventReceivedMixins(World worldIn1,
-//                                    BlockPos pos1, Block blockIn, int eventID, int eventParam, // from addBlockEvent
-//                                    World worldIn2, BlockPos pos2, IBlockState state // from checkForMove
-//    ) {
-//        worldIn1.addBlockEvent(pos1, this, 1, eventParam | ignoreMovingBlockMeta(worldIn1, pos1, EnumFacing.byHorizontalIndex(eventParam)));
-//    }
 
     /*
      * This if statement checks if the the pulling block (block that is 2 blocks infront of the extended piston)
@@ -262,4 +237,54 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
         ((ITileEntityPiston) e).setCarriedBlockEntity(tileEntitiesList.get(l));
     }
     // End MovableTE
+    
+    @Redirect(method = "checkForMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;addBlockEvent(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;II)V", ordinal = 1))
+    private void sendDropBlockFlag(World world, BlockPos pos, Block blockIn, int eventID, int eventParam, World worldIn, BlockPos callpos, IBlockState state)
+    {
+        int suppress_move = 0;
+        
+        if (Config.pistonGhostBlocksFix.equals("clientAndServer"))
+        {
+            final EnumFacing enumfacing = state.getValue(FACING);
+            
+            final BlockPos blockpos = new BlockPos(callpos).offset(enumfacing, 2);
+            final IBlockState iblockstate = worldIn.getBlockState(blockpos);
+            
+            if (iblockstate.getBlock() == Blocks.PISTON_EXTENSION)
+            {
+                final TileEntity tileentity = worldIn.getTileEntity(blockpos);
+                
+                if (tileentity instanceof TileEntityPiston)
+                {
+                    final TileEntityPiston tileentitypiston = (TileEntityPiston) tileentity;
+                    if (tileentitypiston.getFacing() == enumfacing && tileentitypiston.isExtending()
+                                && (((ITileEntityPiston) tileentitypiston).getLastProgress() < 0.5F
+                                            || tileentitypiston.getWorld().getTotalWorldTime() == ((ITileEntityPiston) tileentitypiston).getLastTicked()
+                                            || !((IWorldServer) worldIn).haveBlockActionsProcessed()))
+                    {
+                        suppress_move = 16;
+                    }
+                }
+            }
+        }
+        
+        worldIn.addBlockEvent(pos, blockIn, eventID, eventParam | suppress_move);
+    }
+    
+    @Inject(method = "eventReceived", at = @At("HEAD"))
+    private void setEventParam(IBlockState state, World worldIn, BlockPos pos, int id, int param, CallbackInfoReturnable<Integer> cir)
+    {
+        this.mixinEventParam = param;
+    }
+    
+    @ModifyVariable(method = "eventReceived", name = "flag1", index = 11, at = @At(value = "LOAD", ordinal = 0))
+    private boolean didServerDrop(boolean flag1)
+    {
+        if ((this.mixinEventParam & 16) == 16 && Config.pistonGhostBlocksFix.equals("clientAndServer"))
+        {
+            flag1 = true;
+        }
+        
+        return flag1;
+    }
 }
