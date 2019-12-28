@@ -197,9 +197,9 @@ public class MixinPlayerControllerMP {
     }
 
     @Inject(method = "func_194338_a", at = @At("RETURN"))
-    private void ups(int window, IRecipe recipe, boolean makeAll, EntityPlayer p_194338_4_, CallbackInfo ci) {
+    private void onSendPlaceRecipe(int window, IRecipe recipe, boolean makeAll, EntityPlayer p_194338_4_, CallbackInfo ci) {
+        if(!Config.fastCrafting.getValue()) return;
         if (GuiScreen.isShiftKeyDown() && GuiScreen.isAltKeyDown() ){
-            System.out.println("shift and alt");
             this.mc.playerController.windowClick(window, 0, 1, ClickType.QUICK_MOVE, this.mc.player);
         } else if(GuiScreen.isShiftKeyDown() && GuiScreen.isCtrlKeyDown() && Config.controlQCrafting) {
             this.mc.playerController.windowClick(window, 0, 1, ClickType.THROW, this.mc.player);

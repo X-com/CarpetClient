@@ -45,6 +45,7 @@ public class Config {
     public static ConfigBoolean pistonVisualizer =                new ConfigBoolean("Piston visualizer", false, "Shows piston push and pull update order when right clicking with empty hand on pistons.");
     public static ConfigBoolean randomtickingChunksVisualizer =   new ConfigBoolean("Randomtickchunk Index", false, "Displays the index of randomticking chunks around the player.");
     public static ConfigBoolean creativeModeNoClip =              new ConfigBoolean("Creative No Clip", false, "Disables block collisions when in creative mode, needs server rule to be enabled to work.");
+    public static ConfigBoolean fastCrafting =                    new ConfigBoolean("Fast crafting", true, "Toggles fast crafting in the recipe book window.");
     public static boolean randomtickChunkUpdates = true;
 
     public static ConfigBoolean villageMarkerLines =              new ConfigBoolean("Village Doors", false,"Displays a line from the village center to the door.");
@@ -73,7 +74,8 @@ public class Config {
             isScoreboardHidden,
             pistonVisualizer,
             randomtickingChunksVisualizer,
-            creativeModeNoClip
+            creativeModeNoClip,
+            fastCrafting
     };
 
     public static ConfigBase[] VILLAGEMARKERS = new ConfigBase[]{
@@ -130,6 +132,7 @@ public class Config {
         obj.addProperty("clipThroughPistons", clipThroughPistons.getValue());
         obj.addProperty("isScoreboardHidden", isScoreboardHidden.getValue());
         obj.addProperty("pistonVisualizer", pistonVisualizer.getValue());
+        obj.addProperty("fastCrafting", fastCrafting.getValue());
 
         obj.addProperty("lines", villageMarkerLines.getValue());
         obj.addProperty("golem", villageMarkerGolem.getValue());
@@ -173,6 +176,7 @@ public class Config {
                 clipThroughPistons.setValue(jsonObject.get("clipThroughPistons").getAsBoolean());
                 isScoreboardHidden.setValue(jsonObject.get("isScoreboardHidden").getAsBoolean());
                 pistonVisualizer.setValue(jsonObject.get("pistonVisualizer").getAsBoolean());
+                fastCrafting.setValue(jsonObject.get("fastCrafting").getAsBoolean());
 
                 villageMarkerLines.setValue(jsonObject.get("lines").getAsBoolean());
                 villageMarkerGolem.setValue(jsonObject.get("golem").getAsBoolean());
