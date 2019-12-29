@@ -242,8 +242,8 @@ public abstract class MixinBlockPistonBase extends BlockDirectional {
     private void sendDropBlockFlag(World world, BlockPos pos, Block blockIn, int eventID, int eventParam, World worldIn, BlockPos callpos, IBlockState state)
     {
         int suppress_move = 0;
-        
-        if (Config.pistonGhostBlocksFix.equals("clientAndServer"))
+
+        if (Config.pistonGhostBlocksFix != null && Config.pistonGhostBlocksFix.equals("clientAndServer"))
         {
             final EnumFacing enumfacing = state.getValue(FACING);
             
