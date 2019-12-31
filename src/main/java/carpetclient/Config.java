@@ -131,6 +131,9 @@ public class Config {
         obj.addProperty("clipThroughPistons", clipThroughPistons.getValue());
         obj.addProperty("isScoreboardHidden", isScoreboardHidden.getValue());
         obj.addProperty("pistonVisualizer", pistonVisualizer.getValue());
+        // This is not saved. Loading true does not send the necessary packet to server.
+        // obj.addProperty("randomtickingChunksVisualizer", randomtickingChunksVisualizer.getValue());
+        obj.addProperty("creativeModeNoClip", creativeModeNoClip.getValue());
         obj.addProperty("fastCrafting", fastCrafting.getValue());
 
         obj.addProperty("lines", villageMarkerLines.getValue());
@@ -175,6 +178,8 @@ public class Config {
                 clipThroughPistons.setValue(jsonObject.get("clipThroughPistons").getAsBoolean());
                 isScoreboardHidden.setValue(jsonObject.get("isScoreboardHidden").getAsBoolean());
                 pistonVisualizer.setValue(jsonObject.get("pistonVisualizer").getAsBoolean());
+                // randomtickingChunksVisualizer.setValue(jsonObject.get("randomtickingChunksVisualizer").getAsBoolean());
+                creativeModeNoClip.setValue(jsonObject.get("creativeModeNoClip").getAsBoolean());
                 fastCrafting.setValue(jsonObject.get("fastCrafting").getAsBoolean());
 
                 villageMarkerLines.setValue(jsonObject.get("lines").getAsBoolean());
