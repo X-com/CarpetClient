@@ -23,6 +23,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.JsonUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * Recipe bridge class for Carpet servers synching custom recipes with carpet servers.
@@ -53,10 +55,33 @@ public class CustomCrafting {
             String recipe = ruleNBT.getString("recipe");
             JsonObject json = (new JsonParser()).parse(recipe).getAsJsonObject();
             try {
-                CraftingManager.register(name, parseRecipeJson(json));
+                IRecipe recipeparsed = parseRecipeJson(json);
+
+                try {
+                    CraftingManager.register(name, recipeparsed);
+                } catch (IllegalAccessError e1) {
+                    // Forge, you know, some things, are better done at run time.
+                    Class NamespacedWrapper_class = CraftingManager.REGISTRY.getClass();
+
+                    Field NamespacedWrapper_locked = NamespacedWrapper_class.getDeclaredField("locked");
+                    NamespacedWrapper_locked.setAccessible(true);
+                    NamespacedWrapper_locked.set(CraftingManager.REGISTRY, false);
+
+                    Field NamespacedWrapper_delegate = NamespacedWrapper_class.getDeclaredField("delegate");
+                    NamespacedWrapper_delegate.setAccessible(true);
+                    Object ForgeRegistry_inst = NamespacedWrapper_delegate.get(CraftingManager.REGISTRY);
+
+                    Field ForgeRegistry_isFrozen = ForgeRegistry_inst.getClass().getDeclaredField("isFrozen");
+                    ForgeRegistry_isFrozen.setAccessible(true);
+                    ForgeRegistry_isFrozen.set(ForgeRegistry_inst, false);
+
+                    Method CraftingManager_register = CraftingManager.class.getDeclaredMethod("func_193379_a", String.class, IRecipe.class);
+                    CraftingManager_register.setAccessible(true);
+                    CraftingManager_register.invoke(null, name, recipeparsed);
+                }
             } catch (Exception e) {
                 System.out.println("something went wrong");
-                System.out.println(e);
+                e.printStackTrace();
                 return;
             }
         }
@@ -135,4 +160,3 @@ public class CustomCrafting {
         }
     }
 }
-

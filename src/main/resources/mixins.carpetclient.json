@@ -27,7 +27,6 @@
     "IMixinMinecraft",
     "IMixinTimer",
     "MixinEntityRenderer",
-    "MixinBootstrap",
     "MixinTileEntityStructure",
     "MixinWorldClient",
     "IMixinWorld",
