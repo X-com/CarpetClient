@@ -48,6 +48,7 @@ litemod {
         author = "Carpet Team"
         mcversion = "1.12.2"
         description = "Carpet Client for Carpet Server"
+        classTransformerClasses += "carpetclient.transformers.MinecraftTransformer"
         mixinConfigs += "mixins.carpetclient.json"
         mixinConfigs += "mixins.carpetclient.optifinecompat.json"
         version = project.version

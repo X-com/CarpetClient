@@ -1,8 +1,8 @@
 package carpetclient.rules;
 
 import carpetclient.Config;
+import carpetclient.mixinInterface.AMixinTimer;
 import carpetclient.mixins.IMixinMinecraft;
-import carpetclient.mixins.IMixinTimer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Timer;
@@ -12,7 +12,6 @@ import net.minecraft.util.Timer;
  */
 public class TickRate {
     public static boolean runTickRate = false;
-    public static Timer timerWorld = new Timer(20.0f);
 
     /**
      * Setter tick rate in the config files for later setting the client to the tick rate.
@@ -28,12 +27,8 @@ public class TickRate {
      * Sets the game tick after the values are set.
      */
     public static void setTickClient() {
-        runTickRate = Config.setTickRate.getValue() && (20.0f != Config.tickRate);
-        if(runTickRate) {
-            ((IMixinTimer) timerWorld).setTickLength(1000.0F / Config.tickRate);
-            ((IMixinTimer) timerWorld).setLastSyncSysClock(((IMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).getLastSyncSysClock());
-//        ((IMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).setLastSyncSysClock(Minecraft.getSystemTime());
-        }
+        runTickRate = Config.setTickRate.getValue() && (Config.tickRate != 20.0f);
+        ((AMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).setWorldTickRate(Config.tickRate);
     }
 
     /**

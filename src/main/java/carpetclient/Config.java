@@ -30,7 +30,7 @@ public class Config {
     public static boolean boundingBoxMarkers = false;
     public static boolean villageMarkers = false;
     public static int pushLimit = 12;
-    public static float tickRate;
+    public static float tickRate = 20.0f;
     public static boolean playerCollisions = true;
     public static boolean ignoreEntityWhenPlacing = false;
     public static boolean movableTileEntities = false;

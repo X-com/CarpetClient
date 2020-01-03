@@ -25,7 +25,7 @@
     "MixinItemBucket",
     "MixinMinecraft",
     "IMixinMinecraft",
-    "IMixinTimer",
+    "MixinTimer",
     "MixinEntityRenderer",
     "MixinBootstrap",
     "MixinTileEntityStructure",
