@@ -5,12 +5,12 @@ import carpetclient.mixinInterface.AMixinTimer;
 import carpetclient.mixins.IMixinMinecraft;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Timer;
 
 /**
  * Tick rate method to edit the clients tick rate changes based on the servers tick rate.
  */
 public class TickRate {
+    public static final float NORMAL_RATE = 20.0F;
     public static boolean runTickRate = false;
 
     /**
@@ -27,8 +27,8 @@ public class TickRate {
      * Sets the game tick after the values are set.
      */
     public static void setTickClient() {
-        runTickRate = Config.setTickRate.getValue() && (Config.tickRate != 20.0f);
-        ((AMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).setWorldTickRate(runTickRate ? Config.tickRate : 20.0f);
+        runTickRate = Config.setTickRate.getValue() && (Config.tickRate != NORMAL_RATE);
+        ((AMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).setWorldTickRate(runTickRate ? Config.tickRate : NORMAL_RATE);
     }
 
     /**

@@ -1,6 +1,7 @@
 package carpetclient.mixins;
 
 import carpetclient.mixinInterface.AMixinTimer;
+import carpetclient.rules.TickRate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Timer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,12 +38,45 @@ public abstract class MixinTimer implements AMixinTimer {
     public float renderPartialTicksPlayer;
     public float elapsedPartialTicksPlayer;
 
-    private static final float tickLengthPlayer = 1000.0F / 20.0F;
+    private final float tickLengthPlayer = 1000.0F / TickRate.NORMAL_RATE;
+
+    @Override
+    public int getElapsedTicksPlayer() {
+        return this.elapsedTicksPlayer;
+    }
+
+    // @Override
+    // public float getRenderPartialTicksWorld() {
+    //     return this.renderPartialTicksWorld;
+    // }
+    @Override
+    public float getRenderPartialTicksPlayer() {
+        return this.renderPartialTicksPlayer;
+    }
+    @Override
+    public void setRenderPartialTicksWorld(float value) {
+        this.renderPartialTicksWorld = value;
+        this.renderPartialTicks = this.renderPartialTicksWorld;
+    }
+    @Override
+    public void setRenderPartialTicksPlayer(float value) {
+        this.renderPartialTicksPlayer = value;
+    }
 
     @Override
     public void setWorldTickRate(float tps) {
         this.tickLength = 1000.0F / tps;
         this.renderPartialTicksPlayer = this.renderPartialTicksWorld;
+    }
+
+    @Override
+    public float getWorldTickRate() {
+        return 1000.0F / this.tickLength;
+    }
+
+    @Override
+    public float getPlayerTickRate() {
+        return 1000.0F / this.tickLengthPlayer;
     }
 
     @Inject(method = "updateTimer", at = @At("HEAD"), cancellable = true)
@@ -56,16 +90,16 @@ public abstract class MixinTimer implements AMixinTimer {
         this.elapsedTicksWorld = (int)this.renderPartialTicksWorld;
         this.renderPartialTicksWorld -= (float)this.elapsedTicksWorld;
 
-        this.elapsedPartialTicksPlayer = (float)(i - old) / tickLengthPlayer;
+        this.elapsedPartialTicksPlayer = (float)(i - old) / this.tickLengthPlayer;
         this.renderPartialTicksPlayer += this.elapsedPartialTicksPlayer;
         this.elapsedTicksPlayer = (int)this.renderPartialTicksPlayer;
         this.renderPartialTicksPlayer -= (float)this.elapsedTicksPlayer;
 
-        // mostly used for EntityRenderer.updateCameraAndRender
+        // mostly used for EntityRenderer.updateCameraAndRender, hooked now with Mixin
         this.renderPartialTicks = this.renderPartialTicksWorld;
-        // mostly used for GuiScreen,drawScreen
+        // mostly used for GuiScreen.drawScreen
         this.elapsedPartialTicks = this.elapsedPartialTicksPlayer;
-        // mostly used for Minecraft,runTick
+        // mostly used for Minecraft.runTick
         this.elapsedTicks = Math.max(this.elapsedTicksWorld, this.elapsedTicksPlayer);
 
         ci.cancel();

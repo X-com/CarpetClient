@@ -94,8 +94,9 @@ public class MinecraftTransformer extends ClassTransformer implements IClassTran
             }
         }
 
-        // Construct the initial instructions.
+        // Construct the initial and final instructions.
         InsnList init_lst = new InsnList();
+        InsnList final_lst = new InsnList();
         {
             LabelNode label_tmp;
 
@@ -112,15 +113,6 @@ public class MinecraftTransformer extends ClassTransformer implements IClassTran
             /* { */
             label_tmp = new LabelNode();
             init_lst.add(new JumpInsnNode(Opcodes.IFLE, label_tmp));
-
-            /* this.timer.elapsedTicksWorld--; */
-            init_lst.add(new VarInsnNode(Opcodes.ALOAD, 0));
-            init_lst.add(new FieldInsnNode(Opcodes.GETFIELD, targetClass.name, timerObf, timerType.getDescriptor()));
-            init_lst.add(new InsnNode(Opcodes.DUP));
-            init_lst.add(new FieldInsnNode(Opcodes.GETFIELD, timerType.getInternalName(), "elapsedTicksWorld", Type.INT_TYPE.getDescriptor()));
-            init_lst.add(new InsnNode(Opcodes.ICONST_1));
-            init_lst.add(new InsnNode(Opcodes.ISUB));
-            init_lst.add(new FieldInsnNode(Opcodes.PUTFIELD, timerType.getInternalName(), "elapsedTicksWorld", Type.INT_TYPE.getDescriptor()));
 
             /* tickWorld = 1; */
             init_lst.add(new InsnNode(Opcodes.ICONST_1));
@@ -144,15 +136,6 @@ public class MinecraftTransformer extends ClassTransformer implements IClassTran
             label_tmp = new LabelNode();
             init_lst.add(new JumpInsnNode(Opcodes.IFLE, label_tmp));
 
-            /* this.timer.elapsedTicksPlayer--; */
-            init_lst.add(new VarInsnNode(Opcodes.ALOAD, 0));
-            init_lst.add(new FieldInsnNode(Opcodes.GETFIELD, targetClass.name, timerObf, timerType.getDescriptor()));
-            init_lst.add(new InsnNode(Opcodes.DUP));
-            init_lst.add(new FieldInsnNode(Opcodes.GETFIELD, timerType.getInternalName(), "elapsedTicksPlayer", Type.INT_TYPE.getDescriptor()));
-            init_lst.add(new InsnNode(Opcodes.ICONST_1));
-            init_lst.add(new InsnNode(Opcodes.ISUB));
-            init_lst.add(new FieldInsnNode(Opcodes.PUTFIELD, timerType.getInternalName(), "elapsedTicksPlayer", Type.INT_TYPE.getDescriptor()));
-
             /* tickPlayer = 1; */
             init_lst.add(new InsnNode(Opcodes.ICONST_1));
             init_lst.add(new VarInsnNode(Opcodes.ISTORE, var_tickPlayer));
@@ -160,6 +143,42 @@ public class MinecraftTransformer extends ClassTransformer implements IClassTran
             /* } */
             init_lst.add(label_tmp);
             init_lst.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
+
+            /* if (var_tickWorld != 0) { */
+            final_lst.add(new VarInsnNode(Opcodes.ILOAD, var_tickWorld));
+            label_tmp = new LabelNode();
+            final_lst.add(new JumpInsnNode(Opcodes.IFEQ, label_tmp));
+
+            /* this.timer.elapsedTicksWorld--; */
+            final_lst.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            final_lst.add(new FieldInsnNode(Opcodes.GETFIELD, targetClass.name, timerObf, timerType.getDescriptor()));
+            final_lst.add(new InsnNode(Opcodes.DUP));
+            final_lst.add(new FieldInsnNode(Opcodes.GETFIELD, timerType.getInternalName(), "elapsedTicksWorld", Type.INT_TYPE.getDescriptor()));
+            final_lst.add(new InsnNode(Opcodes.ICONST_1));
+            final_lst.add(new InsnNode(Opcodes.ISUB));
+            final_lst.add(new FieldInsnNode(Opcodes.PUTFIELD, timerType.getInternalName(), "elapsedTicksWorld", Type.INT_TYPE.getDescriptor()));
+
+            /* } */
+            final_lst.add(label_tmp);
+            final_lst.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
+
+            /* if (var_tickPlayer != 0) { */
+            final_lst.add(new VarInsnNode(Opcodes.ILOAD, var_tickPlayer));
+            label_tmp = new LabelNode();
+            final_lst.add(new JumpInsnNode(Opcodes.IFEQ, label_tmp));
+
+            /* this.timer.elapsedTicksPlayer--; */
+            final_lst.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            final_lst.add(new FieldInsnNode(Opcodes.GETFIELD, targetClass.name, timerObf, timerType.getDescriptor()));
+            final_lst.add(new InsnNode(Opcodes.DUP));
+            final_lst.add(new FieldInsnNode(Opcodes.GETFIELD, timerType.getInternalName(), "elapsedTicksPlayer", Type.INT_TYPE.getDescriptor()));
+            final_lst.add(new InsnNode(Opcodes.ICONST_1));
+            final_lst.add(new InsnNode(Opcodes.ISUB));
+            final_lst.add(new FieldInsnNode(Opcodes.PUTFIELD, timerType.getInternalName(), "elapsedTicksPlayer", Type.INT_TYPE.getDescriptor()));
+
+            /* } */
+            final_lst.add(label_tmp);
+            final_lst.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
         }
 
         // Assume no jumps will jump with a non-empty stack, analyze statements.
@@ -191,6 +210,9 @@ public class MinecraftTransformer extends ClassTransformer implements IClassTran
 
                 i++;
             }
+
+            if (currentStatement != null)
+                statements.add(currentStatement);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -300,6 +322,16 @@ public class MinecraftTransformer extends ClassTransformer implements IClassTran
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+
+        // Find the return and insert the final_lst
+        {
+            Iterator<AbstractInsnNode> iter = method.instructions.iterator();
+            while (iter.hasNext()) {
+                AbstractInsnNode insn = iter.next();
+                if (insn instanceof InsnNode && insn.getOpcode() == Opcodes.RETURN)
+                    method.instructions.insertBefore(insn, final_lst);
+            }
         }
 
         method.instructions.insert(init_lst);

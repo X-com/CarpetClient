@@ -2,6 +2,7 @@ package carpetclient.mixins;
 
 import carpetclient.Config;
 import net.minecraft.block.Block;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -64,4 +65,15 @@ public class MixinWorld {
         }
     }
 
+    /**
+     * Prevent updateEntities targeting the player during world tick
+     *
+     * @param world
+     * @param ent
+     */
+    @Redirect(method = "updateEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;updateEntity(Lnet/minecraft/entity/Entity;)V"))
+    private void noPlayerUpdateDuringWorld(World world, Entity ent){
+        if (!(ent instanceof EntityPlayerSP))
+            world.updateEntity(ent);
+    }
 }
