@@ -28,7 +28,7 @@ public class TickRate {
      */
     public static void setTickClient() {
         runTickRate = Config.setTickRate.getValue() && (Config.tickRate != 20.0f);
-        ((AMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).setWorldTickRate(Config.tickRate);
+        ((AMixinTimer) ((IMixinMinecraft) Minecraft.getMinecraft()).getTimer()).setWorldTickRate(runTickRate ? Config.tickRate : 20.0f);
     }
 
     /**
