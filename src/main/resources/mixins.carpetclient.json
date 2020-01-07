@@ -45,6 +45,7 @@
     "MixinRegistryNamespaced",
     "IMixinCraftingManager",
     "IMixinRecipeBookClient",
+    "MixinSearchTree",
     "MixinWorldServer"
   ]
 }
