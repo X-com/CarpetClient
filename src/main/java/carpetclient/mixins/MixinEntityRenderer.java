@@ -142,4 +142,24 @@ public abstract class MixinEntityRenderer {
 
         this.applyBobbing(partialTicksPlayer);
     }
+
+    /**
+     * fix tick rate rendering glitch rendering view bobbing, OptiFine additional patch
+     *
+     * method prototype is:
+     * public void renderHand(float partialTicks, int pass, boolean renderItem, boolean renderOverlay, boolean renderTranslucent)
+     *
+     * Method name not obfuscated, so cannot be patched by above. The signature is
+     * not declared here in @Redirect method parameter to silence compilation warning.
+     */
+    @Redirect(method = "renderHand", remap = false, require = 0, expect = 0,
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;applyBobbing(F)V"))
+    private void tickratePlayerBobbingOptiFine(EntityRenderer thisarg, float partialTicksWorld) {
+        Timer timer = ((IMixinMinecraft) this.mc).getTimer();
+        float partialTicksPlayer = this.mc.isGamePaused() ?
+            ((AMixinMinecraft) this.mc).getRenderPartialTicksPausedPlayer() :
+            ((AMixinTimer) timer).getRenderPartialTicksPlayer();
+
+        this.applyBobbing(partialTicksPlayer);
+    }
 }
