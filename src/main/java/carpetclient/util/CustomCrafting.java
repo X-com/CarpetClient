@@ -1,6 +1,7 @@
 package carpetclient.util;
 
 import carpetclient.mixinInterface.AMixinRegistryNamespaced;
+import carpetclient.mixinInterface.AMixinSearchTree;
 import carpetclient.mixins.IMixinCraftingManager;
 import carpetclient.mixins.IMixinRecipeBookClient;
 import carpetclient.pluginchannel.CarpetPluginChannel;
@@ -10,8 +11,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import io.netty.buffer.Unpooled;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.recipebook.RecipeList;
+import net.minecraft.client.util.ISearchTree;
 import net.minecraft.client.util.RecipeBookClient;
+import net.minecraft.client.util.SearchTreeManager;
+import net.minecraft.client.util.SearchTree;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -61,7 +66,7 @@ public class CustomCrafting {
                     CraftingManager.register(name, recipeparsed);
                 } catch (IllegalAccessError e1) {
                     // Forge, you know, some things, are better done at run time.
-                    Class NamespacedWrapper_class = CraftingManager.REGISTRY.getClass();
+                    Class<?> NamespacedWrapper_class = CraftingManager.REGISTRY.getClass();
 
                     Field NamespacedWrapper_locked = NamespacedWrapper_class.getDeclaredField("locked");
                     NamespacedWrapper_locked.setAccessible(true);
@@ -139,6 +144,15 @@ public class CustomCrafting {
 
                 recipelist1.add(irecipe);
             }
+        }
+
+        ISearchTree<RecipeList> searchTree = Minecraft.getMinecraft().getSearchTree(SearchTreeManager.RECIPES);
+        if (searchTree instanceof SearchTree<?>) {
+            SearchTree<RecipeList> searchTreeImpl = (SearchTree<RecipeList>) searchTree;
+
+            ((AMixinSearchTree) searchTreeImpl).clear();
+            RecipeBookClient.ALL_RECIPES.forEach(searchTreeImpl::add);
+            searchTreeImpl.recalculate();
         }
     }
 
