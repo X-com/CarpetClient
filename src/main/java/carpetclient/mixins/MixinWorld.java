@@ -73,7 +73,7 @@ public class MixinWorld {
      */
     @Redirect(method = "updateEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;updateEntity(Lnet/minecraft/entity/Entity;)V"))
     private void noPlayerUpdateDuringWorld(World world, Entity ent){
-        if (!(ent instanceof EntityPlayerSP))
+        if (!(ent instanceof EntityPlayerSP) || ent.isRiding())
             world.updateEntity(ent);
     }
 }

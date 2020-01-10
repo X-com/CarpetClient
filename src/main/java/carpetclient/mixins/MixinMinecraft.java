@@ -101,7 +101,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft, AMixinMinecraft
         if (
             this.world != null && this.player != null && !this.isGamePaused &&
             ((AMixinTimer) this.timer).getElapsedTicksPlayer() > 0 &&
-            !this.player.isDead
+            !this.player.isRiding() && !this.player.isDead
         ) {
             try {
                 this.world.updateEntity(this.player);

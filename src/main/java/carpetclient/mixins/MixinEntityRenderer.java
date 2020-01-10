@@ -33,11 +33,26 @@ public abstract class MixinEntityRenderer {
     }
 
     /**
+     * Get player partial tick for rendering
+     */
+    private float getPartialTicksPlayer(float partialTicksWorld) {
+        if (this.mc.player.isRiding())
+            return partialTicksWorld;
+
+        Timer timer = ((IMixinMinecraft) this.mc).getTimer();
+        float partialTicksPlayer = this.mc.isGamePaused() ?
+            ((AMixinMinecraft) this.mc).getRenderPartialTicksPausedPlayer() :
+            ((AMixinTimer) timer).getRenderPartialTicksPlayer();
+
+        return partialTicksPlayer;
+    }
+
+    /**
      * fix tick rate rendering glitch rendering player
      */
     @Redirect(method = "updateCameraAndRender(FJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;renderWorld(FJ)V"))
     private void tickratePlayerPartial(EntityRenderer thisarg, float partialTicksWorld, long finishTimeNano) {
-        if (!TickRate.runTickRate) {
+        if (!TickRate.runTickRate || this.mc.player.isRiding()) {
             this.renderWorld(partialTicksWorld, finishTimeNano);
             return;
         }
@@ -78,9 +93,7 @@ public abstract class MixinEntityRenderer {
         double savedCurZ = this.mc.player.posZ;
 
         Timer timer = ((IMixinMinecraft) this.mc).getTimer();
-        float partialTicksPlayer = this.mc.isGamePaused() ?
-            ((AMixinMinecraft) this.mc).getRenderPartialTicksPausedPlayer() :
-            ((AMixinTimer) timer).getRenderPartialTicksPlayer();
+        float partialTicksPlayer = this.getPartialTicksPlayer(partialTicksWorld);
         float rateMultiplier = ((AMixinTimer) timer).getWorldTickRate() /
             ((AMixinTimer) timer).getPlayerTickRate();
 
@@ -134,12 +147,7 @@ public abstract class MixinEntityRenderer {
     @ModifyArg(method = {"setupCameraTransform(FI)V", "renderHand(FI)V"}, index = 0,
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;applyBobbing(F)V"))
     private float tickratePlayerBobbing(float partialTicksWorld) {
-        Timer timer = ((IMixinMinecraft) this.mc).getTimer();
-        float partialTicksPlayer = this.mc.isGamePaused() ?
-            ((AMixinMinecraft) this.mc).getRenderPartialTicksPausedPlayer() :
-            ((AMixinTimer) timer).getRenderPartialTicksPlayer();
-
-        return partialTicksPlayer;
+        return getPartialTicksPlayer(partialTicksWorld);
     }
 
     /**
@@ -154,11 +162,6 @@ public abstract class MixinEntityRenderer {
     @ModifyArg(method = "renderHand", index = 0, remap = false, require = 0, expect = 0,
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;applyBobbing(F)V"))
     private float tickratePlayerBobbingOptiFine(float partialTicksWorld) {
-        Timer timer = ((IMixinMinecraft) this.mc).getTimer();
-        float partialTicksPlayer = this.mc.isGamePaused() ?
-            ((AMixinMinecraft) this.mc).getRenderPartialTicksPausedPlayer() :
-            ((AMixinTimer) timer).getRenderPartialTicksPlayer();
-
-        return partialTicksPlayer;
+        return getPartialTicksPlayer(partialTicksWorld);
     }
 }
