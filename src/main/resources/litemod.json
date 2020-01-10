@@ -1,6 +1,9 @@
 {
 	"name": "carpetclient",
 	"mcversion": "1.12.2",
+	"classTransformerClasses": [
+		"carpetclient.transformers.MinecraftTransformer"
+	],
 	"mixinConfigs": [
 		"mixins.carpetclient.json",
 		"mixins.carpetclient.optifinecompat.json"
