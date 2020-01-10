@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(EntityRenderer.class)
@@ -22,8 +23,6 @@ public abstract class MixinEntityRenderer {
 
     @Shadow
     public void renderWorld(float partialTicks, long finishTimeNano) {}
-    @Shadow
-    private void applyBobbing(float partialTicks) {}
 
     /**
      * fixes the world being culled while noclipping
@@ -132,15 +131,15 @@ public abstract class MixinEntityRenderer {
     /**
      * fix tick rate rendering glitch rendering view bobbing
      */
-    @Redirect(method = {"setupCameraTransform(FI)V", "renderHand(FI)V"},
+    @ModifyArg(method = {"setupCameraTransform(FI)V", "renderHand(FI)V"}, index = 0,
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;applyBobbing(F)V"))
-    private void tickratePlayerBobbing(EntityRenderer thisarg, float partialTicksWorld) {
+    private float tickratePlayerBobbing(float partialTicksWorld) {
         Timer timer = ((IMixinMinecraft) this.mc).getTimer();
         float partialTicksPlayer = this.mc.isGamePaused() ?
             ((AMixinMinecraft) this.mc).getRenderPartialTicksPausedPlayer() :
             ((AMixinTimer) timer).getRenderPartialTicksPlayer();
 
-        this.applyBobbing(partialTicksPlayer);
+        return partialTicksPlayer;
     }
 
     /**
@@ -150,16 +149,16 @@ public abstract class MixinEntityRenderer {
      * public void renderHand(float partialTicks, int pass, boolean renderItem, boolean renderOverlay, boolean renderTranslucent)
      *
      * Method name not obfuscated, so cannot be patched by above. The signature is
-     * not declared here in @Redirect method parameter to silence compilation warning.
+     * not declared here in @ModifyArg method parameter to silence compilation warning.
      */
-    @Redirect(method = "renderHand", remap = false, require = 0, expect = 0,
+    @ModifyArg(method = "renderHand", index = 0, remap = false, require = 0, expect = 0,
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;applyBobbing(F)V"))
-    private void tickratePlayerBobbingOptiFine(EntityRenderer thisarg, float partialTicksWorld) {
+    private float tickratePlayerBobbingOptiFine(float partialTicksWorld) {
         Timer timer = ((IMixinMinecraft) this.mc).getTimer();
         float partialTicksPlayer = this.mc.isGamePaused() ?
             ((AMixinMinecraft) this.mc).getRenderPartialTicksPausedPlayer() :
             ((AMixinTimer) timer).getRenderPartialTicksPlayer();
 
-        this.applyBobbing(partialTicksPlayer);
+        return partialTicksPlayer;
     }
 }
