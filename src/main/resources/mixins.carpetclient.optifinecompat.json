@@ -4,6 +4,7 @@
   "refmap": "mixins.carpetclient.refmap.json",
   "plugin": "carpetclient.mixins.optifine.OptifinePlugin",
   "mixins": [
+    "optifine.MixinEntityRendererOptifine",
     "optifine.MixinRenderChunkOptifine"
   ]
 }
