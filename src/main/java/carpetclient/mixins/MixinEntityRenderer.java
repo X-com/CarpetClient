@@ -2,6 +2,7 @@ package carpetclient.mixins;
 
 import carpetclient.Config;
 import carpetclient.mixins.IMixinMinecraft;
+import carpetclient.mixinInterface.AMixinEntityRenderer;
 import carpetclient.mixinInterface.AMixinMinecraft;
 import carpetclient.mixinInterface.AMixinTimer;
 import carpetclient.rules.TickRate;
@@ -17,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(EntityRenderer.class)
-public abstract class MixinEntityRenderer {
+public abstract class MixinEntityRenderer implements AMixinEntityRenderer {
     @Shadow
     private @Final Minecraft mc;
 
@@ -35,16 +36,16 @@ public abstract class MixinEntityRenderer {
     /**
      * Get player partial tick for rendering
      */
-    private float getPartialTicksPlayer(float partialTicksWorld) {
+    @Override
+    public float partialTicksPlayer(float partialTicksWorld) {
         if (this.mc.player.isRiding())
             return partialTicksWorld;
 
-        Timer timer = ((IMixinMinecraft) this.mc).getTimer();
-        float partialTicksPlayer = this.mc.isGamePaused() ?
-            ((AMixinMinecraft) this.mc).getRenderPartialTicksPausedPlayer() :
-            ((AMixinTimer) timer).getRenderPartialTicksPlayer();
+        if (this.mc.isGamePaused())
+            return ((AMixinMinecraft) this.mc).getRenderPartialTicksPausedPlayer();
 
-        return partialTicksPlayer;
+        Timer timer = ((IMixinMinecraft) this.mc).getTimer();
+        return ((AMixinTimer) timer).getRenderPartialTicksPlayer();
     }
 
     /**
@@ -93,7 +94,7 @@ public abstract class MixinEntityRenderer {
         double savedCurZ = this.mc.player.posZ;
 
         Timer timer = ((IMixinMinecraft) this.mc).getTimer();
-        float partialTicksPlayer = this.getPartialTicksPlayer(partialTicksWorld);
+        float partialTicksPlayer = this.partialTicksPlayer(partialTicksWorld);
         float rateMultiplier = ((AMixinTimer) timer).getWorldTickRate() /
             ((AMixinTimer) timer).getPlayerTickRate();
 
@@ -147,21 +148,6 @@ public abstract class MixinEntityRenderer {
     @ModifyArg(method = {"setupCameraTransform(FI)V", "renderHand(FI)V"}, index = 0,
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;applyBobbing(F)V"))
     private float tickratePlayerBobbing(float partialTicksWorld) {
-        return getPartialTicksPlayer(partialTicksWorld);
-    }
-
-    /**
-     * fix tick rate rendering glitch rendering view bobbing, OptiFine additional patch
-     *
-     * method prototype is:
-     * public void renderHand(float partialTicks, int pass, boolean renderItem, boolean renderOverlay, boolean renderTranslucent)
-     *
-     * Method name not obfuscated, so cannot be patched by above. The signature is
-     * not declared here in @ModifyArg method parameter to silence compilation warning.
-     */
-    @ModifyArg(method = "renderHand", index = 0, remap = false, require = 0, expect = 0,
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;applyBobbing(F)V"))
-    private float tickratePlayerBobbingOptiFine(float partialTicksWorld) {
-        return getPartialTicksPlayer(partialTicksWorld);
+        return partialTicksPlayer(partialTicksWorld);
     }
 }
