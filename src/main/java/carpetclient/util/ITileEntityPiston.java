@@ -6,4 +6,7 @@ public interface ITileEntityPiston
 {
     void setCarriedBlockEntity(TileEntity blockEntity);
     TileEntity getCarriedBlockEntity();
+    
+    long getLastTicked();
+    float getLastProgress();
 }

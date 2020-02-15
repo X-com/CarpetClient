@@ -19,7 +19,7 @@ public abstract class MixinEntityLivingBase extends Entity {
 
     @Redirect(method = "travel", at = @At(value = "FIELD", target = "Lnet/minecraft/world/World;isRemote:Z", ordinal = 1))
     public boolean redirectOnElytraLanded(World world) {
-        if (Config.elytraFix)
+        if (Config.elytraFix.getValue())
             return world.isRemote && !((Entity) this instanceof EntityPlayerSP);
         else
             return world.isRemote;

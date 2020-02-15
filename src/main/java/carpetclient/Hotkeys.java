@@ -27,7 +27,10 @@ public class Hotkeys {
     public static KeyBinding toggleBlockFacing = new KeyBinding("Block Rotation Face", Keyboard.KEY_LCONTROL, "Carpet Client");
     public static KeyBinding chunkDebug = new KeyBinding("Chunk debug", Keyboard.KEY_F6, "Carpet Client");
     public static KeyBinding randomtickChunkUpdates = new KeyBinding("Randomtick display updates", Keyboard.KEY_U, "Carpet Client");
+<<<<<<< HEAD
     public static KeyBinding bucketer = new KeyBinding("Bucketer", 0, "Carpet Client");
+=======
+>>>>>>> master
 
     public static void init() {
 //        LiteLoader.getInput().registerKeyBinding(toggleMainMenu);
@@ -46,7 +49,7 @@ public class Hotkeys {
 //        if (toggleRBP.isPressed()) {
 //            Config.relaxedBlockPlacement = !Config.relaxedBlockPlacement;
 //            minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Relaxed block placement: " + (Config.relaxedBlockPlacement ? "ON" : "OFF")));
-//        } else 
+//        } else
         if (toggleSnapAim.isPressed()) {
             Config.snapAim = !Config.snapAim;
             Util.printToChat("SnapAim: " + (Config.snapAim ? "ON" : "OFF"));
@@ -58,6 +61,7 @@ public class Hotkeys {
 
                 CarpetPluginChannel.packatSender(sender);
             }
+<<<<<<< HEAD
         } else if (toggleVillageMarkers.isPressed()) {
             Config.villageMarkers = !Config.villageMarkers;
             PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
@@ -65,6 +69,9 @@ public class Hotkeys {
             sender.writeBoolean(Config.villageMarkers);
 
             CarpetPluginChannel.packatSender(sender);
+=======
+            Util.printToChat("Bounding Box Markers: " + (Config.boundingBoxMarkers ? "ON" : "OFF") );
+>>>>>>> master
         } else if (toggleVillageMarkers.isPressed()) {
             Config.villageMarkers = !Config.villageMarkers;
             PacketBuffer sender = new PacketBuffer(Unpooled.buffer());
@@ -72,8 +79,10 @@ public class Hotkeys {
             sender.writeBoolean(Config.villageMarkers);
 
             CarpetPluginChannel.packatSender(sender);
+            Util.printToChat("Village Markers: " + (Config.villageMarkers ? "ON" : "OFF") );
         } else if (chunkDebug.isPressed()) {
             minecraft.displayGuiScreen(GuiChunkGrid.instance);
+<<<<<<< HEAD
         } else if (bucketer.isPressed()) {
             new BucketHack(minecraft).useBucketer();
         }
@@ -81,6 +90,16 @@ public class Hotkeys {
 
     public static boolean isKeyDown(int code) {
         try {
+=======
+        } else if (randomtickChunkUpdates.isPressed()) {
+            Config.randomtickChunkUpdates = !Config.randomtickChunkUpdates;
+            Util.printToChat("Randomtick display updates: " + (Config.randomtickChunkUpdates ? "ON" : "OFF") );
+        }
+    }
+
+    public static boolean isKeyDown(int code){
+        try{
+>>>>>>> master
             return Keyboard.isKeyDown(code);
         } catch (Exception e) {
             Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Something went wrong with the hotkey. Reset it in the menu to get it working again."));

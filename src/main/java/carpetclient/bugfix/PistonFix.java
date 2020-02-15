@@ -34,7 +34,7 @@ public class PistonFix {
      * @param data
      */
     public static void processPacket(PacketBuffer data) {
-        if (!Config.clipThroughPistons) return;
+        if (!Config.clipThroughPistons.getValue()) return;
 
         if (pistonFix) {
             instance.fixTileEntitys();
@@ -101,7 +101,7 @@ public class PistonFix {
                 world.loadedTileEntityList.remove(tileentity);
 
                 if (world.isBlockLoaded(tileentity.getPos())) {
-                    world.getChunkFromBlockCoords(tileentity.getPos()).removeTileEntity(tileentity.getPos());
+                    world.getChunk(tileentity.getPos()).removeTileEntity(tileentity.getPos());
                 }
             }
         }

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import carpetclient.gui.ClientGUI;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -204,27 +203,6 @@ public class VillageMarker {
                 VillageMarker.addVillageToList(village);
             }
         }
-    }
-
-    public static void guiVillageOptions(int buttonID) {
-        switch (buttonID) {
-            case 0:
-                lines = !lines;
-                break;
-            case 1:
-                golem = !golem;
-                break;
-            case 2:
-                population = !population;
-                break;
-            case 3:
-                village_radius = (village_radius + 1) % modes.length;
-                break;
-            case 4:
-                door_radius = (door_radius + 1) % modes.length;
-                break;
-        }
-        ClientGUI.display();
     }
 
     public static void clearLists(int expectedCount) {

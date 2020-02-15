@@ -1,13 +1,16 @@
 package carpetclient.rules;
 
 import carpetclient.Config;
-import carpetclient.coders.Pokechu22.ScrollGUI;
-import carpetclient.gui.ClientGUI;
+import carpetclient.gui.ConfigGUI;
 import carpetclient.pluginchannel.CarpetPluginChannel;
 import carpetclient.random.RandomtickDisplay;
+import carpetclient.util.BiObservable;
 import io.netty.buffer.Unpooled;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +29,7 @@ public class CarpetRules {
     private static final int REQUEST_RULE_TIP = 3;
 
     static {
-        rules = new HashMap<String, CarpetSettingEntry>();
+        rules = new HashMap<>();
     }
 
     /**
@@ -52,16 +55,18 @@ public class CarpetRules {
             Config.controlQCrafting = getRule("ctrlQCrafting").getBoolean();
         if (hasRule("missingTools"))
             Config.missingTools = getRule("missingTools").getBoolean();
-        if (hasRule("structureBlockLimit"))
-            Config.structureBlockLimit = getRule("structureBlockLimit").integer;
+        //if (hasRule("structureBlockLimit"))
+        //    Config.structureBlockLimit = getRule("structureBlockLimit").integer;
         if (hasRule("pushLimit"))
             Config.pushLimit = getRule("pushLimit").integer;
-        if(hasRule("disablePlayerCollision"))
+        if (hasRule("disablePlayerCollision"))
             Config.playerCollisions = !getRule("disablePlayerCollision").getBoolean();
-        if(hasRule("ignoreEntityWhenPlacing"))
+        if (hasRule("ignoreEntityWhenPlacing"))
             Config.ignoreEntityWhenPlacing = getRule("ignoreEntityWhenPlacing").getBoolean();
         if (hasRule("movableTileEntities"))
             Config.movableTileEntities = getRule("movableTileEntities").getBoolean();
+        if (hasRule("pistonGhostBlocksFix"))
+            Config.pistonGhostBlocksFix = getRule("pistonGhostBlocksFix").getCurrentOption();
         TickRate.setTickRate(Config.tickRate);
     }
 
@@ -76,12 +81,10 @@ public class CarpetRules {
         String text = data.readString(10000);
 
         if (CHANGE_RULE == infoType) {
-            rules.get(rule).changeRule(text);
+            getRule(rule).changeRule(text);
         } else if (REQUEST_RULE_TIP == infoType) {
-            rules.get(rule).setRuleTip(text);
+            getRule(rule).setRuleTip(text);
         }
-
-        ClientGUI.display();
     }
 
     /**
@@ -90,7 +93,7 @@ public class CarpetRules {
      * @return returns the list of all rules.
      */
     public static ArrayList<CarpetSettingEntry> getAllRules() {
-        ArrayList<CarpetSettingEntry> res = new ArrayList<CarpetSettingEntry>();
+        ArrayList<CarpetSettingEntry> res = new ArrayList<>();
         for (String rule : rules.keySet().stream().sorted().collect(Collectors.toList())) {
             res.add(rules.get(rule));
         }
@@ -166,26 +169,31 @@ public class CarpetRules {
      * Decoder for the packet into rules.
      */
     private static void decodeData() {
-        String carpetServerVersion = data.readString(1000);
-        Config.tickRate = data.readFloat();
-        int ruleListSize = data.readInt();
-
-        for (int ruleNum = 0; ruleNum < ruleListSize; ruleNum++) {
-            String rule = data.readString(100);
-            String current = data.readString(100);
-            String def = data.readString(100);
-            boolean isFloat = data.readBoolean();
-//            int optionsSize = data.readInt();
-//
-//            String[] options = new String[optionsSize];
-//            for (int optionNum = 0; optionNum < optionsSize; optionNum++) 
-//                options[optionNum] = data.readString(100);{
-//            }
-
-            rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
+        NBTTagCompound nbt;
+        try {
+            nbt = data.readCompoundTag();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
         }
+        String carpetServerVersion = nbt.getString("carpetVersion");
+        Config.tickRate = nbt.getFloat("tickrate");
+        NBTTagList nbttaglist = nbt.getTagList("ruleList", 10);
+        for (int i = 0; i < nbttaglist.tagCount(); i++) {
+            NBTTagCompound ruleNBT = (NBTTagCompound) nbttaglist.get(i);
 
-        ScrollGUI.setServerVersion(carpetServerVersion);
+            String rule = ruleNBT.getString("rule");
+            String current = ruleNBT.getString("current");
+            String def = ruleNBT.getString("default");
+            boolean isFloat = ruleNBT.getBoolean("isfloat");
+
+            if (hasRule(rule)) {
+                getRule(rule).update(current, null, def, isFloat);
+            } else {
+                rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
+            }
+        }
+        ConfigGUI.setServerVersion(carpetServerVersion);
     }
 
     /**
@@ -197,11 +205,11 @@ public class CarpetRules {
     public static CarpetSettingEntry getRule(String rule) {
         return rules.get(rule);
     }
-    
+
     public static boolean hasRule(String rule) {
         return rules.containsKey(rule);
     }
-    
+
     public static void resetToDefaults() {
         rules.values().forEach(rule -> rule.changeRule(rule.defaultOption));
         RandomtickDisplay.reset();
@@ -210,7 +218,8 @@ public class CarpetRules {
     /*
      * Class that stores the detailed rules.
      */
-    public static class CarpetSettingEntry {
+    public static class CarpetSettingEntry extends BiObservable<CarpetSettingEntry, String>
+    {
         private String rule;
         private String currentOption;
         private boolean isNumber;
@@ -224,32 +233,39 @@ public class CarpetRules {
         private float flt;
         private boolean bool;
 
-        public CarpetSettingEntry(String rule, String currentOption, String[] options, String defaultOption, boolean isFlt) {
+        public CarpetSettingEntry(String rule, String currentOption, String[] options, String defaultOption, boolean isFloat) {
             this.rule = rule;
+            this.ruleTip = "";
+            this.update(currentOption, options, defaultOption, isFloat);
+        }
+
+        public void update(String currentOption, String[] options, String defaultOption, boolean isFloat) {
             this.currentOption = currentOption;
             this.options = options;
             this.defaultOption = defaultOption;
-            ruleTip = "";
-            isFloat = isFlt;
-            checkValues();
-            checkDefault();
+            this.isFloat = isFloat;
+            this.checkValues();
+            this.checkDefault();
+            editClientRules();
+
+            this.notifySubscribers(this.currentOption);
         }
 
         private void checkValues() {
-            bool = Boolean.parseBoolean(currentOption);
+            this.bool = Boolean.parseBoolean(this.currentOption);
 
             try {
-                integer = Integer.parseInt(currentOption);
+                this.integer = Integer.parseInt(this.currentOption);
             } catch (NumberFormatException e) {
-                integer = 0;
+                this.integer = 0;
             }
 
             try {
-                flt = Float.parseFloat(currentOption);
-                isNumber = true;
+                this.flt = Float.parseFloat(this.currentOption);
+                this.isNumber = true;
             } catch (NumberFormatException e) {
-                isNumber = false;
-                flt = 0.0F;
+                this.isNumber = false;
+                this.flt = 0.0F;
             }
         }
 
@@ -316,9 +332,11 @@ public class CarpetRules {
 
         public void changeRule(String change) {
             this.currentOption = change;
-            checkValues();
-            checkDefault();
+            this.checkValues();
+            this.checkDefault();
             editClientRules();
+
+            this.notifySubscribers(this.currentOption);
         }
 
         /**

@@ -1,14 +1,13 @@
 package carpetclient.gui.chunkgrid;
 
 import carpetclient.Util;
-import net.minecraft.client.Minecraft;
+import carpetclient.coders.Pokechu22.GuiNumericTextField;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import carpetclient.coders.Pokechu22.GuiNumericIntTextField;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -39,9 +38,9 @@ public class GuiChunkGrid extends GuiScreen {
     private GuiButton endButton;
     private GuiButton playButton;
 
-    private GuiNumericIntTextField textFieldX;
-    private GuiNumericIntTextField textFieldZ;
-    private GuiNumericIntTextField textFieldGT;
+    private GuiNumericTextField textFieldX;
+    private GuiNumericTextField textFieldZ;
+    private GuiNumericTextField textFieldGT;
 
     private int time;
     private int xText;
@@ -102,19 +101,19 @@ public class GuiChunkGrid extends GuiScreen {
         addButton(new GuiButton(10, getFooterX(0), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, "Home"));
         addButton(dimensionButton = new GuiButton(11, getFooterX(1), getFooterY(2), getFooterColWidth(), FOOTER_ROW_HEIGHT, DIMENSION_NAMES[selectedDimension]));
 
-        textFieldX = new GuiNumericIntTextField(12, mc.fontRenderer, getFooterXTextField(2), getFooterY(2), getFooterColWidthTextField(), FOOTER_ROW_HEIGHT) {
+        textFieldX = new GuiNumericTextField(12, mc.fontRenderer, getFooterXTextField(2), getFooterY(2), getFooterColWidthTextField(), FOOTER_ROW_HEIGHT) {
             @Override
             public void performTextAction() {
                 controller.setX(getText());
             }
         };
-        textFieldZ = new GuiNumericIntTextField(13, mc.fontRenderer, getFooterXTextField(3), getFooterY(2), getFooterColWidthTextField(), FOOTER_ROW_HEIGHT) {
+        textFieldZ = new GuiNumericTextField(13, mc.fontRenderer, getFooterXTextField(3), getFooterY(2), getFooterColWidthTextField(), FOOTER_ROW_HEIGHT) {
             @Override
             public void performTextAction() {
                 controller.setZ(getText());
             }
         };
-        textFieldGT = new GuiNumericIntTextField(14, mc.fontRenderer, getFooterXTextField(4), getFooterY(2), getFooterColWidthTextField(), FOOTER_ROW_HEIGHT) {
+        textFieldGT = new GuiNumericTextField(14, mc.fontRenderer, getFooterXTextField(4), getFooterY(2), getFooterColWidthTextField(), FOOTER_ROW_HEIGHT) {
             @Override
             public void performTextAction() {
                 controller.setTime(getText());

@@ -6,6 +6,7 @@ import java.util.List;
 import carpetclient.coders.EDDxample.PistonHelper;
 import carpetclient.coders.EDDxample.ShowBoundingBoxes;
 import carpetclient.coders.EDDxample.VillageMarker;
+import carpetclient.coders.skyrising.PacketSplitter;
 import carpetclient.gui.chunkgrid.Controller;
 import carpetclient.gui.chunkgrid.GuiChunkGrid;
 import carpetclient.random.RandomtickDisplay;

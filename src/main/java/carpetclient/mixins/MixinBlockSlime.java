@@ -38,7 +38,7 @@ public class MixinBlockSlime extends BlockBreakable {
      */
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (!Config.pistonVisualizer) return false;
+        if (!Config.pistonVisualizer.getValue()) return false;
 
         boolean isSticky = false;
         boolean extending = true;
