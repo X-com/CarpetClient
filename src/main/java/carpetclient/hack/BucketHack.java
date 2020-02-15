@@ -40,7 +40,7 @@ public class BucketHack {
 	}
 	
 	public void useBucketer() {
-		playerVec = player.getPositionVector().addVector(0,(double)player.getEyeHeight(),0);
+		playerVec = player.getPositionVector().add(0,(double)player.getEyeHeight(),0);
 		blockList = genBlockList();
 
 		ArrayList<BlockPos> lavaList = getList();
@@ -91,8 +91,8 @@ public class BucketHack {
 		}
 		
 		Collections.sort(list, (BlockPos b1, BlockPos b2) -> {
-				Vec3d b1vec = new Vec3d(b1).addVector(0.5, 0.5, 0.5);
-				Vec3d b2vec = new Vec3d(b2).addVector(0.5, 0.5, 0.5);
+				Vec3d b1vec = new Vec3d(b1).add(0.5, 0.5, 0.5);
+				Vec3d b2vec = new Vec3d(b2).add(0.5, 0.5, 0.5);
 				double b1dist = b1vec.distanceTo(playerVec);
 				double b2dist = b2vec.distanceTo(playerVec);
 				
@@ -244,7 +244,7 @@ public class BucketHack {
 		float f6 = f3 * f4;
 		float f7 = f2 * f4;
 		double d3 = 5.0D;
-		Vec3d vec3d1 = vec3d.addVector((double)f6 * d3, (double)f5 * d3, (double)f7 * d3);
+		Vec3d vec3d1 = vec3d.add((double)f6 * d3, (double)f5 * d3, (double)f7 * d3);
 		return rayTraceBlocks(vec3d, vec3d1, useLiquids, !useLiquids, false);
 	}
 
