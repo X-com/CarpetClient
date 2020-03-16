@@ -100,19 +100,17 @@ public abstract class StandardRowEntry<T> extends BaseEntry<T> implements IToolt
     @Override
     protected boolean onFocusChanged(int mouseX, int mouseY)
     {
-        if (mouseX >= this.resetButton.x && mouseX <= this.resetButton.x + this.resetButton.getButtonWidth())
-        {
-            if (mouseY >= this.resetButton.y && mouseY <= this.resetButton.y + BUTTON_HEIGHT)
-            {
-                return true;
+        if(this.resetButton != null) {
+            if (mouseX >= this.resetButton.x && mouseX <= this.resetButton.x + this.resetButton.getButtonWidth()) {
+                if (mouseY >= this.resetButton.y && mouseY <= this.resetButton.y + BUTTON_HEIGHT) {
+                    return true;
+                }
             }
-        }
 
-        if (mouseX >= this.infoButton.x && mouseX <= this.infoButton.x + this.resetButton.getButtonWidth())
-        {
-            if (mouseY >= this.infoButton.y && mouseY <= this.infoButton.y + BUTTON_HEIGHT)
-            {
-                return true;
+            if (mouseX >= this.infoButton.x && mouseX <= this.infoButton.x + this.resetButton.getButtonWidth()) {
+                if (mouseY >= this.infoButton.y && mouseY <= this.infoButton.y + BUTTON_HEIGHT) {
+                    return true;
+                }
             }
         }
 
