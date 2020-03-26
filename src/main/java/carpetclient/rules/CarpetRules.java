@@ -67,6 +67,8 @@ public class CarpetRules {
             Config.movableTileEntities = getRule("movableTileEntities").getBoolean();
         if (hasRule("pistonGhostBlocksFix"))
             Config.pistonGhostBlocksFix = getRule("pistonGhostBlocksFix").getCurrentOption();
+        if (hasRule("stackableShulkersPlayerInventory"))
+            Config.stackableShulkersPlayerInventory = getRule("stackableShulkersPlayerInventory").getBoolean();
         TickRate.setTickRate(Config.tickRate);
     }
 

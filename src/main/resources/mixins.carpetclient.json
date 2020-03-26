@@ -46,6 +46,7 @@
     "IMixinCraftingManager",
     "IMixinRecipeBookClient",
     "MixinSearchTree",
-    "MixinWorldServer"
+    "MixinWorldServer",
+    "MixinItemStack"
   ]
 }
