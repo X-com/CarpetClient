@@ -26,6 +26,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
+import org.lwjgl.Sys;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -222,7 +223,7 @@ public class MixinPlayerControllerMP {
                                   Packet<?> packetIn, // sendPacket vars
                                     BlockPos loc, EnumFacing face // processRightClickBlock vars
     ) {
-        if(Config.betterMiner) {
+        if(!Config.betterMiner) {
             connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
             return;
         }
@@ -246,7 +247,7 @@ public class MixinPlayerControllerMP {
                              Packet<?> packetIn, // sendPacket vars
                              BlockPos loc, EnumFacing face // processRightClickBlock vars
     ) {
-        if(Config.betterMiner) {
+        if(!Config.betterMiner) {
             connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, loc, face));
             return;
         }
