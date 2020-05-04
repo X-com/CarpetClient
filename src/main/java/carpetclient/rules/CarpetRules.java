@@ -195,6 +195,8 @@ public class CarpetRules {
                 rules.put(rule, new CarpetSettingEntry(rule, current, null, def, isFloat));
             }
         }
+        int netVersion = nbt.getInteger("netVersion");
+        applyNetVersionRules(netVersion);
         ConfigGUI.setServerVersion(carpetServerVersion);
     }
 
@@ -215,6 +217,17 @@ public class CarpetRules {
     public static void resetToDefaults() {
         rules.values().forEach(rule -> rule.changeRule(rule.defaultOption));
         RandomtickDisplay.reset();
+    }
+
+    /**
+     * Applys changes to carpet servers above specific versions
+     *
+     * @param netVersion The version the server is at.
+     */
+    private static void applyNetVersionRules(int netVersion) {
+        if(netVersion >= 1){
+            Config.betterMiner = true;
+        }
     }
 
     /*

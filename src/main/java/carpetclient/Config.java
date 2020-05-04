@@ -36,6 +36,7 @@ public class Config {
     public static boolean movableTileEntities = false;
     public static String pistonGhostBlocksFix = "";
     public static boolean stackableShulkersPlayerInventory = false;
+    public static boolean betterMiner = false;
 
     public static ConfigBoolean setTickRate =                     new ConfigBoolean("Tick Rate", false, "Toggles if the client should slow the game down (Forge integrated clients might want to turn this off as the tick rate slowdown is not compatible with forge yet).");
     public static ConfigBoolean bucketGhostBlockFix =             new ConfigBoolean("Liquid ghost block fix", false, "Toggles the ghost block liquid option.");
@@ -46,6 +47,7 @@ public class Config {
     public static ConfigBoolean randomtickingChunksVisualizer =   new ConfigBoolean("Randomtickchunk Index", false, "Displays the index of randomticking chunks around the player.");
     public static ConfigBoolean creativeModeNoClip =              new ConfigBoolean("Creative No Clip", false, "Disables block collisions when in creative mode, needs server rule to be enabled to work.");
     public static ConfigBoolean fastCrafting =                    new ConfigBoolean("Fast crafting", true, "Toggles fast crafting in the recipe book window.");
+    public static ConfigBoolean carefulBreak =                    new ConfigBoolean("Careful Break", false, "Toggles careful break for when enabled on server.");
     public static boolean randomtickChunkUpdates = true;
 
     public static ConfigBoolean villageMarkerLines =              new ConfigBoolean("Village Doors", false,"Displays a line from the village center to the door.");
@@ -75,7 +77,8 @@ public class Config {
             pistonVisualizer,
             randomtickingChunksVisualizer,
             creativeModeNoClip,
-            fastCrafting
+            fastCrafting,
+            carefulBreak
     };
 
     public static ConfigBase[] VILLAGEMARKERS = new ConfigBase[]{
@@ -136,6 +139,7 @@ public class Config {
         // obj.addProperty("randomtickingChunksVisualizer", randomtickingChunksVisualizer.getValue());
         obj.addProperty("creativeModeNoClip", creativeModeNoClip.getValue());
         obj.addProperty("fastCrafting", fastCrafting.getValue());
+        obj.addProperty("carefulBreak", fastCrafting.getValue());
 
         obj.addProperty("lines", villageMarkerLines.getValue());
         obj.addProperty("golem", villageMarkerGolem.getValue());
@@ -182,6 +186,7 @@ public class Config {
                 // randomtickingChunksVisualizer.setValue(jsonObject.get("randomtickingChunksVisualizer").getAsBoolean());
                 creativeModeNoClip.setValue(jsonObject.get("creativeModeNoClip").getAsBoolean());
                 fastCrafting.setValue(jsonObject.get("fastCrafting").getAsBoolean());
+                carefulBreak.setValue(jsonObject.get("carefulBreak").getAsBoolean());
 
                 villageMarkerLines.setValue(jsonObject.get("lines").getAsBoolean());
                 villageMarkerGolem.setValue(jsonObject.get("golem").getAsBoolean());
@@ -205,5 +210,9 @@ public class Config {
             }
         } catch (Exception e) {
         }
+    }
+
+    public static void resetToDefaults() {
+        betterMiner = false;
     }
 }

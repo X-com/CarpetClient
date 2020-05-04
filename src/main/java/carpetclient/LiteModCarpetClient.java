@@ -55,6 +55,7 @@ public class LiteModCarpetClient implements Tickable, LiteMod, PluginChannelList
         } else if (loggedOut) {
             loggedOut = false;
             CarpetRules.resetToDefaults();
+            Config.resetToDefaults();
             VillageMarker.clearLists(0);
             ShowBoundingBoxes.clear();
             GuiChunkGrid.instance = new GuiChunkGrid();

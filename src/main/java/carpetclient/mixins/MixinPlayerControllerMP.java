@@ -2,6 +2,10 @@ package carpetclient.mixins;
 
 import carpetclient.Config;
 import carpetclient.Hotkeys;
+import carpetclient.coders.skyrising.PacketSplitter;
+import com.mumfrey.liteloader.core.PluginChannels;
+import io.netty.buffer.Unpooled;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
@@ -14,6 +18,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.network.Packet;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -205,4 +211,54 @@ public class MixinPlayerControllerMP {
             this.mc.playerController.windowClick(window, 0, 1, ClickType.THROW, this.mc.player);
         }
     }
+
+    // CrispyLumps was here
+
+    /**
+     * Fixes the mining packets for carpet client users to add careful break and remove blocks shortly reappearing when mining slower then instant mine.
+     */
+    @Redirect(method = "clickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/NetHandlerPlayClient;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 2))
+    public void miningPacket(NetHandlerPlayClient connection,
+                                  Packet<?> packetIn, // sendPacket vars
+                                    BlockPos loc, EnumFacing face // processRightClickBlock vars
+    ) {
+        if(Config.betterMiner) {
+            connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
+            return;
+        }
+        PacketBuffer data = new PacketBuffer(Unpooled.buffer());
+        IBlockState iblockstate = this.mc.world.getBlockState(loc);
+        boolean instaMine = iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.mc.player.world, loc) >= 1.0F;
+        data.writeBoolean(true);
+        data.writeBlockPos(loc);
+        data.writeByte(face.getIndex());
+        data.writeBoolean(instaMine);
+        data.writeBoolean(Config.carefulBreak.getValue());
+
+        PacketSplitter.send("carpet:mine", data, PluginChannels.ChannelPolicy.DISPATCH_ALWAYS);
+    }
+
+    /**
+     * Fixes the mining packets for carpet client users to add careful break and remove blocks shortly reappearing when mining slower then instant mine.
+     */
+    @Redirect(method = "onPlayerDamageBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/NetHandlerPlayClient;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 1))
+    public void miningPacketEnd(NetHandlerPlayClient connection,
+                             Packet<?> packetIn, // sendPacket vars
+                             BlockPos loc, EnumFacing face // processRightClickBlock vars
+    ) {
+        if(Config.betterMiner) {
+            connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, loc, face));
+            return;
+        }
+
+        PacketBuffer data = new PacketBuffer(Unpooled.buffer());
+        data.writeBoolean(false);
+        data.writeBlockPos(loc);
+        data.writeByte(face.getIndex());
+        data.writeBoolean(true);
+        data.writeBoolean(Config.carefulBreak.getValue());
+
+        PacketSplitter.send("carpet:mine", data, PluginChannels.ChannelPolicy.DISPATCH_ALWAYS);
+    }
+
 }
