@@ -48,6 +48,7 @@
     "MixinSearchTree",
     "MixinWorldServer",
     "MixinItemStack",
-    "MixinGuiScreen"
+    "MixinGuiScreen",
+    "MixinGuiRecipeBook"
   ]
 }
