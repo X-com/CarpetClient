@@ -17,10 +17,15 @@ public class MixinGuiRecipeBook {
 
     @Shadow  private String lastSearch;
 
+    @Shadow public boolean isVisible(){return false;}
+
     private static String memoText = "";
 
     @Inject(method = "initVisuals", at = @At("TAIL"))
     private void setSearchText(boolean p_193014_1_, InventoryCrafting p_193014_2_, CallbackInfo c) {
+        if(!isVisible()){
+            memoText = "";
+        }
         searchBar.setText(memoText);
     }
 
