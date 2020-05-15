@@ -49,6 +49,7 @@
     "MixinWorldServer",
     "MixinItemStack",
     "MixinGuiScreen",
-    "MixinGuiRecipeBook"
+    "MixinGuiRecipeBook",
+    "MixinGuiDownloadTerrain"
   ]
 }
