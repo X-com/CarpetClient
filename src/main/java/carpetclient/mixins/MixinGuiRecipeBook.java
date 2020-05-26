@@ -21,7 +21,7 @@ public class MixinGuiRecipeBook {
 
     private static String memoText = "";
 
-    @Inject(method = "initVisuals", at = @At("TAIL"))
+    @Inject(method = "initVisuals", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/recipebook/GuiRecipeBook;searchBar:Lnet/minecraft/client/gui/GuiTextField;", ordinal = 4, shift = At.Shift.AFTER))
     private void setSearchText(boolean p_193014_1_, InventoryCrafting p_193014_2_, CallbackInfo c) {
         if(!isVisible()){
             memoText = "";
