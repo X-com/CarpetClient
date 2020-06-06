@@ -24,7 +24,7 @@ buildscript {
 
 apply plugin: 'java'
 
-version = "v1.4c"
+version = "v1.4d"
 group = "Carpet Team"
 archivesBaseName = "Carpet Client"
 
