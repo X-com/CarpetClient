@@ -56,7 +56,7 @@ public abstract class MixinTileEntityPistonRenderer extends TileEntitySpecialRen
     )
     private boolean renderStateModelTE(TileEntityPistonRenderer renderer, BlockPos pos, IBlockState state, BufferBuilder buffer, World world, boolean checkSides)
     {
-        if (Config.movableTileEntities)
+        if (Config.movableTileEntities && !((IMixinBufferBuilder) Tessellator.getInstance().getBuffer()).getIsDrawing())
         {
             TileEntity carriedTileEntity = ((ITileEntityPiston) this.piston).getCarriedBlockEntity();
             if (carriedTileEntity != null)

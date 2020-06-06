@@ -50,6 +50,7 @@
     "MixinItemStack",
     "MixinGuiScreen",
     "MixinGuiRecipeBook",
-    "MixinGuiDownloadTerrain"
+    "MixinGuiDownloadTerrain",
+    "IMixinBufferBuilder"
   ]
 }

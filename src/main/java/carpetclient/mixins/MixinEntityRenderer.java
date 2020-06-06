@@ -9,6 +9,7 @@ import carpetclient.rules.TickRate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.Timer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -54,7 +55,9 @@ public abstract class MixinEntityRenderer implements AMixinEntityRenderer {
     @Redirect(method = "updateCameraAndRender(FJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;renderWorld(FJ)V"))
     private void tickratePlayerPartial(EntityRenderer thisarg, float partialTicksWorld, long finishTimeNano) {
         if (!TickRate.runTickRate || this.mc.player.isRiding()) {
-            this.renderWorld(partialTicksWorld, finishTimeNano);
+            if(!((IMixinBufferBuilder) Tessellator.getInstance().getBuffer()).getIsDrawing()) {
+                this.renderWorld(partialTicksWorld, finishTimeNano);
+            }
             return;
         }
 
