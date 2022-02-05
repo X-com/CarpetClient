@@ -10,6 +10,7 @@
     "MixinPlayerControllerMP",
     "MixinBlockObserver",
     "MixinBlockPistonBase",
+    "MixinBlockDispenser",
     "MixinBlockRedstoneComparator",
     "MixinBlockRedstoneDiode",
     "MixinEntity",
