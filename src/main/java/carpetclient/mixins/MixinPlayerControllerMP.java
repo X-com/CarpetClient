@@ -121,7 +121,7 @@ public class MixinPlayerControllerMP {
 
         if (Hotkeys.isKeyDown(Hotkeys.toggleBlockFacing.getKeyCode())) {
             // rotate pistons for placing head into blocks
-            if (isPiston(itemstack)) {
+            if (isPiston(itemstack) || isDispenser(itemstack)) {
                 direction = direction.getOpposite();
             }
 
