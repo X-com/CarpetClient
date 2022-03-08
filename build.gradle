@@ -8,11 +8,11 @@ buildscript {
         }
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://files.minecraftforge.net/maven"
         }
         maven {
             name = 'sponge'
-            url = 'http://repo.spongepowered.org/maven'
+            url = 'https://repo.spongepowered.org/maven'
         }
         jcenter()
     }
@@ -24,7 +24,7 @@ buildscript {
 
 apply plugin: 'java'
 
-version = "v1.4d"
+version = "v1.4e"
 group = "Carpet Team"
 archivesBaseName = "Carpet Client"
 
@@ -81,7 +81,7 @@ runClient {
 }*/
 
 repositories {
-    maven { url = "http://repo.spongepowered.org/maven" }
+    maven { url = "https://repo.spongepowered.org/maven" }
 }
 dependencies {
     compile 'org.jetbrains.java.decompiler:fernflower:sponge-SNAPSHOT'
