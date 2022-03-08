@@ -7,6 +7,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ITabCompleter;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import org.lwjgl.util.Point;
@@ -450,6 +451,11 @@ public class Controller {
                 }
             }
             Minecraft.getMinecraft().displayGuiScreen(new GuiChunkGridChunk(String.format("Chunk (%d, %d)  Gametick: %d", cx, cz, lastGametick), debug, debug, props, stacktrace.size() != 0 ? stacktrace : null));
+        }else if(button == 2){
+            int cx = debug.getChunkGrid().getGridX(x) + view.getX() - debug.getChunkGrid().sizeX() / 2;
+            int cz = debug.getChunkGrid().getGridY(y) + view.getY() - debug.getChunkGrid().sizeZ() / 2;
+            String s = "/tp " + (cx*16+8) + " ~ " + (cz*16+8);
+            GuiScreen.setClipboardString(s);
         }
     }
 
